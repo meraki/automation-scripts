@@ -4,6 +4,8 @@ Meraki Dashboard API scripts in Python
 
 Here you can find Meraki Dashboard API scripts written for Python 3.
 
+Check back from time to time, as new scripts are added and existing ones are sometimes polished and improved after initial posting.
+
 Files contained in this repository:
 
 **Installing Python on Windows.txt:** General info for installing Python 3 on Windows
