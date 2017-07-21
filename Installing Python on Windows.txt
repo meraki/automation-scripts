@@ -8,6 +8,8 @@ c:\python\scripts
 Useful modules (install these):
 	Requests: send/receive information to/from REST APIs. To install, run this command: pip install requests
 	PySNMP: interact with SNMP devices. To install, run this command: pip install pysnmp
+	Paramiko: interact with devices using SSH. Used in migration scripts.
+		Installation info here: http://www.paramiko.org/installing.html
 	
 Python Meraki API library and examples:
 https://github.com/meraki/provisioning-lib
