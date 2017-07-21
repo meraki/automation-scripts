@@ -1,0 +1,35 @@
+#This is a sample Comware migration initialization file with device mappings for migratecomware.py
+#
+#Syntax:
+# * Blank lines and lines only containing whitespace will be ignored.
+# * Use lines beginning with # as comments. These lines will be ignored.
+# * Use "net=Network_name" to define a network. A network definition line must exist before any
+#    device definition lines.
+# * Device definition lines. These lines define the IP address of the original Comware switch, 
+#    the Meraki MS switch serial number the configuration will be transferred to and optionally
+#    a SSH username and password to log into the Comware device. If username and password are
+#    omitted, default credentials will be used. These lines can have four forms:
+#        <device_ip> <serial_number>
+#        <device_ip> <serial_number> <username> <password>
+#        file <filename> <serial_number>
+#
+#Examples of net definition and device definition lines, commented out:
+#
+#net=Migrated headquarters network 
+#10.1.1.20 AAAA-BBBB-CCCC admin admin
+#10.1.1.21 AAAA-BBBB-DDDD admin@system admin123
+#file myconfig.cfg BBBB-CCCC-DDDD
+#
+#net=Migrated branch network
+#192.168.10.10 AAAA-BBBB-EEEE
+
+net=New migrated network
+10.54.25.13 AAAA-BBBB-CCCC cisco@system cisco
+1.1.1.1 sadd-235u-hf92
+file myfile.txt kasa-832r-dajs
+
+net=Not Empty net
+3.3.3.3 sajk-jfaa-afff
+
+net=Second migrated network
+10.54.25.12 AAAA-BBBB-DDDD
