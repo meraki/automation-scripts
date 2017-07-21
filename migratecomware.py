@@ -67,7 +67,6 @@ class c_portconfig:
         self.rstp       = ''
         self.isolation  = ''
         self.stpguard   = ''
-        
 #end class   
    
 class c_merakidevice:
@@ -287,8 +286,6 @@ def extractportcfg(p_rawcfg):
     
     intcount = 0
     avlan = '' #string for building allowed VLAN value
-    prevnum = 0 #used for keyword "to" in: port link-type trunk permit vlan
-    stopnum = 0 #used for keyword "to" in: port link-type trunk permit vlan
     supportedinterface = False
     
     #command parser loop
@@ -299,7 +296,7 @@ def extractportcfg(p_rawcfg):
             #set int desc as port name. strip everything except alphanumerics and "_"
             intcfg[intcount-1].name = re.sub(r'\W+','', cfgline[12:])[:20]
         
-        if pieces[0] == 'interface':
+        elif pieces[0] == 'interface':
             #if interface is of a supported type, create new entry. otherwise ignore it
             #and lock int command parsing functions until a supported one comes up
             if pieces[1][:15] == 'GigabitEthernet':
@@ -352,7 +349,7 @@ def extractportcfg(p_rawcfg):
                     #printusertext ('DEBUG: Enable port-security')
         #            continue
         
-        if pieces[0] == 'shutdown' and supportedinterface:
+        elif pieces[0] == 'shutdown' and supportedinterface:
             intcfg[intcount-1].enabled = 'false'
         
         #elif pieces[0] == 'undo' and supportedinterface:
@@ -484,13 +481,9 @@ def setswportconfig(p_apikey, p_shardurl, p_devserial, p_portnum, p_portcfg):
     for key, value in p_portcfg.items():
         if value != '':
             validconfig[key] = value
-            
-    print(validconfig)        
-            
+                      
     r = requests.put('https://%s/api/v0/devices/%s/switchPorts/%s' % (p_shardurl, p_devserial, p_portnum), data=json.dumps(validconfig), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
-        
-    print(r.status_code)    
-        
+                
     return (0)
     
 def setdevicedata(p_apikey, p_shardurl, p_nwid, p_devserial, p_field, p_value, p_movemarker):
