@@ -1,6 +1,6 @@
 # automation-scripts
 
-Meraki Dashboard API scripts in Python
+Meraki Dashboard API automation/migration scripts in Python
 --------------------------------------
 
 Here you can find Meraki Dashboard API scripts written for Python 3.
