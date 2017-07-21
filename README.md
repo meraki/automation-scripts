@@ -1,4 +1,5 @@
-# meraki-python
+# automation-scripts
+
 Meraki Dashboard API scripts in Python
 --------------------------------------
 
