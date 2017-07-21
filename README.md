@@ -22,7 +22,7 @@ Files contained in this repository:
 
 **listip.py:** Almost exactly the same as invlist.py, but also prints the "lanIp" of the device. If the device has no "lanIp", it prints "None" for that field instead.
 
-**migratecomware.py:** Proof of concept script that migrates legacy switch infrastructure based on Comware (HPE A-series) to Meraki MS switches. Comware switch configurations can be provided as files, or by entering the IP address and SSH credentials of the source device. A valid initialization configuration file must be provided, where source devices are mapped to target Meraki serial numbers. Please see migration_init_file.txt in this repository for an example of such a file. This version of the script only supports Comware-based switches and a limited number of Layer 2 switchport commands. The script could be expanded to cover more commands and other CLI-based switch families.
+**migratecomware.py:** Proof of concept script that migrates legacy switch infrastructure based on Comware (HPE A-series) to Meraki MS switches. Comware switch configurations can be provided as files, or by entering the IP address and SSH credentials of the source device. A valid initialization configuration file must be provided, where source devices are mapped to target Meraki serial numbers. Please see migration_init_file.txt in this repository for an example of such a file. This version of the script only supports Comware-based switches and a limited set of Layer 2 switchport commands. The script could be expanded to cover more commands and other CLI-based switch families.
 
 **migration_init_file.txt:** Example init config file for migratecomware.py.
 
