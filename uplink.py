@@ -15,7 +15,7 @@ Usage:
 python uplink.py
 
 === DESCRIPTION ===
-Iterates through all devices, and exports to two CSV files: one for MX/Z1 networks to collect WAN uplink information, and the other for all other devices (MR, MS, MC, MV) with local uplink info.
+Iterates through all devices, and exports to two CSV files: one for appliance (MX, Z1, vMX100) networks to collect WAN uplink information, and the other for all other devices (MR, MS, MC, MV) with local uplink info.
 
 Possible statuses:
 Active: active and working WAN port
@@ -48,17 +48,17 @@ if __name__ == '__main__':
         ORG_ID = input('Enter your organization ID: ')
 
 
-    # Find all MX/Z1 networks
+    # Find all appliance networks (MX, Z1, vMX100)
     session = requests.session()
     headers = {'X-Cisco-Meraki-API-Key': API_KEY, 'Content-Type': 'application/json'}
     name = json.loads(session.get('https://dashboard.meraki.com/api/v0/organizations/' + ORG_ID, headers=headers).text)['name']
     networks = json.loads(session.get('https://dashboard.meraki.com/api/v0/organizations/' + ORG_ID + '/networks', headers=headers).text)
     inventory = json.loads(session.get('https://dashboard.meraki.com/api/v0/organizations/' + ORG_ID + '/inventory', headers=headers).text)
-    appliances = [device for device in inventory if device['model'][:2] in ('MX', 'Z1') and device['networkId'] is not None]
+    appliances = [device for device in inventory if device['model'][:2] in ('MX', 'Z1', 'vM') and device['networkId'] is not None]
     devices = [device for device in inventory if device not in appliances and device['networkId'] is not None]
 
 
-    # Output CSV of MX/Z1 appliances' info
+    # Output CSV of appliances' info
     today = datetime.date.today()
     csv_file1 = open(name + ' MX & Z1 appliances -' + str(today) + '.csv', 'w')
     fieldnames = ['Network', 'Device', 'Serial', 'MAC', 'Model', 'WAN1 Status', 'WAN1 IP', 'WAN1 Gateway', 'WAN1 Public IP', 'WAN1 DNS', 'WAN1 Static', 'WAN2 Status', 'WAN2 IP', 'WAN2 Gateway', 'WAN2 Public IP', 'WAN2 DNS', 'WAN2 Static', 'Cellular Status', 'Cellular IP', 'Cellular Provider', 'Cellular Public IP', 'Cellular Model', 'Cellular Connection']
@@ -72,7 +72,7 @@ if __name__ == '__main__':
         try:
             print('Found appliance ' + device_name)
         except:
-            print('Found appliance ' + device['serial'])
+            print('Found appliance ' + appliance['serial'])
         uplinks_info = dict.fromkeys(['WAN1', 'WAN2', 'Cellular'])
         uplinks_info['WAN1'] = dict.fromkeys(['interface', 'status', 'ip', 'gateway', 'publicIp', 'dns', 'usingStaticIp'])
         uplinks_info['WAN2'] = dict.fromkeys(['interface', 'status', 'ip', 'gateway', 'publicIp', 'dns', 'usingStaticIp'])
