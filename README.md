@@ -35,4 +35,12 @@ Files contained in this repository:
 
 **setlocation_legacy.py:** Sets the street address of all devices in a given network to a given value. The intent of this script is to quickly fix address misconfigurations on large networks. The script has been updated from its initial version to use the Google Geocoding API to calculate a reasonable new positions for device map markers. This is a legacy script that is preserved as an example of integrating the Meraki Dashboard API with info extracted from a Google API. Please see setlocation.py for an improved version of the script that does not require a Google API key.
 
+**uplink.py:** Iterates through all devices, and exports to two CSV files: one for appliance (MX, Z1, vMX100) networks to collect WAN uplink information, and the other for all other devices (MR, MS, MC, MV) with local uplink info.
+Possible statuses:
+- Active: active and working WAN port
+- Ready: standby but working WAN port, not the preferred WAN port
+- Failed: was working at some point but not anymore
+- Not connected: nothing was ever connected, no cable plugged in
+(For load balancing, both WAN links would show active.)
+
 More info about the scripts can be found inline as comments.
