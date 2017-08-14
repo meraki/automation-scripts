@@ -41,6 +41,6 @@ Possible statuses:
 - Ready: standby but working WAN port, not the preferred WAN port
 - Failed: was working at some point but not anymore
 - Not connected: nothing was ever connected, no cable plugged in
-(For load balancing, both WAN links would show active.)
+- (For load balancing, both WAN links would show active.)
 
 More info about the scripts can be found inline as comments.
