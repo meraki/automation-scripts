@@ -4,14 +4,16 @@
 === PREREQUISITES ===
 Run in Python 3 or Python 2
 
-Install requests library, via macOS terminal:
+Install requests library, via macOS terminal, depending on version of Python:
+sudo pip3 install requests
 sudo pip install requests
 
 login.py has these two lines, with the API key from your Dashboard profile (upper-right email login > API access), and organization ID to call (https://dashboard.meraki.com/api/v0/organizations); separated into different file for security.
 api_key = '[API_KEY]'
 org_id = '[ORG_ID]'
 
-Usage:
+Usage, depending on version of Python:
+python3 uplink.py
 python uplink.py
 
 === DESCRIPTION ===
@@ -60,7 +62,7 @@ if __name__ == '__main__':
 
     # Output CSV of appliances' info
     today = datetime.date.today()
-    csv_file1 = open(name + ' MX & Z1 appliances -' + str(today) + '.csv', 'w')
+    csv_file1 = open(name + ' MX & Z1 appliances -' + str(today) + '.csv', 'w', encoding='utf-8')
     fieldnames = ['Network', 'Device', 'Serial', 'MAC', 'Model', 'WAN1 Status', 'WAN1 IP', 'WAN1 Gateway', 'WAN1 Public IP', 'WAN1 DNS', 'WAN1 Static', 'WAN2 Status', 'WAN2 IP', 'WAN2 Gateway', 'WAN2 Public IP', 'WAN2 DNS', 'WAN2 Static', 'Cellular Status', 'Cellular IP', 'Cellular Provider', 'Cellular Public IP', 'Cellular Model', 'Cellular Connection']
     writer = csv.DictWriter(csv_file1, fieldnames=fieldnames, restval='')
     writer.writeheader()
@@ -93,7 +95,7 @@ if __name__ == '__main__':
 
 
     # Output CSV of all other devices' info
-    csv_file2 = open(name + ' other devices -' + str(today) + '.csv', 'w')
+    csv_file2 = open(name + ' other devices -' + str(today) + '.csv', 'w', encoding='utf-8')
     fieldnames = ['Network', 'Device', 'Serial', 'MAC', 'Model', 'Status', 'IP', 'Gateway', 'Public IP', 'DNS', 'VLAN', 'Static']
     writer = csv.DictWriter(csv_file2, fieldnames=fieldnames, restval='')
     writer.writeheader()
