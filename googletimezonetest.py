@@ -10,7 +10,7 @@ def printhelp():
 
     print('Prints the time zone that corresponds to a street address by using Google Maps APIs')
     print('Syntax:')
-    print(' python googletimezonetest -g <Google Key> -a <address>')
+    print(' python googletimezonetest.py -g <Google Key> -a <address>')
     print('')
     print('To successfully run this script you will need to have the following Google API services enabled:')
     print(' * Google Maps Geocoding API')
