@@ -33,6 +33,7 @@ import csv
 import datetime
 import json
 import requests
+import sys
 
 def get_network_name(network_id, networks):
     return [element for element in networks if network_id == element['id']][0]['name']
@@ -53,7 +54,10 @@ if __name__ == '__main__':
     # Find all appliance networks (MX, Z1, vMX100)
     session = requests.session()
     headers = {'X-Cisco-Meraki-API-Key': API_KEY, 'Content-Type': 'application/json'}
-    name = json.loads(session.get('https://dashboard.meraki.com/api/v0/organizations/' + ORG_ID, headers=headers).text)['name']
+    try:
+        name = json.loads(session.get('https://dashboard.meraki.com/api/v0/organizations/' + ORG_ID, headers=headers).text)['name']
+    except:
+        sys.exit('Incorrect API key or org ID, as no valid data returned')
     networks = json.loads(session.get('https://dashboard.meraki.com/api/v0/organizations/' + ORG_ID + '/networks', headers=headers).text)
     inventory = json.loads(session.get('https://dashboard.meraki.com/api/v0/organizations/' + ORG_ID + '/inventory', headers=headers).text)
     appliances = [device for device in inventory if device['model'][:2] in ('MX', 'Z1', 'vM') and device['networkId'] is not None]
@@ -63,7 +67,7 @@ if __name__ == '__main__':
     # Output CSV of appliances' info
     today = datetime.date.today()
     csv_file1 = open(name + ' MX & Z1 appliances -' + str(today) + '.csv', 'w', encoding='utf-8')
-    fieldnames = ['Network', 'Device', 'Serial', 'MAC', 'Model', 'WAN1 Status', 'WAN1 IP', 'WAN1 Gateway', 'WAN1 Public IP', 'WAN1 DNS', 'WAN1 Static', 'WAN2 Status', 'WAN2 IP', 'WAN2 Gateway', 'WAN2 Public IP', 'WAN2 DNS', 'WAN2 Static', 'Cellular Status', 'Cellular IP', 'Cellular Provider', 'Cellular Public IP', 'Cellular Model', 'Cellular Connection']
+    fieldnames = ['Network', 'Device', 'Serial', 'MAC', 'Model', 'WAN1 Status', 'WAN1 IP', 'WAN1 Gateway', 'WAN1 Public IP', 'WAN1 DNS', 'WAN1 Static', 'WAN2 Status', 'WAN2 IP', 'WAN2 Gateway', 'WAN2 Public IP', 'WAN2 DNS', 'WAN2 Static', 'Cellular Status', 'Cellular IP', 'Cellular Provider', 'Cellular Public IP', 'Cellular Model', 'Cellular Connection', 'Performance']
     writer = csv.DictWriter(csv_file1, fieldnames=fieldnames, restval='')
     writer.writeheader()
 
@@ -71,6 +75,10 @@ if __name__ == '__main__':
     for appliance in appliances:
         network_name = get_network_name(appliance['networkId'], networks)
         device_name = json.loads(session.get('https://dashboard.meraki.com/api/v0/networks/' + appliance['networkId'] + '/devices/' + appliance['serial'], headers=headers).text)['name']
+        try:
+            perfscore = json.loads(session.get('https://dashboard.meraki.com/api/v0/networks/' + appliance['networkId'] + '/devices/' + appliance['serial'] + '/performance', headers=headers).text)['perfScore']
+        except:
+            perfscore = None
         try:
             print('Found appliance ' + device_name)
         except:
@@ -90,7 +98,10 @@ if __name__ == '__main__':
             elif uplink['interface'] == 'Cellular':
                 for key in uplink.keys():
                     uplinks_info['Cellular'][key] = uplink[key]
-        writer.writerow({'Network': network_name, 'Device': device_name, 'Serial': appliance['serial'], 'MAC': appliance['mac'], 'Model': appliance['model'], 'WAN1 Status': uplinks_info['WAN1']['status'], 'WAN1 IP': uplinks_info['WAN1']['ip'], 'WAN1 Gateway': uplinks_info['WAN1']['gateway'], 'WAN1 Public IP': uplinks_info['WAN1']['publicIp'], 'WAN1 DNS': uplinks_info['WAN1']['dns'], 'WAN1 Static': uplinks_info['WAN1']['usingStaticIp'], 'WAN2 Status': uplinks_info['WAN2']['status'], 'WAN2 IP': uplinks_info['WAN2']['ip'], 'WAN2 Gateway': uplinks_info['WAN2']['gateway'], 'WAN2 Public IP': uplinks_info['WAN2']['publicIp'], 'WAN2 DNS': uplinks_info['WAN2']['dns'], 'WAN2 Static': uplinks_info['WAN2']['usingStaticIp'], 'Cellular Status': uplinks_info['Cellular']['status'], 'Cellular IP': uplinks_info['Cellular']['ip'], 'Cellular Provider': uplinks_info['Cellular']['provider'], 'Cellular Public IP': uplinks_info['Cellular']['publicIp'], 'Cellular Model': uplinks_info['Cellular']['model'], 'Cellular Connection': uplinks_info['Cellular']['connectionType']})
+        if perfscore != None:
+            writer.writerow({'Network': network_name, 'Device': device_name, 'Serial': appliance['serial'], 'MAC': appliance['mac'], 'Model': appliance['model'], 'WAN1 Status': uplinks_info['WAN1']['status'], 'WAN1 IP': uplinks_info['WAN1']['ip'], 'WAN1 Gateway': uplinks_info['WAN1']['gateway'], 'WAN1 Public IP': uplinks_info['WAN1']['publicIp'], 'WAN1 DNS': uplinks_info['WAN1']['dns'], 'WAN1 Static': uplinks_info['WAN1']['usingStaticIp'], 'WAN2 Status': uplinks_info['WAN2']['status'], 'WAN2 IP': uplinks_info['WAN2']['ip'], 'WAN2 Gateway': uplinks_info['WAN2']['gateway'], 'WAN2 Public IP': uplinks_info['WAN2']['publicIp'], 'WAN2 DNS': uplinks_info['WAN2']['dns'], 'WAN2 Static': uplinks_info['WAN2']['usingStaticIp'], 'Cellular Status': uplinks_info['Cellular']['status'], 'Cellular IP': uplinks_info['Cellular']['ip'], 'Cellular Provider': uplinks_info['Cellular']['provider'], 'Cellular Public IP': uplinks_info['Cellular']['publicIp'], 'Cellular Model': uplinks_info['Cellular']['model'], 'Cellular Connection': uplinks_info['Cellular']['connectionType'], 'Performance': perfscore})
+        else:
+            writer.writerow({'Network': network_name, 'Device': device_name, 'Serial': appliance['serial'], 'MAC': appliance['mac'], 'Model': appliance['model'], 'WAN1 Status': uplinks_info['WAN1']['status'], 'WAN1 IP': uplinks_info['WAN1']['ip'], 'WAN1 Gateway': uplinks_info['WAN1']['gateway'], 'WAN1 Public IP': uplinks_info['WAN1']['publicIp'], 'WAN1 DNS': uplinks_info['WAN1']['dns'], 'WAN1 Static': uplinks_info['WAN1']['usingStaticIp'], 'WAN2 Status': uplinks_info['WAN2']['status'], 'WAN2 IP': uplinks_info['WAN2']['ip'], 'WAN2 Gateway': uplinks_info['WAN2']['gateway'], 'WAN2 Public IP': uplinks_info['WAN2']['publicIp'], 'WAN2 DNS': uplinks_info['WAN2']['dns'], 'WAN2 Static': uplinks_info['WAN2']['usingStaticIp'], 'Cellular Status': uplinks_info['Cellular']['status'], 'Cellular IP': uplinks_info['Cellular']['ip'], 'Cellular Provider': uplinks_info['Cellular']['provider'], 'Cellular Public IP': uplinks_info['Cellular']['publicIp'], 'Cellular Model': uplinks_info['Cellular']['model'], 'Cellular Connection': uplinks_info['Cellular']['connectionType']})
     csv_file1.close()
 
 
