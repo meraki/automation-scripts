@@ -23,7 +23,7 @@ Files contained in this repository:
 
 **find_ports.py:** This script finds all MS switchports that match the input search parameter, searching either by clients from a file listing MAC addresses (one per line), a specific tag in Dashboard currently applied to ports, or the specific access policy currently configured.
 
-**googletimezonetest.py:** Example script that gets the time zone that corresponds to a street address by using Google Maps APIs. You can use this code to set network timezones in your Meraki Dashboard API scripts.
+**googletimezonetest.py:** Example script that gets the time zone that corresponds to a street address by using Google Maps APIs. You can use this code to set network timezones dynamically in your Meraki Dashboard API scripts.
 
 **invlist.py:** Creates a list of all serial numbers and models of devices that are part of a Meraki network for an organization with a given name. Can print to Stdout or file.
 
