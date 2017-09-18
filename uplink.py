@@ -5,16 +5,16 @@
 Run in Python 3 or Python 2
 
 Install requests library, via macOS terminal, depending on version of Python:
-sudo pip3 install requests
-sudo pip install requests
+Python 3 > pip3 install requests
+Python 2 > sudo pip install requests
 
 login.py has these two lines, with the API key from your Dashboard profile (upper-right email login > API access), and organization ID to call (https://dashboard.meraki.com/api/v0/organizations); separated into different file for security.
 api_key = '[API_KEY]'
 org_id = '[ORG_ID]'
 
 Usage, depending on version of Python:
-python3 uplink.py
-python uplink.py
+Python 3 > python3 uplink.py
+Python 2 > python uplink.py
 
 === DESCRIPTION ===
 Iterates through all devices, and exports to two CSV files: one for appliance (MX, Z1, vMX100) networks to collect WAN uplink information, and the other for all other devices (MR, MS, MC, MV) with local uplink info.
@@ -26,14 +26,22 @@ Failed: was working at some point but not anymore
 Not connected: nothing was ever connected, no cable plugged in
 For load balancing, both WAN links would show active.
 
+MX performance score can be enabled by Meraki Support/Engineering, for load monitoring purposes: https://documentation.meraki.com/MX-Z/Monitoring_and_Reporting/Load_Monitoring
+
 For any questions, please contact Shiyue (Shay) Cheng, shiychen@cisco.com
+
 '''
+
 
 import csv
 import datetime
 import json
 import requests
 import sys
+
+# Python 2 backwards compatibility
+try: input = raw_input
+except NameError: pass
 
 def get_network_name(network_id, networks):
     return [element for element in networks if network_id == element['id']][0]['name']
@@ -45,11 +53,8 @@ if __name__ == '__main__':
         import login
         (API_KEY, ORG_ID) = (login.api_key, login.org_id)
     except ImportError:
-        try: input = raw_input
-        except NameError: pass
         API_KEY = input('Enter your Dashboard API key: ')
         ORG_ID = input('Enter your organization ID: ')
-
 
     # Find all appliance networks (MX, Z1, vMX100)
     session = requests.session()
