@@ -2,22 +2,20 @@
 
 '''
 === PREREQUISITES ===
-Run in Python 3 or Python 2
+Run in Python 3
 
-Install requests library, via macOS terminal, depending on version of Python:
-Python 3 > pip3 install requests
-Python 2 > sudo pip install requests
+Install requests library, via macOS terminal:
+pip3 install requests
 
 login.py has these two lines, with the API key from your Dashboard profile (upper-right email login > API access), and organization ID to call (https://dashboard.meraki.com/api/v0/organizations); separated into different file for security.
 api_key = '[API_KEY]'
 org_id = '[ORG_ID]'
 
-Usage, depending on version of Python:
-Python 3 > python3 uplink.py
-Python 2 > python uplink.py
+Usage:
+python3 uplink.py
 
 === DESCRIPTION ===
-Iterates through all devices, and exports to two CSV files: one for appliance (MX, Z1, vMX100) networks to collect WAN uplink information, and the other for all other devices (MR, MS, MC, MV) with local uplink info.
+Iterates through all devices, and exports to two CSV files: one for appliance (MX, Z1, Z3, vMX100) networks to collect WAN uplink information, and the other for all other devices (MR, MS, MC, MV) with local uplink info.
 
 Possible statuses:
 Active: active and working WAN port
@@ -26,22 +24,14 @@ Failed: was working at some point but not anymore
 Not connected: nothing was ever connected, no cable plugged in
 For load balancing, both WAN links would show active.
 
-MX performance score can be enabled by Meraki Support/Engineering, for load monitoring purposes: https://documentation.meraki.com/MX-Z/Monitoring_and_Reporting/Load_Monitoring
-
 For any questions, please contact Shiyue (Shay) Cheng, shiychen@cisco.com
-
 '''
-
 
 import csv
 import datetime
 import json
 import requests
 import sys
-
-# Python 2 backwards compatibility
-try: input = raw_input
-except NameError: pass
 
 def get_network_name(network_id, networks):
     return [element for element in networks if network_id == element['id']][0]['name']
@@ -56,7 +46,8 @@ if __name__ == '__main__':
         API_KEY = input('Enter your Dashboard API key: ')
         ORG_ID = input('Enter your organization ID: ')
 
-    # Find all appliance networks (MX, Z1, vMX100)
+
+    # Find all appliance networks (MX, Z1, Z3, vMX100)
     session = requests.session()
     headers = {'X-Cisco-Meraki-API-Key': API_KEY, 'Content-Type': 'application/json'}
     try:
@@ -65,13 +56,13 @@ if __name__ == '__main__':
         sys.exit('Incorrect API key or org ID, as no valid data returned')
     networks = json.loads(session.get('https://dashboard.meraki.com/api/v0/organizations/' + ORG_ID + '/networks', headers=headers).text)
     inventory = json.loads(session.get('https://dashboard.meraki.com/api/v0/organizations/' + ORG_ID + '/inventory', headers=headers).text)
-    appliances = [device for device in inventory if device['model'][:2] in ('MX', 'Z1', 'vM') and device['networkId'] is not None]
+    appliances = [device for device in inventory if device['model'][:2] in ('MX', 'Z1', 'Z3', 'vM') and device['networkId'] is not None]
     devices = [device for device in inventory if device not in appliances and device['networkId'] is not None]
 
 
     # Output CSV of appliances' info
     today = datetime.date.today()
-    csv_file1 = open(name + ' MX & Z1 appliances -' + str(today) + '.csv', 'w', encoding='utf-8')
+    csv_file1 = open(name + ' appliances -' + str(today) + '.csv', 'w', encoding='utf-8')
     fieldnames = ['Network', 'Device', 'Serial', 'MAC', 'Model', 'WAN1 Status', 'WAN1 IP', 'WAN1 Gateway', 'WAN1 Public IP', 'WAN1 DNS', 'WAN1 Static', 'WAN2 Status', 'WAN2 IP', 'WAN2 Gateway', 'WAN2 Public IP', 'WAN2 DNS', 'WAN2 Static', 'Cellular Status', 'Cellular IP', 'Cellular Provider', 'Cellular Public IP', 'Cellular Model', 'Cellular Connection', 'Performance']
     writer = csv.DictWriter(csv_file1, fieldnames=fieldnames, restval='')
     writer.writeheader()
