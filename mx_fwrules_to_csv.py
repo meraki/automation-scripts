@@ -1,5 +1,6 @@
 import csv
-import meraki
+# if the meraki library is installed via pip, use the import line below:
+from meraki import meraki
 
 api_key = 'insert api key here'
 net_id = 'insert net id here'
