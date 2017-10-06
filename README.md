@@ -19,7 +19,7 @@ Files contained in this repository:
 
 **deployappliance.py:** This script claims a single Security Appliance or Teleworker Gateway into an organization, creates a new network for it and binds that network to an existing template.
 
-**deploycustomer.py:** The intent of this script is to automate customer account/organization creation for service providers. The script needs a source organization that will be used for cloning (a "customer template"). This source organization needs to have a network configuration template, which will be used to configure devices. The script will also set street addresses for devices, as well as network timezone, if provided with a Google Maps API key.
+**deploycustomer.py:** The intent of this script is to automate customer account/organization creation for service providers. The script needs a source organization that will be used for cloning (a "customer template"). This source organization needs to have a network configuration template, which will be used to configure devices. The script will optionally set street addresses for devices, network administration tags, as well as network timezone, if provided with a Google Maps API key.
 
 **deploydevices.py:** This script claims multiple devices and licenses into an organization, creates a new network for them and binds that network to an existing template. Initial config, including hostnames and street address/map markers are set for the devices.
 
