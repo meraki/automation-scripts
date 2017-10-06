@@ -8,7 +8,7 @@
 #  or install it using pip.
 #
 # To run the script, enter:
-#  python deploycustomer.py -k <API key> -s <source org name> -d <destination org name> -o <order numbers, serial numbers or license keys separated by spaces> [-c <config template name> -a <street address of customer headquarters> -t <network tags> -g <Google API key> -m ignore_error]
+#  python deploycustomer.py -k <API k> -s <src> -d <dst> -o <ord> [-c <cfgt> -a <adr> -t <tag> -g <gogl k> -m <mode>]
 #
 # PREREQUISITES:
 #  * Source org must have at least one template configured
@@ -21,9 +21,10 @@
 # PLEASE NOTE:
 #  Organizations created through API can take several hours to be synced across the different nodes/shards
 #   that dashboard is segmented into. This means there may be latency in the orgs appearing in the MSP
-#   portal, depending on how you access it. If you need to make changes through the GUI to organizations
-#   created through this script immediately after creation, please first navigate to the source organization
-#   used for cloning and then the MSP portal, so that you access the portal instance running on that node.
+#   portal, depending on which shard you access the portal from. If you need to make changes through 
+#   the dashboard GUI to organizations created through this script immediately after creation, please first
+#   navigate to the source organization used for cloning and then the MSP portal, so that you access the 
+#   MSP portal instance running on that node.
 #
 # To make script chaining easier, all lines containing informational messages to the user
 #  start with the character @
