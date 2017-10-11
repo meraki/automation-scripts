@@ -8,14 +8,18 @@
 #  or install it using pip.
 #
 # To run the script, enter:
-#  python deploydevices.py -k <key> -o <org> -s <sn> -n <netw> -c <cfg_tmpl> [-t <tags>] [-a <addr>] [-m ignore_error]
+#  python deploydevices.py -k <Meraki Dashboard API key> -o <Organization Name> -s <List of serial numbers to be claimed> -n <Name of new network> -c <name of configuration template> [-t <list of tags to be added to network> -a <street address for devices> -g <Google API key> -m ignore_error]'
+#
+# To use the Google Maps API, you must have a Google API key and the following APIs must be enabled:
+#     1. Google Maps Geocoding API
+#     2. Google Maps Time Zone API
 #
 # To make script chaining easier, all lines containing informational messages to the user
 #  start with the character @
 #
-# This file was last modified on 2017-07-05
+# This file was last modified on 2017-10-11
 
-import sys, getopt, requests, json
+import sys, getopt, requests, json, time
 
 def printusertext(p_message):
     #prints a line of text that is meant for the user to read
@@ -29,29 +33,36 @@ def printhelp():
     printusertext(' and bind the network to a pre-existing template. The script can also claim license capacity.')
     printusertext('')
     printusertext('To run the script, enter:')
-    printusertext('python deploydevices.py -k <key> -o <org> -s <sn> -n <netw> -c <cfg_tmpl> [-t <tags>] [-a <addr>] [-m ignore_error]')
+    printusertext('python deploydevices.py -k <key> -o <org> -s <sn> -n <netw> -c <conft> [-t <tag> -a <addr> -g <gkey> -m ignore_error]')
     printusertext('')
-    printusertext('<key>: Your Meraki Dashboard API key')
-    printusertext('<org>: Name of the Meraki Dashboard Organization to modify')
-    printusertext('<sn>: Serial number of the devices to claim. Use double quotes and spaces to enter')
+    printusertext('Mandatory parameters:')
+    printusertext(' -k <key>: Your Meraki Dashboard API key')
+    printusertext(' -o <org>: Name of the Meraki Dashboard Organization to modify')
+    printusertext(' -s <sn>: Serial number of the devices to claim. Use double quotes and spaces to enter')
     printusertext('       multiple serial numbers. Example: -s "AAAA-BBBB-CCCC DDDD-EEEE-FFFF"')
     printusertext('       You can also enter a license key as a serial number to claim along with devices')
-    printusertext('<netw>: Name the new network will have')
-    printusertext('<cfg_template>: Name of the config template the new network will bound to')
-    printusertext('-t <tags>: Optional parameter. If defined, network will be tagged with the given tags')
-    printusertext('-a <addr>: Optional parameter. If defined, devices will be moved to given street address')
-    printusertext('-m ignore_error: Optional parameter. If defined, the script will not stop if network exists')
+    printusertext(' -n <netw>: Name the new network will have')
+    printusertext(' -c <conft>: Name of the config template the new network will be bound to')
+    printusertext('')
+    printusertext('Optional parameters:')
+    printusertext(' -t <tag>: If defined, network will be tagged with the given tags (separate by space)')
+    printusertext(' -a <addr>: If defined, devices will be moved to given street address')
+    printusertext(' -g <gkey>: Google API key. If defined, time zone will be set to match street address')
+    printusertext(' -m ignore_error: If defined, the script will not stop if network exists')
     printusertext('')
     printusertext('Example:')
-    printusertext('python deploydevices.py -k 1234 -o MyCustomer -s XXXX-YYYY-ZZZZ -n "SF Branch" -c MyCfgTemplate')
+    printusertext(' python deploydevices.py -k 1234 -o MyCustomer -s XXXX-YYYY-ZZZZ -n "SF Branch" -c MyCfgTemplate')
     printusertext('')
     printusertext('Use double quotes ("") in Windows to pass arguments containing spaces. Names are case-sensitive.')
     
 def getorgid(p_apikey, p_orgname):
     #looks up org id for a specific org name
     #on failure returns 'null'
-    
-    r = requests.get('https://dashboard.meraki.com/api/v0/organizations', headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    try:
+        r = requests.get('https://dashboard.meraki.com/api/v0/organizations', headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    except:
+        printusertext('ERROR 00: Unable to contact Meraki cloud')
+        sys.exit(2)
     
     if r.status_code != requests.codes.ok:
         return 'null'
@@ -68,7 +79,11 @@ def getshardurl(p_apikey, p_orgid):
     # when making API calls with API accounts that can access multiple orgs.
     #On failure returns 'null'
     
-    r = requests.get('https://dashboard.meraki.com/api/v0/organizations/%s/snmp' % p_orgid, headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    try:
+        r = requests.get('https://dashboard.meraki.com/api/v0/organizations/%s/snmp' % p_orgid, headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    except:
+        printusertext('ERROR 01: Unable to contact Meraki cloud')
+        sys.exit(2)
     
     if r.status_code != requests.codes.ok:
         return 'null'
@@ -81,7 +96,11 @@ def getnwid(p_apikey, p_shardurl, p_orgid, p_nwname):
     #looks up network id for a network name
     #on failure returns 'null'
 
-    r = requests.get('https://%s/api/v0/organizations/%s/networks' % (p_shardurl, p_orgid), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    try:
+        r = requests.get('https://%s/api/v0/organizations/%s/networks' % (p_shardurl, p_orgid), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    except:
+        printusertext('ERROR 02: Unable to contact Meraki cloud')
+        sys.exit(2)
     
     if r.status_code != requests.codes.ok:
         return 'null'
@@ -108,18 +127,41 @@ def createnw(p_apikey, p_shardurl, p_dstorg, p_nwdata):
     else:
         nwtype = p_nwdata['type']
     if nwtype != 'systems manager':
-        r = requests.post('https://%s/api/v0/organizations/%s/networks' % (p_shardurl, p_dstorg), data=json.dumps({'timeZone': p_nwdata['timeZone'], 'tags': p_nwdata['tags'], 'name': p_nwdata['name'], 'organizationId': p_dstorg, 'type': nwtype}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+        try:
+            r = requests.post('https://%s/api/v0/organizations/%s/networks' % (p_shardurl, p_dstorg), data=json.dumps({'timeZone': p_nwdata['timeZone'], 'tags': p_nwdata['tags'], 'name': p_nwdata['name'], 'organizationId': p_dstorg, 'type': nwtype}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+        except:
+            printusertext('ERROR 03: Unable to contact Meraki cloud')
+            sys.exit(2)
     else:
         printusertext('WARNING: Skipping network "%s" (Cannot create SM networks)' % p_nwdata['name'])
         return('null')
         
     return('ok')
     
+def updatenw(p_apikey, p_shardhost, p_nwid, p_field, p_value):
+    #updates network data    
+        
+    #time.sleep(API_EXEC_DELAY)
+    try:
+        r = requests.put('https://%s/api/v0/networks/%s' % (p_shardhost, p_nwid), data=json.dumps({p_field: p_value}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    except:
+        printusertext('ERROR 21: Unable to contact Meraki cloud')
+        sys.exit(2)
+            
+    if r.status_code != requests.codes.ok:
+        return ('null')
+    
+    return('ok')
+    
 def gettemplateid(p_apikey, p_shardurl, p_orgid, p_tname):
     #looks up config template id for a config template name
     #on failure returns 'null'
 
-    r = requests.get('https://%s/api/v0/organizations/%s/configTemplates' % (p_shardurl, p_orgid), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    try:
+        r = requests.get('https://%s/api/v0/organizations/%s/configTemplates' % (p_shardurl, p_orgid), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    except:
+        printusertext('ERROR 04: Unable to contact Meraki cloud')
+        sys.exit(2)
     
     if r.status_code != requests.codes.ok:
         return 'null'
@@ -139,7 +181,11 @@ def bindnw(p_apikey, p_shardurl, p_nwid, p_templateid, p_autobind):
     else:
         autobindvalue = 'false'
     
-    r = requests.post('https://%s/api/v0/networks/%s/bind' % (p_shardurl, p_nwid), data=json.dumps({'configTemplateId': p_templateid, 'autoBind': autobindvalue}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    try:
+        r = requests.post('https://%s/api/v0/networks/%s/bind' % (p_shardurl, p_nwid), data=json.dumps({'configTemplateId': p_templateid, 'autoBind': autobindvalue}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    except:
+        printusertext('ERROR 05: Unable to contact Meraki cloud')
+        sys.exit(2)
         
     if r.status_code != requests.codes.ok:
         return 'null'
@@ -149,29 +195,45 @@ def bindnw(p_apikey, p_shardurl, p_nwid, p_templateid, p_autobind):
 def claimdeviceorg(p_apikey, p_shardurl, p_orgid, p_devserial):
     #claims a device into an org without adding to a network
     
-    r = requests.post('https://%s/api/v0/organizations/%s/claim' % (p_shardurl, p_orgid), data=json.dumps({'serial': p_devserial}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    try:
+        r = requests.post('https://%s/api/v0/organizations/%s/claim' % (p_shardurl, p_orgid), data=json.dumps({'serial': p_devserial}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    except:
+        printusertext('ERROR 06: Unable to contact Meraki cloud')
+        sys.exit(2)
     
     return(0)
     
 def claimlicenseorg(p_apikey, p_shardurl, p_orgid, p_licensekey):
     #claims a license key into an org
     
-    r = requests.post('https://%s/api/v0/organizations/%s/claim' % (p_shardurl, p_orgid), data=json.dumps({'licenseKey': p_licensekey, 'licenseMode': 'addDevices'}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    try:
+        r = requests.post('https://%s/api/v0/organizations/%s/claim' % (p_shardurl, p_orgid), data=json.dumps({'licenseKey': p_licensekey, 'licenseMode': 'addDevices'}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    except:
+        printusertext('ERROR 07: Unable to contact Meraki cloud')
+        sys.exit(2)
     
     return(0)
     
 def claimdevice(p_apikey, p_shardurl, p_nwid, p_devserial):
 	#claims a device into a network
 	
-	r = requests.post('https://%s/api/v0/networks/%s/devices/claim' % (p_shardurl, p_nwid), data=json.dumps({'serial': p_devserial}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    try:
+        r = requests.post('https://%s/api/v0/networks/%s/devices/claim' % (p_shardurl, p_nwid), data=json.dumps({'serial': p_devserial}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    except:
+        printusertext('ERROR 08: Unable to contact Meraki cloud')
+        sys.exit(2)
 	
-	return(0)
+    return(0)
     
 def getdeviceinfo(p_apikey, p_shardurl, p_nwid, p_serial):
     #returns info for a single device
     #on failure returns lone device record, with serial number 'null'
 
-    r = requests.get('https://%s/api/v0/networks/%s/devices/%s' % (p_shardurl, p_nwid, p_serial), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    try:
+        r = requests.get('https://%s/api/v0/networks/%s/devices/%s' % (p_shardurl, p_nwid, p_serial), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    except:
+        printusertext('ERROR 09: Unable to contact Meraki cloud')
+        sys.exit(2)
     
     returnvalue = []
     if r.status_code != requests.codes.ok:
@@ -191,7 +253,11 @@ def setdevicedata(p_apikey, p_shardurl, p_nwid, p_devserial, p_field, p_value, p
     if p_movemarker:
         movevalue = "true"
     
-    r = requests.put('https://%s/api/v0/networks/%s/devices/%s' % (p_shardurl, p_nwid, p_devserial), data=json.dumps({p_field: p_value, 'moveMapMarker': movevalue}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    try:
+        r = requests.put('https://%s/api/v0/networks/%s/devices/%s' % (p_shardurl, p_nwid, p_devserial), data=json.dumps({p_field: p_value, 'moveMapMarker': movevalue}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    except:
+        printusertext('ERROR 10: Unable to contact Meraki cloud')
+        sys.exit(2)
             
     if r.status_code != requests.codes.ok:
         return ('null')
@@ -201,7 +267,11 @@ def setdevicedata(p_apikey, p_shardurl, p_nwid, p_devserial, p_field, p_value, p
 def getorgdeviceinfo (p_apikey, p_shardurl, p_orgid, p_devserial):
     #gets basic device info from org inventory. device does not need to be part of a network
     
-    r = requests.get('https://%s/api/v0/organizations/%s/inventory' % (p_shardurl, p_orgid), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    try:
+        r = requests.get('https://%s/api/v0/organizations/%s/inventory' % (p_shardurl, p_orgid), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+    except:
+        printusertext('ERROR 11: Unable to contact Meraki cloud')
+        sys.exit(2)
     
     returnvalue = {}
     if r.status_code != requests.codes.ok:
@@ -220,6 +290,34 @@ def getorgdeviceinfo (p_apikey, p_shardurl, p_orgid, p_devserial):
         returnvalue = {'serial':'null', 'model':'null'}
     return(returnvalue) 
     
+def getgoogletimezone(p_googlekey, p_address):
+    #returns the timezone associated to a specified address by using Google Maps APIs
+    try:
+        r = requests.get('https://maps.googleapis.com/maps/api/geocode/json?address=%s&key=%s' % (p_address, p_googlekey) )
+    except:
+        printusertext('WARNING: Unable to contact Google cloud')
+        return('null')
+        
+    rjson = r.json()
+    if rjson['status'] != 'OK':
+        return('null')
+
+    glatitude  = rjson['results'][0]['geometry']['location']['lat']
+    glongitude = rjson['results'][0]['geometry']['location']['lng']
+    
+    try:
+        s = requests.get('https://maps.googleapis.com/maps/api/timezone/json?location=%s,%s&timestamp=%f&key=%s' % (glatitude, glongitude, time.time(), p_googlekey) )
+    except:
+        printusertext('WARNING: Unable to contact Google cloud')
+        return('null')
+
+    sjson = s.json()
+    
+    if sjson['status'] == 'OK':
+        return(sjson['timeZoneId'])
+
+    return('null')
+    
 def main(argv):
     #set default values for command line arguments
     arg_apikey = 'null'
@@ -230,10 +328,11 @@ def main(argv):
     arg_modexisting = 'null'
     arg_address = 'null'
     arg_nwtags = 'null'
+    arg_googlekey = ''
         
     #get command line arguments
     try:
-        opts, args = getopt.getopt(argv, 'hk:o:s:n:c:m:a:t:')
+        opts, args = getopt.getopt(argv, 'hk:o:s:n:c:m:a:g:t:')
     except getopt.GetoptError:
         printhelp()
         sys.exit(2)
@@ -258,6 +357,8 @@ def main(argv):
             arg_address = arg
         elif opt == '-t':
             arg_nwtags = arg
+        elif opt == '-g':
+            arg_googlekey = arg
                 
     #check if all parameters are required parameters have been given
     if arg_apikey == 'null' or arg_orgname == 'null' or arg_serial == 'null' or    arg_nwname == 'null' or arg_template == 'null':
@@ -272,25 +373,25 @@ def main(argv):
     #get organization id corresponding to org name provided by user
     orgid = getorgid(arg_apikey, arg_orgname)
     if orgid == 'null':
-        printusertext('ERROR: Fetching organization failed')
+        printusertext('ERROR 12: Fetching organization failed')
         sys.exit(2)
     
     #get shard URL where Org is stored
     shardurl = getshardurl(arg_apikey, orgid)
     if shardurl == 'null':
-        printusertext('ERROR: Fetching Meraki cloud shard URL failed')
+        printusertext('ERROR 13: Fetching Meraki cloud shard URL failed')
         sys.exit(2)
         
     #make sure that a network does not already exist with the same name    
     nwid = getnwid(arg_apikey, shardurl, orgid, arg_nwname)
     if nwid != 'null' and stoponerror:
-        printusertext('ERROR: Network with that name already exists')
+        printusertext('ERROR 14: Network with that name already exists')
         sys.exit(2)    
         
     #get template ID for template name argument
     templateid = gettemplateid(arg_apikey, shardurl, orgid, arg_template)
     if templateid == 'null':
-        printusertext('ERROR: Unable to find template: ' + arg_template)
+        printusertext('ERROR 15: Unable to find template: ' + arg_template)
         sys.exit(2)    
         
     #get serial numbers from parameter -s
@@ -342,11 +443,11 @@ def main(argv):
     if nwid == 'null':
         createstatus = createnw (arg_apikey, shardurl, orgid, nwparams)
         if createstatus == 'null':
-            printusertext('ERROR: Unable to create network')
+            printusertext('ERROR 16: Unable to create network')
             sys.exit(2)
         nwid = getnwid(arg_apikey, shardurl, orgid, arg_nwname)
         if nwid == 'null':
-            printusertext('ERROR: Unable to get ID for new network')
+            printusertext('ERROR 17: Unable to get ID for new network')
             sys.exit(2)    
     
     #clean up serials list to filter out licenses, MVs, etc
@@ -355,6 +456,7 @@ def main(argv):
         if devicelist['model'][i][:2] == 'MR' or devicelist['model'][i][:2] == 'MS' or devicelist['model'][i][:2] == 'MX' or devicelist['model'][i][:1] == 'Z':
             validserials.append(devicelist['serial'][i])
     
+    #critical stuff:
     for devserial in validserials:
         #claim device into newly created network
         claimdevice(arg_apikey, shardurl, nwid, devserial)
@@ -362,9 +464,17 @@ def main(argv):
         #check if device has been claimed successfully
         deviceinfo = getdeviceinfo(arg_apikey, shardurl, nwid, devserial)
         if deviceinfo['serial'] == 'null':
-            printusertext('ERROR: Claiming or moving device unsuccessful')
+            printusertext('ERROR 18: Claiming or moving device unsuccessful')
             sys.exit(2)
-            
+                    
+    #bind network to template. If switches in template, attempt to autobind them
+    bindstatus = bindnw(arg_apikey, shardurl, nwid, templateid, devicetypes['ms'])
+    if bindstatus == 'null' and stoponerror:
+        printusertext('ERROR 19: Unable to bind network to template')
+        sys.exit(2)
+         
+    #best effort stuff
+    for devserial in validserials:
         #set device hostname
         hostname = deviceinfo['model'] + '_' + devserial
         setdevicedata(arg_apikey, shardurl, nwid, devserial, 'name', hostname, False)
@@ -372,12 +482,18 @@ def main(argv):
         #if street address is given as a parameter, set device location
         if arg_address != 'null':
             setdevicedata(arg_apikey, shardurl, nwid, devserial, 'address', arg_address, True)
-        
-    #bind network to template. If switches in template, attempt to autobind them
-    bindstatus = bindnw(arg_apikey, shardurl, nwid, templateid, devicetypes['ms'])
-    if bindstatus == 'null' and stoponerror:
-        printusertext('ERROR: Unable to bind network to template')
-        sys.exit(2)
+    
+    #attempt to override template timezone by fetching the right one from Google API    
+    flag_unabletosettime = True
+    if arg_googlekey != '' and arg_address != 'null':
+        gtimezone = getgoogletimezone(arg_googlekey, arg_address)
+        if gtimezone != 'null':
+            udstatus = updatenw(arg_apikey, shardurl, nwid, 'timeZone', gtimezone)
+            if udstatus == 'ok':
+                flag_unabletosettime = False
+        if flag_unabletosettime:
+            printusertext('WARNING: Unable to set time zone using Google Maps API')
+    
     
     printusertext('End of script.')
             
