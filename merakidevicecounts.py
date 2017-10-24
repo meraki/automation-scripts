@@ -1,15 +1,15 @@
 # This is a script to count device types in multiple orgs.
 #
 # Usage:
-#  python merakidevicecounts -k <key> -f <file>
+#  python merakidevicecounts.py -k <key> -f <file>
 #
 # Arguments:
 #  -k <key>  : Your Meraki Dashboard API key
 #  -f <file> : File with list of organizations to be counted. Use "-f /all" to count all organizations
 #
 # Examples:
-#  python merakidevicecounts -k 1234 -f /all
-#  python merakidevicecounts -k 1234 -f orglist.txt
+#  python merakidevicecounts.py -k 1234 -f /all
+#  python merakidevicecounts.py -k 1234 -f orglist.txt
 #
 # Creating an input file:
 #  Use a text editor to create a text file, where organization names are listed one per line
@@ -49,15 +49,15 @@ def printhelp():
     printusertext('This is a script to count device types in multiple orgs.')
     printusertext('')
     printusertext('Usage:')
-    printusertext(' python merakidevicecounts -k <key> -f <file>')
+    printusertext(' python merakidevicecounts.py -k <key> -f <file>')
     printusertext('')
     printusertext('Arguments:')
     printusertext(' -k <key>  : Your Meraki Dashboard API key')
     printusertext(' -f <file> : File with list of organizations to be counted. Use "-f /all" to count all organizations')
     printusertext('')
     printusertext('Examples:')
-    printusertext(' python merakidevicecounts -k 1234 -f /all')
-    printusertext(' python merakidevicecounts -k 1234 -f orglist.txt')
+    printusertext(' python merakidevicecounts.py -k 1234 -f /all')
+    printusertext(' python merakidevicecounts.py -k 1234 -f orglist.txt')
     printusertext('')
     printusertext('Creating an input file:')
     printusertext(' Use a text editor to create a text file, where organization names are listed one per line')
@@ -254,7 +254,7 @@ def main(argv):
         for returnitem in orginventory:
             orgrecord.devices.append(c_devicedata())
             orgrecord.devices[len(orgrecord.devices)-1].serial = returnitem['serial']
-            orgrecord.devices[len(orgrecord.devices)-1].model = returnitem['model']
+            orgrecord.devices[len(orgrecord.devices)-1].model  = returnitem['model']
         
     for item in orglist:
         print ('')
@@ -279,7 +279,7 @@ def main(argv):
         count_z  = 0
         print ('Device counts for org "%s"' % item.name)
         for device in item.devices:
-            if device.model[:2] == 'MR':
+            if device.model[:2]   == 'MR':
                 count_mr += 1
             elif device.model[:2] == 'MS':
                 count_ms += 1
