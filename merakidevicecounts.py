@@ -5,7 +5,7 @@
 #
 # Arguments:
 #  -k <key>  : Your Meraki Dashboard API key
-#  -f <file> : File with list of organizations to be counted. Use "-l /all" to count all organizations
+#  -f <file> : File with list of organizations to be counted. Use "-f /all" to count all organizations
 #
 # Examples:
 #  python merakidevicecounts -k 1234 -f /all
@@ -53,7 +53,7 @@ def printhelp():
     printusertext('')
     printusertext('Arguments:')
     printusertext(' -k <key>  : Your Meraki Dashboard API key')
-    printusertext(' -f <file> : File with list of organizations to be counted. Use "-l /all" to count all organizations')
+    printusertext(' -f <file> : File with list of organizations to be counted. Use "-f /all" to count all organizations')
     printusertext('')
     printusertext('Examples:')
     printusertext(' python merakidevicecounts -k 1234 -f /all')
