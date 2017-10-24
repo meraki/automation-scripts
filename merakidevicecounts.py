@@ -197,14 +197,6 @@ def main(argv):
     if arg_file == '/all':
         flag_processall = True
         
-    #open input file file for reading
-    if not flag_processall:
-        try:
-            f = open(arg_file, 'r')
-        except:
-            printusertext('ERROR 05: Unable to open file for reading')
-            sys.exit(2)
-        
     #compile list of organizations to be processed
     orglist = []
     if flag_processall:
@@ -218,6 +210,12 @@ def main(argv):
             i += 1
         
     else:
+        #open input file file for reading
+        try:
+            f = open(arg_file, 'r')
+        except:
+            printusertext('ERROR 05: Unable to open file for reading')
+            sys.exit(2)
         #read org names info from file
         for line in f:
             stripped = line.strip()
@@ -230,6 +228,7 @@ def main(argv):
                 else:
                     printusertext('ERROR 06: Unable to resolve org ID for org name "%s"' % stripped)
                     sys.exit(2)
+        f.close()
                         
     #get shard host/FQDN where destination org is stored
     #this call sometimes fails. implementing a try-verify-wait-repeat loop
