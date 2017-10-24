@@ -19,7 +19,7 @@
 #
 # This file was last modified on 2017-10-24
 
-import sys, getopt, requests, json, time, re, datetime
+import sys, getopt, requests, json, time
 
 class c_devicedata:
     def __init__(self):
