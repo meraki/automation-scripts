@@ -72,7 +72,7 @@ def getorglist(p_apikey):
     try:
         r = requests.get('https://dashboard.meraki.com/api/v0/organizations', headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
     except:
-        printusertext('ERROR XX: Unable to contact Meraki cloud')
+        printusertext('ERROR 00: Unable to contact Meraki cloud')
         sys.exit(2)
     
     returnvalue = []
@@ -92,7 +92,7 @@ def getorgid(p_apikey, p_orgname):
     try:
         r = requests.get('https://dashboard.meraki.com/api/v0/organizations', headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
     except:
-        printusertext('ERROR XX: Unable to contact Meraki cloud')
+        printusertext('ERROR 01: Unable to contact Meraki cloud')
         sys.exit(2)
     
     if r.status_code != requests.codes.ok:
@@ -114,7 +114,7 @@ def getshardhost(p_apikey, p_orgid):
     try:
         r = requests.get('https://dashboard.meraki.com/api/v0/organizations/%s/snmp' % p_orgid, headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
     except:
-        printusertext('ERROR X02: Unable to contact Meraki cloud')
+        printusertext('ERROR 02: Unable to contact Meraki cloud')
         sys.exit(2)
     
     if r.status_code != requests.codes.ok:
@@ -153,7 +153,7 @@ def getorginventory(p_apikey, p_shardhost, p_orgid):
     try:
         r = requests.get('https://%s/api/v0/organizations/%s/inventory' % (p_shardhost, p_orgid), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
     except:
-        printusertext('ERROR 18: Unable to contact Meraki cloud')
+        printusertext('ERROR 04: Unable to contact Meraki cloud')
         sys.exit(2)
     
     returnvalue = []
@@ -202,7 +202,7 @@ def main(argv):
         try:
             f = open(arg_file, 'r')
         except:
-            printusertext('ERROR X FILE: Unable to open file for reading')
+            printusertext('ERROR 05: Unable to open file for reading')
             sys.exit(2)
         
     #compile list of organizations to be processed
@@ -228,7 +228,7 @@ def main(argv):
                 if orgid != 'null':
                     orglist[len(orglist)-1].id = orgid
                 else:
-                    printusertext('ERROR X ORGID: Unable to resolve org ID for org name "%s"' % stripped)
+                    printusertext('ERROR 06: Unable to resolve org ID for org name "%s"' % stripped)
                     sys.exit(2)
                         
     #get shard host/FQDN where destination org is stored
@@ -244,7 +244,7 @@ def main(argv):
                 flag_unabletoresolveshard = False
                 break
         if flag_unabletoresolveshard:
-            printusertext('ERROR XX: Unable to read data for org "%s"' % record.name)
+            printusertext('ERROR 07: Unable to read data for org "%s"' % record.name)
             sys.exit(2)
         else:
             record.shardhost = shardhost
