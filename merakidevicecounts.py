@@ -303,7 +303,7 @@ def main(argv):
     print('MR: %d' % total_count_mr)
     print('MS: %d' % total_count_ms)
     print('MX: %d' % total_count_mx)
-    print('Z : %d' % count_z)
+    print('Z : %d' % total_count_z)
     
                 
     printusertext('INFO: End of script.')
