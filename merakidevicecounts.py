@@ -281,11 +281,11 @@ def main(argv):
         for device in item.devices:
             if device.model[:2] == 'MR':
                 count_mr += 1
-            if device.model[:2] == 'MS':
+            elif device.model[:2] == 'MS':
                 count_ms += 1
-            if device.model[:2] == 'MX':
+            elif device.model[:2] == 'MX':
                 count_mx += 1
-            if device.model[:1] == 'Z' :
+            elif device.model[:1] == 'Z' :
                 count_z  += 1
         total_count_mr += count_mr
         total_count_ms += count_ms
