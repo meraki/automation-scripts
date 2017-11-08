@@ -48,8 +48,6 @@
 # To make script chaining easier, all lines containing informational messages to the user
 #  start with the character @
 #
-# TODO: STATUS: UNDER DEVELOPMENT
-#
 # This file was last modified on 2017-11-08
 
 
@@ -248,8 +246,6 @@ def readmxfwruleset(p_apikey, p_shardhost, p_nwid):
     
 def writemxfwruleset(p_apikey, p_shardhost, p_nwid, p_ruleset):
     #writes MX L3 ruleset for a device to cloud
-    
-    #TODO: Untested
     
     time.sleep(API_EXEC_DELAY)
     try:
@@ -750,9 +746,7 @@ def cmdaddrules2(p_apikey, p_orglist, p_source, p_data, p_mode, p_flagcommit=Fal
     
 def cmdremove(p_apikey, p_orglist, p_mode, p_data, p_flagcommit=False, p_flagbackup=True):
     #code for command "-c remove:<num>" and "-c remove-marked:<label>"
-    
-    #DEBUG: TODO: Test for Multi-net, Multi-org and templates
-    
+        
     flag_modenumber = True
     flag_modelabel  = False
     
@@ -976,7 +970,7 @@ def parsecommand(p_apikey, p_orglist, p_commandstr, p_flagcommit, p_flagbackup):
         elif cmd == 'create-backup':
             cmdcreatebackup(p_apikey, p_orglist)
             
-        elif cmd == 'append-file': #DEBUG: TODO: Retest
+        elif cmd == 'append-file':
             if len(splitstr) > 1:
                 parameter = splitstr[1].strip()
                 if len(parameter) > 0:
@@ -988,7 +982,7 @@ def parsecommand(p_apikey, p_orglist, p_commandstr, p_flagcommit, p_flagbackup):
                 printusertext('ERROR 31: Missing definition <file> in command append-file:<file>')
                 sys.exit(2)
                 
-        elif cmd == 'insert-file': #DEBUG: TODO: Retest
+        elif cmd == 'insert-file':
             flag_processingsuccess = True
             if len(splitstr) > 2:
                 try:
@@ -1007,7 +1001,7 @@ def parsecommand(p_apikey, p_orglist, p_commandstr, p_flagcommit, p_flagbackup):
                 printusertext('ERROR 32: Error in command "insert-file:<num>:<file>"')
                 sys.exit(2)
                 
-        elif cmd == 'replace-file': #TODO: #DEBUG: Retest
+        elif cmd == 'replace-file':
             if len(splitstr) > 1:
                 parameter = splitstr[1].strip()
                 if len(parameter) > 0:
