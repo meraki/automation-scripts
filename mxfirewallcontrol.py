@@ -48,6 +48,9 @@
 # To make script chaining easier, all lines containing informational messages to the user
 #  start with the character @
 #
+# The full manual for this script can be found here:
+#   https://github.com/meraki/automation-scripts/blob/master/mxfirewallcontrol.py_manual.docx
+#
 # This file was last modified on 2017-11-08
 
 
