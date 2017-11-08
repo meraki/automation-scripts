@@ -41,7 +41,13 @@ Files contained in this repository:
 
 **movedevices.py:** This script that can be used to move all devices from one organization to another. The script will only process devices that are part of a network. The networks of the source org need to exist in the destination org too. Use copynetworks.py if needed to create them.
 
-**mx_fwrules_to_csv.py** A simple example showing how to use the Meraki Dashboard API library to GET MX L3 firewall rules from a provided network and output to CSV.
+**mx_fwrules_to_csv.py:** A simple example showing how to use the Meraki Dashboard API library to GET MX L3 firewall rules from a provided network and output to CSV.
+
+**mxfirewallcontrol.py:** Script to display, modify and create backups of MX Layer 3 firewall rulesets. Can be used as a command line utility or a backend process for a custom management portal. See also mxfirewallcontrol.py_manual.docx and mxfirewallcontrol_example_input_file.txt in this directory.
+
+**mxfirewallcontrol.py_manual.docx:** Manual for mxfirewallcontrol.py.
+
+**mxfirewallcontrol_example_input_file.txt:** Example input file for mxfirewallcontrol.py.
 
 **setlocation.py:** Sets the street address and optionally the map marker of all devices in a network or organization. To be more easily clickable, devices will be placed in a spiral around a seed location. There is an option to preserve marker location for MR access points, to avoid breaking wireless map layout.
 
