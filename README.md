@@ -45,9 +45,9 @@ Files contained in this repository:
 
 **mxfirewallcontrol.py:** Script to display, modify and create backups of MX Layer 3 firewall rulesets. Can be used as a command line utility or a backend process for a custom management portal. See also mxfirewallcontrol.py_manual.docx and mxfirewallcontrol_example_input_file.txt in this directory.
 
-**mxfirewallcontrol.py_manual.docx:** Manual for mxfirewallcontrol.py.
-
 **mxfirewallcontrol_example_input_file.txt:** Example input file for mxfirewallcontrol.py.
+
+**mxfirewallcontrol_manual.pdf:** Manual for mxfirewallcontrol.py.
 
 **setlocation.py:** Sets the street address and optionally the map marker of all devices in a network or organization. To be more easily clickable, devices will be placed in a spiral around a seed location. There is an option to preserve marker location for MR access points, to avoid breaking wireless map layout.
 
