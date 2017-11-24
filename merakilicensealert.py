@@ -11,7 +11,7 @@
 # Arguments to enable sending emails. All three must be given to send email:
 #  -u <user>            : The username (email address) that will be used to send the alert message
 #  -p <pass>            : Password for the email address where the message is sent from
-#  -d <dest>            : Recepient email address
+#  -d <dest>            : Recipient email address
 # Optional arguments:
 #  -s <server>          : Server to use for sending SMTP. If omitted, Gmail will be used
 #  -t <days>            : Alert threshold in days for generating alert. Default is 90
@@ -65,7 +65,7 @@ def printhelp():
     printusertext('Arguments to enable sending emails. All three must be given to send email:')
     printusertext(' -u <user>            : The username (email address) that will be used to send the alert message')
     printusertext(' -p <pass>            : Password for the email address where the message is sent from')
-    printusertext(' -d <dest>            : Recepient email address')
+    printusertext(' -d <dest>            : Recipient email address')
     printusertext('Optional arguments:')
     printusertext(' -s <server>          : Server to use for sending SMTP. If omitted, Gmail will be used')
     printusertext(' -t <days>            : Alert threshold in days for generating alert. Default is 90')
