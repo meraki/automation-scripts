@@ -1,6 +1,10 @@
 # This is a script to send an email alert if APs are in invalid management subnets. The alert is 
-#  sent using an SMTP server; by  default Gmail. Use an automation platform like Zapier to read this email
+#  sent using a SMTP server; by  default Gmail. Use an automation platform like Zapier to read this email
 #  and trigger further actions.
+#
+# You will need Python 3 and the Requests module installed to run this script:
+#   https://www.python.org/downloads/
+#   http://docs.python-requests.org/en/master/user/install/#install
 #
 # To run the script, enter:
 #  python checksubnets.py -k <key> -v <valid subs> [-u <user> -p <pass> -d <dest>] [-s <srv> -o <org>]
@@ -26,7 +30,7 @@
 # To make script chaining easier, all lines containing informational messages to the user
 #  start with the character @
 #
-# This file was last modified on 2017-12-23
+# This file was last modified on 2017-12-25
 
 
 import sys, getopt, requests, json, time, ipaddress, smtplib
@@ -53,7 +57,7 @@ def printhelp():
     #prints help text
 
     printusertext('This is a script to send an email alert if APs are in invalid management subnets. The alert is')
-    printusertext(' sent using an SMTP server; by  default Gmail. Use an automation platform like Zapier to read this email')
+    printusertext(' sent using a SMTP server; by  default Gmail. Use an automation platform like Zapier to read this email')
     printusertext(' and trigger further actions.')
     printusertext('')
     printusertext('To run the script, enter:')
@@ -309,13 +313,11 @@ def main(argv):
     flag_gotdevice = False
     for org in orgs:
         flag_neworg = True
-        netcount = 0
         netbuffer = getnwlist(arg_apikey, org.shardhost, org.id)
         if len(netbuffer) > 0:
             if netbuffer[0]['id'] != 'null':
                 for net in netbuffer:
                     flag_newnet = True
-                    devcount = 0
                     devbuffer = getdevicelist(arg_apikey, org.shardhost, net['id'])
                     if len(devbuffer) > 0:
                         if devbuffer[0]['serial'] != 'null':
@@ -328,7 +330,6 @@ def main(argv):
                                                 foundsub = True
                                                 break
                                     if not foundsub:
-                                        devcount += 1
                                         if flag_neworg:
                                             outputstr += '\r\n---\r\n\r\nOrganization: "%s"\r\n' % org.name
                                             flag_neworg = False
@@ -341,8 +342,7 @@ def main(argv):
                             printusertext('WARNING: Unable to read device data for network "%s"' % net['name'])
                     else:
                         printusertext('INFO: Network "%s" contains no devices' % net['name'])
-                                        
-                    netcount += 1  
+                                  
             else:
                 printusertext('WARNING: Unable to read network data for org "%s"' % org.name)
         else:
