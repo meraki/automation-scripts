@@ -1,5 +1,8 @@
 # This is a script to calculate and compare usage statistics among different subnets.
 #
+# The full manual for this script can be found here:
+#  https://github.com/meraki/automation-scripts/blob/master/usagestats_manual.pdf 
+#
 # To run the script, enter:
 #  python usagestats.py -k <key> [-d <database> -c <command> -i <initfile> -g <groups> -f <filter>] [-u <user> -p <pass> -r <recipient> -s <server>]
 #
@@ -97,7 +100,7 @@
 #  Blank lines an lines beginning with a hash character (#) will be ignored.
 #
 # An example of an init config file can be found here:
-#   #TODO: insert link to github
+#   https://github.com/meraki/automation-scripts/blob/master/usagestats_initconfig.txt
 #
 # To make script chaining easier, all lines containing informational messages to the user
 #  start with the character @
