@@ -68,3 +68,5 @@ Possible statuses:
 - (For load balancing, both WAN links would show active.)
 
 More info about the scripts can be found inline as comments.
+
+**usagestats.py:** Produces reports on per user group network usage. User groups are identified by subnet, VLAN ID or VLAN name. The script combines the Meraki Dashboard API with a SQLite3 database and sending HTML-formatted emails. See also usagestats_initconfig.txt and usagestats_manual.pdf in this folder.
