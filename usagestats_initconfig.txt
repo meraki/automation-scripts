@@ -1,0 +1,9 @@
+[GROUPS]
+groupname=First
+subnet=10.0.0.0/8
+
+groupname=Second
+subnet=192.168.0.0/16
+
+[OPTIONS]
+#filter=dtag:statsmachine
