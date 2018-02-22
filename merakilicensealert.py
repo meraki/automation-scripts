@@ -25,7 +25,7 @@
 # To make script chaining easier, all lines containing informational messages to the user
 #  start with the character @
 #
-# This file was last modified on 2017-11-23
+# This file was last modified on 2018-02-22
 
 
 import sys, getopt, requests, json, time, smtplib
@@ -42,6 +42,14 @@ class c_organizationdata:
 
 #Used for time.sleep(API_EXEC_DELAY). Delay added to avoid hitting dashboard API max request rate
 API_EXEC_DELAY = 0.21
+
+#connect and read timeouts for the Requests module
+REQUESTS_CONNECT_TIMEOUT = 30
+REQUESTS_READ_TIMEOUT = 30
+
+
+#used by merakirequestthrottler(). DO NOT MODIFY
+LAST_MERAKI_REQUEST = datetime.now()   
 
 def printusertext(p_message):
     #prints a line of text that is meant for the user to read
@@ -79,12 +87,23 @@ def printhelp():
     printusertext('Use double quotes ("") in Windows to pass arguments containing spaces. Names are case-sensitive.')
     
     
+def merakirequestthrottler(p_requestcount=1):
+    #makes sure there is enough time between API requests to Dashboard not to hit shaper
+    global LAST_MERAKI_REQUEST
+    
+    if (datetime.now()-LAST_MERAKI_REQUEST).total_seconds() < (API_EXEC_DELAY*p_requestcount):
+        time.sleep(API_EXEC_DELAY*p_requestcount)
+    
+    LAST_MERAKI_REQUEST = datetime.now()
+    return    
+    
+    
 def getorglist(p_apikey):
     #returns the organizations' list for a specified admin
     
-    time.sleep(API_EXEC_DELAY)
+    merakirequestthrottler()
     try:
-        r = requests.get('https://dashboard.meraki.com/api/v0/organizations', headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+        r = requests.get('https://dashboard.meraki.com/api/v0/organizations', headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT))
     except:
         printusertext('ERROR 01: Unable to contact Meraki cloud')
         sys.exit(2)
@@ -104,9 +123,9 @@ def getshardhost(p_apikey, p_orgid):
     # when making API calls with API accounts that can access multiple orgs.
     #On failure returns 'null'
         
-    time.sleep(API_EXEC_DELAY)
+    merakirequestthrottler()
     try:
-        r = requests.get('https://dashboard.meraki.com/api/v0/organizations/%s/snmp' % p_orgid, headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+        r = requests.get('https://dashboard.meraki.com/api/v0/organizations/%s/snmp' % p_orgid, headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT))
     except:
         printusertext('ERROR 02: Unable to contact Meraki cloud')
         sys.exit(2)
@@ -122,9 +141,9 @@ def getshardhost(p_apikey, p_orgid):
 def getlicensestate(p_apikey, p_shardhost, p_orgid):
     #returns the organizations' list for a specified admin
         
-    time.sleep(API_EXEC_DELAY)
+    merakirequestthrottler()
     try:
-        r = requests.get('https://%s/api/v0/organizations/%s/licenseState' % (p_shardhost, p_orgid) , headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
+        r = requests.get('https://%s/api/v0/organizations/%s/licenseState' % (p_shardhost, p_orgid) , headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT))
     except:
         printusertext('ERROR 03: Unable to contact Meraki cloud')
         sys.exit(2)
