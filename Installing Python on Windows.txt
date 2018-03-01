@@ -1,5 +1,4 @@
 Download Python 3 for Windows: https://www.python.org/downloads/windows/
-If you plan to use Python for SNMP requests pick version 3.5.3. PySNMP will not install easily on Python 3.6
 
 Make sure your "python" and "python/scripts" folders are in %PATH%. For example if installing to "C:\python", edit %PATH% to include:
 c:\python
@@ -24,4 +23,4 @@ https://developers.google.com/maps/documentation/geocoding/intro
 Visual C++ Build Tools needed to install PyCrypto and PySNMP (v14.0 aka 2015):
 http://landinghub.visualstudio.com/visual-cpp-build-tools
 
-You should consider replacing PyCrypto (installed along with PySNMP) with PyCryptodome, which is considered more secure. I haven't tried this yet.
+When installing PySNMP via pip on Python 3.6, you get PyCryptodomeX instead of PyCrypto, which is a good thing.
