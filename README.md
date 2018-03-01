@@ -25,7 +25,7 @@ Files contained in this repository:
 
 **deploydevices.py:** This script claims multiple devices and licenses into an organization, creates a new network for them and binds that network to an existing template. Initial config, including hostnames and street address/map markers are set for the devices. Will set network timezone to match street address if provided with a Google Maps API key.
 
-**deviceupdownstatus.py:** Hybrid Dashboard API/SNMP script that prints a list of all devices in an organization's inventory, along with their current up/down status. Requires the Requests and PySNMP modules.
+**deviceupdownstatus.py:** Hybrid Dashboard API/SNMP script that prints a list of all devices in an organization's inventory, along with their current up/down status. Requires the Requests and PySNMP modules. Supports SNMPv2c and SNMPv3.
 
 **find_ports.py:** This script finds all MS switchports that match the input search parameter, searching either by clients from a file listing MAC addresses (one per line), a specific tag in Dashboard currently applied to ports, or the specific access policy currently configured.
 
