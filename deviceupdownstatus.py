@@ -8,7 +8,7 @@
 #  -k <api key>         : Your Meraki Dashboard API key
 #  -o <org name>        : Your Dashboard Organization name
 # Optional arguments to use SNMPv3:
-#  -a <snmp auth key>   : SNMPv3 authorization key. Required for SNMPv3
+#  -a <snmp auth key>   : SNMPv3 authentication key. Required for SNMPv3
 #  -p <snmp priv key>   : SNMPv3 privacy key. Required for SNMPv3
 # 
 # Example:
@@ -83,7 +83,7 @@ def printhelp():
     printusertext(' -k <key>             : Your Meraki Dashboard API key')
     printusertext(' -o <org name>        : Your Dashboard Organization name')
     printusertext('Optional arguments to use SNMPv3:')
-    printusertext(' -a <snmp auth key>   : SNMPv3 authorization key. Required for SNMPv3')
+    printusertext(' -a <snmp auth key>   : SNMPv3 authentication key. Required for SNMPv3')
     printusertext(' -p <snmp priv key>   : SNMPv3 privacy key. Required for SNMPv3')
     printusertext('')
     printusertext('Example:')
