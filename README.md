@@ -37,6 +37,8 @@ Files contained in this repository:
 
 **listip.py:** Almost exactly the same as invlist.py, but also prints the "lanIp" of the device. If the device has no "lanIp", it prints "None" for that field instead.
 
+**manageadmins.py:** Add, delete, find and list administrators across organizations.
+
 **merakidevicecounts.py:** Print total device counts per device family for all organizations accessed by your admin account, or a specific subset of organizations, as defined in a simple input file.
 
 **merakilicensealert.py:** Script to send an email alert if the remaining license time in any org an admin has access to is less than X days, or if its license capacity is not sufficient for its current device count. The alert is sent using an SMTP server; by default Gmail. Use an automation platform like Zapier to read this email and trigger further actions. The intent of the script is to get email alerts earlier than 30 days before license expiration.
