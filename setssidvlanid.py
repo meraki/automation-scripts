@@ -1,6 +1,9 @@
 # This is a script to set the VLAN on an SSID. Usage:
 #  python setssidvlanid.py -k <api_key> -o <org_name> -n <ssid_name> -v <vlan_id>
 #
+# Example:
+#  python setssidvlanid.py -k 1234 -o "Meraki Inc" -n "Meraki corp" -v 10
+#
 # The script requires the Requests module. To install it via pip:
 #  pip install requests
 #
@@ -43,6 +46,9 @@ def printhelp():
 
     printusertext('This is a script to set the VLAN on an SSID. Usage:')
     printusertext('    python setssidvlanid.py -k <api_key> -o <org_name> -n <ssid_name> -v <vlan_id>')
+    printusertext('')
+    printusertext('Example:')
+    printusertext('    python setssidvlanid.py -k 1234 -o "Meraki Inc" -n "Meraki corp" -v 10')
     printusertext('')
     printusertext('To pass parameters containing spaces in Windows, use double quotes "".')
     
