@@ -115,7 +115,7 @@ def getssids(p_apikey, p_shardhost, p_netid):
 def setssidattribute(p_apikey, p_shardhost, p_netid, p_ssidnum, p_attribute, p_value):
     #writes one attribute to one SSID
     
-    time.sleep(API_EXEC_DELAY)
+    merakirequestthrottler()
     
     try:
         r = requests.put('https://%s/api/v0/networks/%s/ssids/%s' % (p_shardhost, p_netid, p_ssidnum), data=json.dumps({p_attribute: p_value}), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT) )
