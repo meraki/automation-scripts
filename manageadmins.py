@@ -1,7 +1,7 @@
 # This is a script to manage administrator accounts across organizations.
 #
 # To run the script, enter:
-#  python manageadmins.py -k <api key> -o <organization> -a <admin account email> -n <admin name> -p <privilege>
+#  python manageadmins.py -k <api key> -o <org> -c <command> -a <admin email> -n <admin name> -p <privilege>
 #
 # Mandatory arguments:
 #  -k <api key>         : Your Meraki Dashboard API key
@@ -36,7 +36,7 @@
 # To make script chaining easier, all lines containing informational messages to the user
 #  start with the character @
 #
-# This file was last modified on 2018-03-06
+# This file was last modified on 2018-03-29
 
 
 import sys, getopt, requests, json, time
@@ -73,7 +73,7 @@ def printhelp():
     printusertext('This is a script to manage administrator accounts across organizations.')
     printusertext('')
     printusertext('To run the script, enter:')
-    printusertext('python manageadmins.py -k <api key> -o <organization> -a <admin account email> -n <admin name> -p <privilege>')
+    printusertext('python manageadmins.py -k <api key> -o <org> -c <command> -a <admin email> -n <admin name> -p <privilege>')
     printusertext('')
     printusertext('Mandatory arguments:')
     printusertext(' -k <api key>         : Your Meraki Dashboard API key')
@@ -102,7 +102,7 @@ def printhelp():
 
 
 def merakirequestthrottler(p_requestcount=1):
-    #makes sure there is enough time between API requests to Dashboard not to hit shaper
+    #makes sure there is enough time between API requests to Dashboard to avoid hitting shaper
     global LAST_MERAKI_REQUEST
     
     if (datetime.now()-LAST_MERAKI_REQUEST).total_seconds() < (API_EXEC_DELAY*p_requestcount):
