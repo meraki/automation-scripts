@@ -15,7 +15,7 @@
 #                           -c list             List administrators
 #
 # Optional arguments:
-#  -a <admin account>   : Email of admin account to be added/deleted/matched. Required for commands add, delete and find
+#  -a <admin email>     : Email of admin account to be added/deleted/matched. Required for commands add, delete and find
 #  -n <admin name>      : Name for admin to be added by the "add" command. Required for "add".
 #  -p <privilege level> : Privilege level for admin to be added by the "add" command. Default is "full". Valid options:
 #                           -p full             Full organization admin
@@ -87,7 +87,7 @@ def printhelp():
     printusertext('                        -c list             List administrators')
     printusertext('')
     printusertext('Optional arguments:')
-    printusertext(' -a <admin account>   : Email of admin account to be added/deleted/matched. Required for add, delete and find')
+    printusertext(' -a <admin email>     : Email of admin account to be added/deleted/matched. Required for add, delete and find')
     printusertext(' -n <admin name>      : Name for admin to be added by the "add" command. Required for "add".')
     printusertext(' -p <privilege level> : Privilege level for admin to be added by the "add" command. Default is "full". Valid options:')
     printusertext('                         -p full             Full organization admin')
