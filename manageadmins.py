@@ -1,7 +1,7 @@
 # This is a script to manage administrator accounts across organizations.
 #
 # To run the script, enter:
-#  python manageadmins.py -k <api key> -o <org> -c <command> -a <admin email> -n <admin name> -p <privilege>
+#  python manageadmins.py -k <api key> -o <org> -c <command> [-a <admin email> -n <admin name> -p <privilege>]
 #
 # Mandatory arguments:
 #  -k <api key>         : Your Meraki Dashboard API key
@@ -73,7 +73,7 @@ def printhelp():
     printusertext('This is a script to manage administrator accounts across organizations.')
     printusertext('')
     printusertext('To run the script, enter:')
-    printusertext('python manageadmins.py -k <api key> -o <org> -c <command> -a <admin email> -n <admin name> -p <privilege>')
+    printusertext('python manageadmins.py -k <api key> -o <org> -c <command> [-a <admin email> -n <admin name> -p <privilege>]')
     printusertext('')
     printusertext('Mandatory arguments:')
     printusertext(' -k <api key>         : Your Meraki Dashboard API key')
