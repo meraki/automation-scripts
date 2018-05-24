@@ -91,27 +91,25 @@ if __name__ == '__main__':
                 for key in uplink.keys():
                     uplinks_info['Cellular'][key] = uplink[key]
         
-		# check WAN2 status and send email if 'Not connected' or 'Failed'
-		
-		if uplink_info['WAN2']['status'] == 'Failed' or uplink_info['WAN2']['status'] == 'Not connected':
-		    to = '***ENTER TO EMAIL ADDRESS***'
-			fro = '***ENTER FROM EMAIL ADDRESS***'
-			SUBJECT = '***ENTER EMAIL SUBJECT***'
-			TEXT = '***ENTER EMAIL BODY CONTENTS***'
-			message = 'Subject: {}\n\n{}'.format(SUBJECT, TEXT)
-			server = smtplib.SMTP('***ENTER SMTP SERVER***')
-			server.starttls()
-			server.login('***ENTER LOGIN***', '***ENTER PASSWORD***')
-			server.sendmail(fro, to, message)
-			server.close()
-		
 		if perfscore != None:
             writer.writerow({'Network': network_name, 'Device': device_name, 'Serial': appliance['serial'], 'MAC': appliance['mac'], 'Model': appliance['model'], 'WAN1 Status': uplinks_info['WAN1']['status'], 'WAN1 IP': uplinks_info['WAN1']['ip'], 'WAN1 Gateway': uplinks_info['WAN1']['gateway'], 'WAN1 Public IP': uplinks_info['WAN1']['publicIp'], 'WAN1 DNS': uplinks_info['WAN1']['dns'], 'WAN1 Static': uplinks_info['WAN1']['usingStaticIp'], 'WAN2 Status': uplinks_info['WAN2']['status'], 'WAN2 IP': uplinks_info['WAN2']['ip'], 'WAN2 Gateway': uplinks_info['WAN2']['gateway'], 'WAN2 Public IP': uplinks_info['WAN2']['publicIp'], 'WAN2 DNS': uplinks_info['WAN2']['dns'], 'WAN2 Static': uplinks_info['WAN2']['usingStaticIp'], 'Cellular Status': uplinks_info['Cellular']['status'], 'Cellular IP': uplinks_info['Cellular']['ip'], 'Cellular Provider': uplinks_info['Cellular']['provider'], 'Cellular Public IP': uplinks_info['Cellular']['publicIp'], 'Cellular Model': uplinks_info['Cellular']['model'], 'Cellular Connection': uplinks_info['Cellular']['connectionType'], 'Performance': perfscore})
         else:
             writer.writerow({'Network': network_name, 'Device': device_name, 'Serial': appliance['serial'], 'MAC': appliance['mac'], 'Model': appliance['model'], 'WAN1 Status': uplinks_info['WAN1']['status'], 'WAN1 IP': uplinks_info['WAN1']['ip'], 'WAN1 Gateway': uplinks_info['WAN1']['gateway'], 'WAN1 Public IP': uplinks_info['WAN1']['publicIp'], 'WAN1 DNS': uplinks_info['WAN1']['dns'], 'WAN1 Static': uplinks_info['WAN1']['usingStaticIp'], 'WAN2 Status': uplinks_info['WAN2']['status'], 'WAN2 IP': uplinks_info['WAN2']['ip'], 'WAN2 Gateway': uplinks_info['WAN2']['gateway'], 'WAN2 Public IP': uplinks_info['WAN2']['publicIp'], 'WAN2 DNS': uplinks_info['WAN2']['dns'], 'WAN2 Static': uplinks_info['WAN2']['usingStaticIp'], 'Cellular Status': uplinks_info['Cellular']['status'], 'Cellular IP': uplinks_info['Cellular']['ip'], 'Cellular Provider': uplinks_info['Cellular']['provider'], 'Cellular Public IP': uplinks_info['Cellular']['publicIp'], 'Cellular Model': uplinks_info['Cellular']['model'], 'Cellular Connection': uplinks_info['Cellular']['connectionType']})
     csv_file1.close()
 
-
+    # check WAN2 status and send email if 'Not connected' or 'Failed'
+    if uplink_info['WAN2']['status'] == 'Failed' or uplink_info['WAN2']['status'] == 'Not connected':
+        to = '***ENTER TO EMAIL ADDRESS***'
+	fro = '***ENTER FROM EMAIL ADDRESS***'
+	SUBJECT = '***ENTER EMAIL SUBJECT***'
+	TEXT = '***ENTER EMAIL BODY CONTENTS***'
+	message = 'Subject: {}\n\n{}'.format(SUBJECT, TEXT)
+	server = smtplib.SMTP('***ENTER SMTP SERVER***')
+	server.starttls()
+	server.login('***ENTER LOGIN***', '***ENTER PASSWORD***')
+	server.sendmail(fro, to, message)
+	server.close()
+	
     # Output CSV of all other devices' info
     csv_file2 = open(name + ' other devices -' + str(today) + '.csv', 'w', encoding='utf-8')
     fieldnames = ['Network', 'Device', 'Serial', 'MAC', 'Model', 'Status', 'IP', 'Gateway', 'Public IP', 'DNS', 'VLAN', 'Static']
