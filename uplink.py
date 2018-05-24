@@ -3,27 +3,21 @@
 '''
 === PREREQUISITES ===
 Run in Python 3
-
 Install requests library, via macOS terminal:
 pip3 install requests
-
 login.py has these two lines, with the API key from your Dashboard profile (upper-right email login > API access), and organization ID to call (https://dashboard.meraki.com/api/v0/organizations); separated into different file for security.
 api_key = '[API_KEY]'
 org_id = '[ORG_ID]'
-
 Usage:
 python3 uplink.py
-
 === DESCRIPTION ===
 Iterates through all devices, and exports to two CSV files: one for appliance (MX, Z1, Z3, vMX100) networks to collect WAN uplink information, and the other for all other devices (MR, MS, MC, MV) with local uplink info.
-
 Possible statuses:
 Active: active and working WAN port
 Ready: standby but working WAN port, not the preferred WAN port
 Failed: was working at some point but not anymore
 Not connected: nothing was ever connected, no cable plugged in
 For load balancing, both WAN links would show active.
-
 For any questions, please contact Shiyue (Shay) Cheng, shiychen@cisco.com
 '''
 
@@ -32,6 +26,7 @@ import datetime
 import json
 import requests
 import sys
+import smtplib
 
 def get_network_name(network_id, networks):
     return [element for element in networks if network_id == element['id']][0]['name']
@@ -95,7 +90,22 @@ if __name__ == '__main__':
             elif uplink['interface'] == 'Cellular':
                 for key in uplink.keys():
                     uplinks_info['Cellular'][key] = uplink[key]
-        if perfscore != None:
+        
+		# check WAN2 status and send email if 'Not connected' or 'Failed'
+		
+		if uplink_info['WAN2']['status'] == 'Failed' or uplink_info['WAN2']['status'] == 'Not connected':
+		    to = '***ENTER TO EMAIL ADDRESS***'
+			fro = '***ENTER FROM EMAIL ADDRESS***'
+			SUBJECT = '***ENTER EMAIL SUBJECT***'
+			TEXT = '***ENTER EMAIL BODY CONTENTS***'
+			message = 'Subject: {}\n\n{}'.format(SUBJECT, TEXT)
+			server = smtplib.SMTP('***ENTER SMTP SERVER***')
+			server.starttls()
+			server.login('***ENTER LOGIN***', '***ENTER PASSWORD***')
+			server.sendmail(fro, to, message)
+			server.close()
+		
+		if perfscore != None:
             writer.writerow({'Network': network_name, 'Device': device_name, 'Serial': appliance['serial'], 'MAC': appliance['mac'], 'Model': appliance['model'], 'WAN1 Status': uplinks_info['WAN1']['status'], 'WAN1 IP': uplinks_info['WAN1']['ip'], 'WAN1 Gateway': uplinks_info['WAN1']['gateway'], 'WAN1 Public IP': uplinks_info['WAN1']['publicIp'], 'WAN1 DNS': uplinks_info['WAN1']['dns'], 'WAN1 Static': uplinks_info['WAN1']['usingStaticIp'], 'WAN2 Status': uplinks_info['WAN2']['status'], 'WAN2 IP': uplinks_info['WAN2']['ip'], 'WAN2 Gateway': uplinks_info['WAN2']['gateway'], 'WAN2 Public IP': uplinks_info['WAN2']['publicIp'], 'WAN2 DNS': uplinks_info['WAN2']['dns'], 'WAN2 Static': uplinks_info['WAN2']['usingStaticIp'], 'Cellular Status': uplinks_info['Cellular']['status'], 'Cellular IP': uplinks_info['Cellular']['ip'], 'Cellular Provider': uplinks_info['Cellular']['provider'], 'Cellular Public IP': uplinks_info['Cellular']['publicIp'], 'Cellular Model': uplinks_info['Cellular']['model'], 'Cellular Connection': uplinks_info['Cellular']['connectionType'], 'Performance': perfscore})
         else:
             writer.writerow({'Network': network_name, 'Device': device_name, 'Serial': appliance['serial'], 'MAC': appliance['mac'], 'Model': appliance['model'], 'WAN1 Status': uplinks_info['WAN1']['status'], 'WAN1 IP': uplinks_info['WAN1']['ip'], 'WAN1 Gateway': uplinks_info['WAN1']['gateway'], 'WAN1 Public IP': uplinks_info['WAN1']['publicIp'], 'WAN1 DNS': uplinks_info['WAN1']['dns'], 'WAN1 Static': uplinks_info['WAN1']['usingStaticIp'], 'WAN2 Status': uplinks_info['WAN2']['status'], 'WAN2 IP': uplinks_info['WAN2']['ip'], 'WAN2 Gateway': uplinks_info['WAN2']['gateway'], 'WAN2 Public IP': uplinks_info['WAN2']['publicIp'], 'WAN2 DNS': uplinks_info['WAN2']['dns'], 'WAN2 Static': uplinks_info['WAN2']['usingStaticIp'], 'Cellular Status': uplinks_info['Cellular']['status'], 'Cellular IP': uplinks_info['Cellular']['ip'], 'Cellular Provider': uplinks_info['Cellular']['provider'], 'Cellular Public IP': uplinks_info['Cellular']['publicIp'], 'Cellular Model': uplinks_info['Cellular']['model'], 'Cellular Connection': uplinks_info['Cellular']['connectionType']})
