@@ -36,7 +36,7 @@
 # To make script chaining easier, all lines containing informational messages to the user
 #  start with the character @
 #
-# This file was last modified on 2018-03-29
+# This file was last modified on 2018-12-11 by Mihail Papazoglou
 
 
 import sys, getopt, requests, json, time
@@ -47,8 +47,8 @@ from datetime import datetime
 API_EXEC_DELAY = 0.21
 
 #connect and read timeouts for the Requests module
-REQUESTS_CONNECT_TIMEOUT = 30
-REQUESTS_READ_TIMEOUT    = 30
+REQUESTS_CONNECT_TIMEOUT = 60
+REQUESTS_READ_TIMEOUT    = 60
 
 #used by merakirequestthrottler(). DO NOT MODIFY
 LAST_MERAKI_REQUEST = datetime.now() 
@@ -110,7 +110,7 @@ def merakirequestthrottler(p_requestcount=1):
     
     LAST_MERAKI_REQUEST = datetime.now()
     return   
-    
+       
     
 def getorglist(p_apikey):
     #returns the organizations' list for a specified admin
@@ -132,12 +132,12 @@ def getorglist(p_apikey):
     return(rjson)
     
     
-def getorgadmins(p_apikey, p_orgid, p_shardhost):
+def getorgadmins(p_apikey, p_org, p_shardhost):
     #returns the list of admins for a specified organization
     
     merakirequestthrottler()
     try:
-        r = requests.get('https://%s/api/v0/organizations/%s/admins' % (p_shardhost, p_orgid), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT))
+        r = requests.get('https://%s/api/v0/organizations/%s/admins' % (p_shardhost, p_org.id), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT))
     except:
         printusertext('ERROR 02: Unable to contact Meraki cloud')
         sys.exit(2)
@@ -145,6 +145,7 @@ def getorgadmins(p_apikey, p_orgid, p_shardhost):
     returnvalue = []
     if r.status_code != requests.codes.ok:
         returnvalue.append({'id':'null'})
+        printusertext('WARNING: Unable to get admin list for organization "%s"' % p_org.name)
         return returnvalue
     
     rjson = r.json()
@@ -164,6 +165,8 @@ def addorgadmin(p_apikey, p_orgid, p_shardurl, p_email, p_name, p_privilege):
         sys.exit(2)
         
     if r.status_code != requests.codes.ok:
+        if r.status_code == 400:
+            printusertext('WARNING: Email already registered with a Cisco Meraki Dashboard account. For security purposes, that user must verify their email address before administrator permissions can be granted here.')
         return ('fail')
       
     return('ok')  
@@ -189,9 +192,10 @@ def deleteorgadmin(p_apikey, p_orgid, p_shardhost, p_adminid):
 def findadminid(p_adminlist, p_adminemail):
     #returns admin id associated with an email or 'null', if it is not found
     
-    for admin in p_adminlist:
-        if admin['email'] == p_adminemail:
-            return (admin['id'])  
+    if p_adminlist[0]['id'] != 'null':
+        for admin in p_adminlist:
+            if admin['email'] == p_adminemail:
+                return (admin['id'])
 
     return('null')
     
@@ -269,7 +273,7 @@ def cmdadd(p_apikey, p_orgs, p_email, p_name, p_privilege):
         sys.exit(2)
     
     for org in p_orgs:
-        orgadmins = getorgadmins(p_apikey, org.id, 'api.meraki.com')
+        orgadmins = getorgadmins(p_apikey, org, 'api.meraki.com')
         adminid   = findadminid(orgadmins, p_email)
         if adminid != 'null':
             printusertext('INFO: Skipping org "%s". Admin already exists' % org.name)
@@ -278,7 +282,7 @@ def cmdadd(p_apikey, p_orgs, p_email, p_name, p_privilege):
             addorgadmin(p_apikey, org.id, 'api.meraki.com', p_email, p_name, p_privilege)
             
             #verify that admin was correctly created
-            orgadmins = getorgadmins(p_apikey, org.id, 'api.meraki.com')
+            orgadmins = getorgadmins(p_apikey, org, 'api.meraki.com')
             adminid   = findadminid(orgadmins, p_email)
             if adminid == 'null':
                 printusertext('WARNING: Unable to create admin "%s" in org "%s"' % (p_email, org.name))
@@ -289,7 +293,7 @@ def cmddelete(p_apikey, p_orgs, p_admin):
     #deletes an administrator from all orgs in scope
 
     for org in p_orgs:
-        orgadmins = getorgadmins(p_apikey, org.id, 'api.meraki.com')
+        orgadmins = getorgadmins(p_apikey, org, 'api.meraki.com')
         adminid   = findadminid(orgadmins, p_admin)
         if adminid != 'null':
             printusertext('INFO: Removing admin "%s" from org "%s"' % (p_admin, org.name))
@@ -298,7 +302,7 @@ def cmddelete(p_apikey, p_orgs, p_admin):
             printusertext('INFO: Admin "%s" cannot be found in org "%s"' % (p_admin, org.name))
             
         #verify that the admin has actually been deleted
-        orgadmins = getorgadmins(p_apikey, org.id, 'api.meraki.com')
+        orgadmins = getorgadmins(p_apikey, org, 'api.meraki.com')
         adminid   = findadminid(orgadmins, p_admin)
         if adminid != 'null':
             printusertext('WARNING: Unable to remove admin "%s" from org "%s"' % (p_admin, org.name))
@@ -310,7 +314,7 @@ def cmdfind(p_apikey, p_orgs, p_admin):
     #finds organizations that contain an admin with specified email
     
     for org in p_orgs:
-        orgadmins = getorgadmins(p_apikey, org.id, 'api.meraki.com')
+        orgadmins = getorgadmins(p_apikey, org, 'api.meraki.com')
         adminid   = findadminid(orgadmins, p_admin)
         if adminid != 'null':
             print('Found admin "%s" in org "%s"' % (p_admin, org.name))
@@ -322,7 +326,7 @@ def cmdlist(p_apikey, p_orgs):
     #lists all admins in specified orgs
     
     for org in p_orgs:
-        orgadmins = getorgadmins(p_apikey, org.id, 'api.meraki.com')
+        orgadmins = getorgadmins(p_apikey, org, 'api.meraki.com')
         if orgadmins[0]['id'] != 'null':
             print('\nAdministrators for org "%s"' % org.name)
             print('NAME                           EMAIL                                              ORG PRIVILEGE')
