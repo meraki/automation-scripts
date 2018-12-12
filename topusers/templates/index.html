@@ -1,0 +1,80 @@
+<!-- Last modified on 2018-11-24 by Mihail Papazoglou -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MX usage report</title>
+<style>
+th, td {
+    padding: 5px;
+    text-align: left;
+}
+
+tr:nth-child(even) {background-color: #f2f2f2;}
+</style>
+</head>
+<body>
+    <p style="text-align:right"><a href="{{ url_for('rescan') }}">Scan for new appliances</a></p>
+    <h1>Network top users report</h1>
+
+    <form action="" method="post" novalidate>
+    <p>
+        {{ form.netname.label }}
+        {{ form.netname }}
+    </p>
+    <p>{{ form.submit() }}</p>
+    </form>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class=flashes>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+        
+    {% if output %}
+    <h3><br>Last {{ tshort }} minutes:</h3>
+    <table><tr><th>Total usage kB</th><th>Download kB</th><th>Upload kB</th><th>Description</th><th>DHCP hostname</th><th>MAC address</th><th>IP address</th><th>VLAN</th></tr>
+        {% for line in output.short %}
+            <tr>
+            {% for item in line %}
+            <td>
+                {{ item }}
+            </td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+    <h3><br>Last {{ tmid }} minutes:</h3>
+    <table><tr><th>Total usage kB</th><th>Download kB</th><th>Upload kB</th><th>Description</th><th>DHCP hostname</th><th>MAC address</th><th>IP address</th><th>VLAN</th></tr>
+        {% for line in output.mid %}
+            <tr>
+            {% for item in line %}
+            <td>
+                {{ item }}
+            </td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+    <h3><br>Last {{ tlong }} minutes:</h3>
+    <table><tr><th>Total usage kB</th><th>Download kB</th><th>Upload kB</th><th>Description</th><th>DHCP hostname</th><th>MAC address</th><th>IP address</th><th>VLAN</th></tr>
+        {% for line in output.long %}
+            <tr>
+            {% for item in line %}
+            <td>
+                {{ item }}
+            </td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <p style="font-style: italic">Report completed at {{ output.timestamp }}. </p>
+    {% endif %}
+    
+</body>
+</html>
