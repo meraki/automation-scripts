@@ -63,6 +63,8 @@ Files contained in this repository:
 
 **setssidvlanid.py:** Sets the VLAN ID of SSIDs in 'Layer 3 with concentrator' or 'VPN' mode to a value.
 
+**topusers:** Finds bandwidth hoggers in a network through a web UI.
+
 **update_ports.py:** This script finds all MS switchports that match the input search parameter, searching either by clients from a file listing MAC addresses (one per line), a specific tag in Dashboard currently applied to ports, or the specific access policy currently configured. It then changes the configuration of the port by applying the new access policy specified.
 
 **uplink.py:** Iterates through all devices, and exports to two CSV files: one for appliance (MX, Z1, Z3, vMX100) networks to collect WAN uplink information, and the other for all other devices (MR, MS, MC, MV) with local uplink info.
