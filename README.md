@@ -13,7 +13,7 @@ Files contained in this repository:
 
 **checksubnets.py:** This is a script to check if the LAN IPs (management addresses) of all access points in one or more organizations belong to specific IPv4 subnets. The purpose of the script is to find access points with misconfigured management addresses or VLANs, which may cause issues with 802.1x authentications. The output can be displayed on screen or sent as an email report.
 
-**clientcount.py:** Script to count the total unique client MAC addresses connected to MR access points for an organization during the last month.
+**clientcount.py:** Script to count the total unique client MAC addresses connected to MR access points for an organization during the last month. Can be used as guidance when sizing systems that have per-user licensing, like the Cisco Identity Services Engine.
 
 **copymxvlans.py:** This script can be used to export MX VLAN configuration of a source org to a file and import it to a destination org. The script will look for the exact same network names as they were in the source org. Use copynetworks.py and movedevices.py to migrate networks and devices if needed.
 
