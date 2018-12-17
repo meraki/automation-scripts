@@ -751,8 +751,8 @@ def decodefilters(p_filterstr):
                     else:
                         raise ValueError('org')
                 elif label == 'net':
-                    if output.net == '':
-                        output.net = splititem[1].strip()
+                    if output.netname == '':
+                        output.netname = splititem[1].strip()
                     else:
                         raise ValueError('net')
                 elif label == 'tag':
