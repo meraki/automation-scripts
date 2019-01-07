@@ -25,7 +25,7 @@
 #
 # Depending on your operating system, the command can be "pip3" instead of "pip".
 #
-# Last modified on 2018-12-05 by Mihail Papazoglou
+# Last modified on 2019-01-07 by Mihail Papazoglou
 
 import sys, getopt, requests, json, time, datetime, os, sqlite3
 
@@ -42,7 +42,7 @@ REQUESTS_READ_TIMEOUT       = 90
 LAST_MERAKI_REQUEST         = datetime.datetime.now()   #used by merakirequestthrottler()
 ARG_APIKEY                  = '' #DO NOT STATICALLY SET YOUR API KEY HERE
 ARG_ORGNAME                 = '' #DO NOT STATICALLY SET YOUR ORGANIZATION NAME HERE
-ORG_LIST                    = None #list of organizations, networks and MXs the used API key has access to
+ORG_LIST                    = None #list of organizations, networks and MRs the used API key has access to
 MAX_CLIENT_TIMESPAN         = 2592000 #maximum timespan GET clients Dashboard API call supports
         
 class c_Net:
@@ -219,7 +219,7 @@ def refreshOrgList():
                         
                         devicesofnet = dbcursor.fetchall()
                         
-                        if len(devicesofnet) > 0: #network has mxes
+                        if len(devicesofnet) > 0: #network has MRs
                             if flag_firstnet:
                                 if flag_firstorg:
                                     ORG_LIST = []
@@ -309,7 +309,7 @@ def main(argv):
     refreshOrgList()
     
     if ORG_LIST is None:
-        print('ERROR 03: No MX organizations for the specified API key')
+        print('ERROR 03: No organizations with MR access points for the specified API key')
         sys.exit(2) 
         
     print ('INFO: Starting client device database creation at %s...' % datetime.datetime.now())
