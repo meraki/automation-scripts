@@ -59,6 +59,8 @@ Files contained in this repository:
 
 **mxfirewallcontrol_manual.pdf:** Manual for mxfirewallcontrol.py.
 
+**orgclientscsv.py:** A script to create a CSV file with all of the client devices in an organization. The CSV file will be created in the same folder where this script is located. The script makes no attempt to remove or combine duplicate entries. If you see the same client being reported several times, this is typically an indication of a client that has been moving.
+
 **setlocation.py:** Sets the street address and optionally the map marker of all devices in a network or organization. To be more easily clickable, devices will be placed in a spiral around a seed location. There is an option to preserve marker location for MR access points, to avoid breaking wireless map layout.
 
 **setlocation_legacy.py:** Sets the street address of all devices in a given network to a given value. The intent of this script is to quickly fix address misconfigurations on large networks. The script has been updated from its initial version to use the Google Geocoding API to calculate a reasonable new positions for device map markers. This is a legacy script that is preserved as an example of integrating the Meraki Dashboard API with info extracted from a Google API. Please see setlocation.py for an improved version of the script that does not require a Google API key.
