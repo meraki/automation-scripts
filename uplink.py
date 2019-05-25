@@ -110,8 +110,8 @@ if __name__ == '__main__':
 
     # Iterate through all other devices
     for device in devices:
-        print('Looking into network ' + network_name)
         network_name = get_network_name(device['networkId'], networks)
+        print('Looking into network ' + network_name)
         device_name = json.loads(session.get('https://api.meraki.com/api/v0/networks/' + device['networkId'] + '/devices/' + device['serial'], headers=headers).text)['name']
         try:
             print('Found device ' + device_name)
