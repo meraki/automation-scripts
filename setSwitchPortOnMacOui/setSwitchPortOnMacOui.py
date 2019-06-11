@@ -20,10 +20,10 @@ Example:
   python setSwitchPortOnMacOui.py -k 1234 -o "Big Industries Inc" -f macs.txt -c cfg.txt -m commit
   
 Example MAC OUI file:
-  TODO: Insert Github link
+  https://github.com/meraki/automation-scripts/blob/master/setSwitchPortOnMacOui/ouilist.txt
 
 Example configuration file:
-  TODO: Insert Github link
+  https://github.com/meraki/automation-scripts/blob/master/setSwitchPortOnMacOui/cmdlist.txt
 
 Notes:
  * This script uses two calls that were in Beta at time of writing. If the script fails to fetch client lists
