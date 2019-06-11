@@ -67,6 +67,8 @@ Files contained in this repository:
 
 **setssidvlanid.py:** Sets the VLAN ID of SSIDs in 'Layer 3 with concentrator' or 'VPN' mode to a value.
 
+**setSwitchPortOnMacOui.py:** This is a script to set attributes of a switch port, if a client with a matching MAC OUI is found connected to it. This script uses two endpoints that were in Beta at time of writing: "List the clients that have used this network in the timespan" and "Action batches".
+
 **topusers:** Finds bandwidth hoggers in a network through a web UI.
 
 **update_ports.py:** This script finds all MS switchports that match the input search parameter, searching either by clients from a file listing MAC addresses (one per line), a specific tag in Dashboard currently applied to ports, or the specific access policy currently configured. It then changes the configuration of the port by applying the new access policy specified.
