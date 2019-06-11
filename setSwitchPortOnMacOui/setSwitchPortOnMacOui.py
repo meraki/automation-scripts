@@ -41,7 +41,7 @@ After installing Python, you can install these additional modules using pip with
 
 Depending on your operating system, the command can be "pip3" instead of "pip".'''
 
-import sys, getopt, requests, json, time, datetime, os, sqlite3
+import sys, getopt, requests, json, time, datetime
 
 #SECTION: GLOBAL VARIABLES: MODIFY TO CHANGE SCRIPT BEHAVIOUR
 
@@ -65,8 +65,6 @@ ACTION_BATCH_SIZE           = 100
 LAST_MERAKI_REQUEST         = datetime.datetime.now()   #used by merakiRequestThrottler()
 ARG_APIKEY                  = '' #DO NOT STATICALLY SET YOUR API KEY HERE
 ARG_ORGNAME                 = '' #DO NOT STATICALLY SET YOUR ORGANIZATION NAME HERE
-ORG_LIST                    = None #list of organizations, networks and MRs the used API key has access to
-DEVICE_DB                   = None #SQLite3 database of all network devices
 SECONDS_IN_DAY              = 86400
            
 class c_Net:
