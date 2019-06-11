@@ -1,0 +1,2 @@
+vlan: 30
+tags: phone-port
