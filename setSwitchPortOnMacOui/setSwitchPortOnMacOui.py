@@ -26,7 +26,7 @@ Example configuration file:
   https://github.com/meraki/automation-scripts/blob/master/setSwitchPortOnMacOui/cmdlist.txt
 
 Notes:
- * This script uses two calls that were in Beta at time of writing. If the script fails to fetch client lists
+ * This script uses two endpoints that were in Beta at time of writing. If the script fails to fetch client lists
     with a status code of 404, you will need to have these enabled by Meraki for your organization:
         "List the clients that have used this network in the timespan"
         "Action batches"        
@@ -96,6 +96,67 @@ def merakiRequestThrottler():
     
 def printhelp():
     print(readMe)
+    
+    
+def matchOui(p_mac, p_ouiList):
+    for oui in p_ouiList:
+        if p_mac.lower().startswith(oui.lower()):
+            return True
+
+    return False
+    
+    
+def loadFile(p_fileName):
+    returnValue = []
+
+    try:
+        f = open(p_fileName, 'r')
+    
+        for line in f:
+            if len(line) > 0:
+                returnValue.append(line.strip())
+            
+        f.close()
+    except:
+        print('ERROR 06: Error loading file "%s"' % p_fileName)
+        return None     
+        
+    return returnValue
+    
+    
+def parseConfig(p_rawConfig):
+    ret = []
+
+    for line in p_rawConfig:
+        splitLine = line.split(':')
+        if len(splitLine) == 2:
+            ret.append([splitLine[0].strip(), splitLine[1].strip()])
+        else:
+            return None
+    return ret
+    
+    
+def buildAccessSwitchList(p_org):
+    returnValue = []
+
+    orgInventory = getInventory(p_org)
+    if orgInventory == None:
+        return None
+            
+    for device in orgInventory:
+        if device['model'].startswith('MS'):
+            if not device['model'].startswith('MS4'):
+                returnValue.append(device)
+                
+    return returnValue
+
+
+def checkIfOnValidAccessSwitch(p_serial, p_switchList):
+    for switch in p_switchList:
+        if p_serial == switch['serial']:
+            return True
+
+    return False
     
     
 #SECTION: Meraki Dashboard API communication functions
@@ -222,67 +283,6 @@ def getNetworkClients(p_org, p_net):
 
     return returnValue
     
-    
-def matchOui(p_mac, p_ouiList):
-    for oui in p_ouiList:
-        if p_mac.lower().startswith(oui.lower()):
-            return True
-
-    return False
-    
-    
-def loadFile(p_fileName):
-    returnValue = []
-
-    try:
-        f = open(p_fileName, 'r')
-    
-        for line in f:
-            if len(line) > 0:
-                returnValue.append(line.strip())
-            
-        f.close()
-    except:
-        print('ERROR 06: Error loading file "%s"' % p_fileName)
-        return None     
-        
-    return returnValue
-    
-    
-def parseConfig(p_rawConfig):
-    ret = []
-
-    for line in p_rawConfig:
-        splitLine = line.split(':')
-        if len(splitLine) == 2:
-            ret.append([splitLine[0].strip(), splitLine[1].strip()])
-        else:
-            return None
-    return ret
-    
-    
-def buildAccessSwitchList(p_org):
-    returnValue = []
-
-    orgInventory = getInventory(p_org)
-    if orgInventory == None:
-        return None
-            
-    for device in orgInventory:
-        if device['model'].startswith('MS'):
-            if not device['model'].startswith('MS4'):
-                returnValue.append(device)
-                
-    return returnValue
-
-
-def checkIfOnValidAccessSwitch(p_serial, p_switchList):
-    for switch in p_switchList:
-        if p_serial == switch['serial']:
-            return True
-
-    return False
-    
 
 def executeActionBatch (p_org, p_portList, p_config):
     print('Executing action batch...')
@@ -366,6 +366,9 @@ def main(argv):
         
     if arg_mode     == '':
         arg_mode    = 'simulation'
+        
+        
+    #script main body    
        
     ouiList     = loadFile(arg_macFile)
     if ouiList is None:
@@ -409,9 +412,8 @@ def main(argv):
                                 if checkIfOnValidAccessSwitch(client['recentDeviceSerial'], devlist):
                                     print ('QUEUED: Will edit port for MAC %s: "%s" (%s) Port %s' % (client['mac'], client['recentDeviceName'], client['recentDeviceSerial'], client['switchport']) )
                                     if arg_mode == 'commit':
-                                        if len(actionBatchQueue) < ACTION_BATCH_SIZE:
-                                            actionBatchQueue.append([client['recentDeviceSerial'], client['switchport']])
-                                        else:
+                                        actionBatchQueue.append([client['recentDeviceSerial'], client['switchport']])
+                                        if len(actionBatchQueue) >= ACTION_BATCH_SIZE:
                                             batchSuccess = executeActionBatch (org, actionBatchQueue, cfgList)
                                             if batchSuccess:
                                                 print ('SUCCESS: Batch operation successful')
