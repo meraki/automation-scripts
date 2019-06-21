@@ -3,21 +3,27 @@
 '''
 === PREREQUISITES ===
 Run in Python 3
+
 Install requests library, via macOS terminal:
 pip3 install requests
+
 login.py has these two lines, with the API key from your Dashboard profile (upper-right email login > API access), and organization ID to call (https://dashboard.meraki.com/api/v0/organizations); separated into different file for security.
 api_key = '[API_KEY]'
 org_id = '[ORG_ID]'
+
 Usage:
 python3 uplink.py
+
 === DESCRIPTION ===
 Iterates through all devices, and exports to two CSV files: one for appliance (MX, Z1, Z3, vMX100) networks to collect WAN uplink information, and the other for all other devices (MR, MS, MC, MV) with local uplink info.
+
 Possible statuses:
 Active: active and working WAN port
 Ready: standby but working WAN port, not the preferred WAN port
 Failed: was working at some point but not anymore
 Not connected: nothing was ever connected, no cable plugged in
 For load balancing, both WAN links would show active.
+
 For any questions, please contact Shiyue (Shay) Cheng, shiychen@cisco.com
 '''
 
@@ -90,26 +96,31 @@ if __name__ == '__main__':
             elif uplink['interface'] == 'Cellular':
                 for key in uplink.keys():
                     uplinks_info['Cellular'][key] = uplink[key]
-        
-		if perfscore != None:
+        if perfscore != None:
             writer.writerow({'Network': network_name, 'Device': device_name, 'Serial': appliance['serial'], 'MAC': appliance['mac'], 'Model': appliance['model'], 'WAN1 Status': uplinks_info['WAN1']['status'], 'WAN1 IP': uplinks_info['WAN1']['ip'], 'WAN1 Gateway': uplinks_info['WAN1']['gateway'], 'WAN1 Public IP': uplinks_info['WAN1']['publicIp'], 'WAN1 DNS': uplinks_info['WAN1']['dns'], 'WAN1 Static': uplinks_info['WAN1']['usingStaticIp'], 'WAN2 Status': uplinks_info['WAN2']['status'], 'WAN2 IP': uplinks_info['WAN2']['ip'], 'WAN2 Gateway': uplinks_info['WAN2']['gateway'], 'WAN2 Public IP': uplinks_info['WAN2']['publicIp'], 'WAN2 DNS': uplinks_info['WAN2']['dns'], 'WAN2 Static': uplinks_info['WAN2']['usingStaticIp'], 'Cellular Status': uplinks_info['Cellular']['status'], 'Cellular IP': uplinks_info['Cellular']['ip'], 'Cellular Provider': uplinks_info['Cellular']['provider'], 'Cellular Public IP': uplinks_info['Cellular']['publicIp'], 'Cellular Model': uplinks_info['Cellular']['model'], 'Cellular Connection': uplinks_info['Cellular']['connectionType'], 'Performance': perfscore})
         else:
             writer.writerow({'Network': network_name, 'Device': device_name, 'Serial': appliance['serial'], 'MAC': appliance['mac'], 'Model': appliance['model'], 'WAN1 Status': uplinks_info['WAN1']['status'], 'WAN1 IP': uplinks_info['WAN1']['ip'], 'WAN1 Gateway': uplinks_info['WAN1']['gateway'], 'WAN1 Public IP': uplinks_info['WAN1']['publicIp'], 'WAN1 DNS': uplinks_info['WAN1']['dns'], 'WAN1 Static': uplinks_info['WAN1']['usingStaticIp'], 'WAN2 Status': uplinks_info['WAN2']['status'], 'WAN2 IP': uplinks_info['WAN2']['ip'], 'WAN2 Gateway': uplinks_info['WAN2']['gateway'], 'WAN2 Public IP': uplinks_info['WAN2']['publicIp'], 'WAN2 DNS': uplinks_info['WAN2']['dns'], 'WAN2 Static': uplinks_info['WAN2']['usingStaticIp'], 'Cellular Status': uplinks_info['Cellular']['status'], 'Cellular IP': uplinks_info['Cellular']['ip'], 'Cellular Provider': uplinks_info['Cellular']['provider'], 'Cellular Public IP': uplinks_info['Cellular']['publicIp'], 'Cellular Model': uplinks_info['Cellular']['model'], 'Cellular Connection': uplinks_info['Cellular']['connectionType']})
     csv_file1.close()
 
-    # check WAN2 status and send email if 'Not connected' or 'Failed'
+    # check WAN2 status and send email and write a file if 'Not connected' or 'Failed'
     if uplink_info['WAN2']['status'] == 'Failed' or uplink_info['WAN2']['status'] == 'Not connected':
-        to = '***ENTER TO EMAIL ADDRESS***'
-	fro = '***ENTER FROM EMAIL ADDRESS***'
-	SUBJECT = '***ENTER EMAIL SUBJECT***'
-	TEXT = '***ENTER EMAIL BODY CONTENTS***'
-	message = 'Subject: {}\n\n{}'.format(SUBJECT, TEXT)
-	server = smtplib.SMTP('***ENTER SMTP SERVER***')
-	server.starttls()
-	server.login('***ENTER LOGIN***', '***ENTER PASSWORD***')
-	server.sendmail(fro, to, message)
-	server.close()
-	
+        TO = '***ENTER TO EMAIL ADDRESS***'
+    	FROM = '***ENTER FROM EMAIL ADDRESS***'
+    	SUBJECT = '***ENTER EMAIL SUBJECT***'
+    	TEXT = '***ENTER EMAIL BODY CONTENTS***'
+    	MESSAGE = 'Subject: {}\n\n{}'.format(SUBJECT, TEXT)
+    	SERVER = smtplib.SMTP('***ENTER SMTP SERVER***')
+    	SERVER.starttls()
+    	SERVER.login('***ENTER LOGIN***', '***ENTER PASSWORD***')
+    	SERVER.sendmail(FROM, TO, MESSAGE)
+    	SERVER.close()
+
+        csv_failed = open(name + ' failures -' + str(today) + '.csv', 'w', encoding='utf-8')
+        failed_writer = csv.DictWriter(csv_failed, fieldnames=fieldnames, restval='')
+        failed_writer.writeheader()
+        failed_writer.writerow({ 'TO': TO, 'FROM': FROM, 'SUBJECT': SUBJECT, 'TEXT': TEXT, 'MESSAGE': MESSAGE })
+        csv_failed.close()
+
     # Output CSV of all other devices' info
     csv_file2 = open(name + ' other devices -' + str(today) + '.csv', 'w', encoding='utf-8')
     fieldnames = ['Network', 'Device', 'Serial', 'MAC', 'Model', 'Status', 'IP', 'Gateway', 'Public IP', 'DNS', 'VLAN', 'Static']
@@ -118,8 +129,8 @@ if __name__ == '__main__':
 
     # Iterate through all other devices
     for device in devices:
-        print('Looking into network ' + network_name)
         network_name = get_network_name(device['networkId'], networks)
+        print('Looking into network ' + network_name)
         device_name = json.loads(session.get('https://api.meraki.com/api/v0/networks/' + device['networkId'] + '/devices/' + device['serial'], headers=headers).text)['name']
         try:
             print('Found device ' + device_name)
@@ -127,7 +138,7 @@ if __name__ == '__main__':
             print('Found device ' + device['serial'])
         uplink_info = dict.fromkeys(['interface', 'status', 'ip', 'gateway', 'publicIp', 'dns', 'vlan', 'usingStaticIp'])
         uplink = json.loads(session.get('https://api.meraki.com/api/v0/networks/' + device['networkId'] + '/devices/' + device['serial'] + '/uplink', headers=headers).text)
-        
+
         # Blank uplink for devices that are down or meshed APs
         if uplink == []:
             continue
