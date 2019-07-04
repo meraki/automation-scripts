@@ -1,0 +1,13 @@
+# Lines beginning with # are comments and will not be processed.
+#
+# Valid subnet definitions:
+# <subnet>/<netmask>, <gateway address>, <name>
+# <subnet>/<netmask>, <gateway address>
+# <subnet>/<mask bits>, <gateway address>, <name>
+# <subnet>/<mask bits>, <gateway address>
+# Examples:
+# 192.168.100.33/255.255.255.0, 192.168.128.3, User network
+# 10.33.33.20/24, 192.168.128.4, Lab network
+
+192.168.100.33/255.255.255.0, 192.168.128.3, User network
+10.33.33.20/24, 192.168.128.4, Lab network
