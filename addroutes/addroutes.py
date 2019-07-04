@@ -84,6 +84,8 @@ def parseCSV(p_csv):
         splitStr = line.split(',')
         lenSplit = len(splitStr)
         try:
+            if splitStr[0].find('/') == -1:
+                raise 'Destination must contain a "/"'
             destination = str(ipaddress.IPv4Network(splitStr[0].strip(), False))
             gateway     = str(ipaddress.IPv4Address(splitStr[1].strip()))
         except:
