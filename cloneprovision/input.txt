@@ -1,4 +1,4 @@
-# Example iput file for cloneprovision.py. Get the script here:
+# Example input file for cloneprovision.py. Get the script here:
 #  https://github.com/meraki/automation-scripts/blob/master/cloneprovision/cloneprovision.py
 #
 # Lines beginning with # are comments and will be ignored.
