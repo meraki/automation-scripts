@@ -1,0 +1,9 @@
+# Lines beginning with # are comments and will be ignored.
+#
+# Input data format:
+# <device serial number>,<new network name>,<vlan id>:<vlan subnet>,<vlan id>:<vlan subnet>,etc...
+#
+# Example:
+# AAAA-BBBB-CCCC,New branch,10:192.168.1.0/24,20:192.168.2.0/24,30:192.168.3.0/24
+
+AAAA-BBBB-CCCC, New branch, 10:192.168.0.0/24
