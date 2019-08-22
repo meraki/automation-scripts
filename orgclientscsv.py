@@ -311,39 +311,40 @@ def main(argv):
             print ('INFO: Processing net "%s"' % net.name)
             for dev in net.devices:
                 clients = getclientlist(org.shard, dev[0], MAX_CLIENT_TIMESPAN)
-                for client in clients:
-                    DEVcursor.execute('''SELECT oui FROM ouis WHERE oui = ?''', (client['mac'][:8],))
-                    matchingMerakiOuis = DEVcursor.fetchall()
-                    if len(matchingMerakiOuis) == 0: #client device is not, in fact, a Meraki device neighbour
-                        if flag_firstNet:
-                            flag_firstNet = False
-                            print('INFO: Creating file "' + reportFileName + '"')
+                if not clients is None:
+                    for client in clients:
+                        DEVcursor.execute('''SELECT oui FROM ouis WHERE oui = ?''', (client['mac'][:8],))
+                        matchingMerakiOuis = DEVcursor.fetchall()
+                        if len(matchingMerakiOuis) == 0: #client device is not, in fact, a Meraki device neighbour
+                            if flag_firstNet:
+                                flag_firstNet = False
+                                print('INFO: Creating file "' + reportFileName + '"')
+                                try:
+                                    f = open(reportFileName, 'w')
+                                    f.write('id,mac,description,mdnsName,dhcpHostname,ip,vlan,switchport,usageKBSentToClient,usageKBRecvFromClient,networkId,networkName,reportedByDevSerial,reportedByDevName,reportedByDevModel\n')
+                                except:
+                                    print('ERROR 06: Unable to open file "' + reportFileName + '" for writing')
+                                    sys.exit(2)
+                                    
                             try:
-                                f = open(reportFileName, 'w')
-                                f.write('id,mac,description,mdnsName,dhcpHostname,ip,vlan,switchport,usageKBSentToClient,usageKBRecvFromClient,networkId,networkName,reportedByDevSerial,reportedByDevName,reportedByDevModel\n')
+                                f.write(str(client['id'])                   + ',' +
+                                        str(client['mac'])                  + ',' +
+                                        str(client['description'])          + ',' +
+                                        str(client['mdnsName'])             + ',' +
+                                        str(client['dhcpHostname'])         + ',' +
+                                        str(client['ip'])                   + ',' +
+                                        str(client['vlan'])                 + ',' +
+                                        str(client['switchport'])           + ',' +
+                                        str(int(client['usage']['sent']))   + ',' +
+                                        str(int(client['usage']['recv']))   + ',' +
+                                        str(net.id)                         + ',' +
+                                        str(net.name)                       + ',' +
+                                        str(dev[0])                         + ',' +
+                                        str(dev[1])                         + ',' +
+                                        str(dev[2])                         + '\n' )
                             except:
-                                print('ERROR 06: Unable to open file "' + reportFileName + '" for writing')
+                                print('ERROR 08: Unable to write to file "' + reportFileName + '"')
                                 sys.exit(2)
-                                
-                        try:
-                            f.write(str(client['id']) + ',' +
-                                    str(client['mac']) + ',' +
-                                    str(client['description']) + ',' +
-                                    str(client['mdnsName']) + ',' +
-                                    str(client['dhcpHostname']) + ',' +
-                                    str(client['ip']) + ',' +
-                                    str(client['vlan']) + ',' +
-                                    str(client['switchport']) + ',' +
-                                    str(int(client['usage']['sent'])) + ',' +
-                                    str(int(client['usage']['recv'])) + ',' +
-                                    str(net.id) + ',' +
-                                    str(net.name) + ',' +
-                                    str(dev[0]) + ',' +
-                                    str(dev[1]) + ',' +
-                                    str(dev[2]) + '\n' )
-                        except:
-                            print('ERROR 08: Unable to write to file "' + reportFileName + '"')
-                            sys.exit(2)
                     
     
     DEVICE_DB.close()
