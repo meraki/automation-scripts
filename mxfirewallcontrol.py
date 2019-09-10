@@ -51,7 +51,6 @@
 # The full manual for this script can be found here:
 #   https://github.com/meraki/automation-scripts/blob/master/mxfirewallcontrol_manual.pdf
 #
-# This file was last modified on 2017-11-09
 
 
 import sys, getopt, requests, json, time, datetime, os, re
@@ -1129,7 +1128,7 @@ def main(argv):
             printhelp()
             sys.exit()
         elif opt == '-k':
-            arg_apikey  = arg
+            arg_apikey  = str(arg)
         elif opt == '-o':
             arg_org     = arg
         elif opt == '-f':
