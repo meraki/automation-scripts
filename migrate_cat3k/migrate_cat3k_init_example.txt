@@ -1,0 +1,33 @@
+#This is a sample Catalyst migration initialization file with device mappings for migrate_cat3k.py
+#
+#Syntax:
+# * Blank lines and lines only containing whitespace will be ignored.
+# * Use lines beginning with # as comments. These lines will be ignored.
+# * Use "net=Network_name" to define a network. A network definition line must exist before any
+#    device definition lines.
+# * Device definition lines. These lines define the IP address of the original Catalyst switch, 
+#    the Meraki MS switch serial number the configuration will be transferred to and optionally
+#    a SSH username and password to log into the Catalyst device. If username and password are
+#    omitted, default credentials will be used. These lines can have four forms:
+#        <device_ip> <serial_number>
+#        <device_ip> <serial_number> <username> <password>
+#        file <filename> <serial_number>
+# * To migrate a multi-linecard switch or a switch stack, separate their serial numbers with commas, leaving no spaces between them
+#
+#Examples of net definition and device definition lines, commented out:
+#
+#net=Migrated headquarters network 
+#10.1.1.20 AAAA-BBBB-CCCC admin admin
+#10.1.1.21 AAAA-BBBB-DDDD admin@system admin123
+#file myconfig.cfg BBBB-CCCC-DDDD
+#
+#net=Migrated branch network
+#192.168.10.10 AAAA-BBBB-EEEE
+#
+#net=Network for switch stack
+#3.3.3.3 DDDD-EEEE-FFFF,EEEE-FFFF-GGGG,FFFF-GGGG-HHHH
+
+net=Migration test network
+192.168.100.250 ABCD-ABCD-ABCD cisco cisco
+file IOS-3750X-config.txt BADC-BADC-BADC
+
