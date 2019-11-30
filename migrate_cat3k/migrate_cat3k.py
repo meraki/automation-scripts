@@ -499,9 +499,9 @@ def createActionBatch (p_apiKey, p_orgId, p_actions):
         }
     )
         
-    if True:
+    try:
         r = requests.post( API_BASE_URL + '/organizations/%s/actionBatches' % p_orgId, data=payload, headers={'X-Cisco-Meraki-API-Key': p_apiKey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT))
-    else:
+    except:
         return None
     
     if 200 <= r.status_code < 300:
