@@ -19,7 +19,7 @@ Usage example:
   python migrate_cat3k.py -k 1234 -o "My Meraki Account" -i init_config.txt
 
 Init configuration file example:
-  [TODO: INSERT GITHUB LINK]
+  https://github.com/meraki/automation-scripts/blob/master/migrate_cat3k/migrate_cat3k_init_example.txt
 
 Usage notes:
   SSH sources require a username and password, either by setting the defaults, or providing one in the init file.
