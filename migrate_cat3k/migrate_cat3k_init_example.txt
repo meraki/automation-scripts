@@ -12,6 +12,7 @@
 #        <device_ip> <serial_number>
 #        <device_ip> <serial_number> <username> <password>
 #        file <filename> <serial_number>
+# * File names should contain spaces
 # * To migrate a multi-linecard switch or a switch stack, separate their serial numbers with commas, leaving no spaces between them
 #
 #Examples of net definition and device definition lines, commented out:
