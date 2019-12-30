@@ -1,0 +1,20 @@
+#INPUT FILE GENERATOR FOR provision_sites.py;;;;;;;;;;;;;;
+#;;;;;;;;;;;;;;
+#Do not remove, modify or reorder the line below;;;;;;;;;;;;;;
+meta:delimeter-detector-line;;;;;;;;;;;;;;
+#;;;;;;;;;;;;;;
+#Format of this file:;;;;;;;;;;;;;;
+"# * Lines beginning with # or "" are comments and will be ignored";;;;;;;;;;;;;;
+# * Starting with row 20, one line equals one created network;;;;;;;;;;;;;;
+# * Columns D through N are used to define manual subnet overrides;;;;;;;;;;;;;;
+# * The last column contains an optional space-separated list of serial numbers to be claimed into the network;;;;;;;;;;;;;;
+#;;;;;;;;;;;;;;
+#How to use:;;;;;;;;;;;;;;
+# * In cells D19 through N19, replace X with the number of the VLAN you want to manually override the subnet of. Any columns left as VLAN X will be ignored;;;;;;;;;;;;;;
+# * If needed, you can add more VLAN columns before the serial numbers' column;;;;;;;;;;;;;;
+"# * The ""Street address"" cell directs the script to reset physical location information for any claimed devices to this value. Leave blank to skip";;;;;;;;;;;;;;
+# * Enter site info as shown in the example row. Define subnet overrides as the network IP address with no mask or prefix. Leave cells blank to skip;;;;;;;;;;;;;;
+"# * Export file as a CSV. Either use "","" or "";"" as a delimeter (but not both).  Use the CSV as an input file to run provision_sites.py";;;;;;;;;;;;;;
+#;;;;;;;;;;;;;;
+Network name;Street address;Template name;VLAN X;VLAN X;VLAN X;VLAN X;VLAN X;VLAN X;VLAN X;VLAN X;VLAN X;VLAN X;VLAN X;Device serial numbers to claim into network, separated by spaces
+Example Net (modify or delete this row);Example str 1;store-blueprint;192.168.0.0;;;;;;;;;;;AAAA-BBBB-CCCC
