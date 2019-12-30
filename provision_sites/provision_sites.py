@@ -27,7 +27,7 @@ Usage example:
   python provision_sites.py -k 1234 -o "Big Industries Inc" -i site_info.csv
   
 Example input CSV file and CSV generator Excel sheet here:
-  [TODO: INSERT GITHUB LINK]
+  https://github.com/meraki/automation-scripts/tree/master/provision_sites
   
 Required Python 3 modules:
   Requests     : http://docs.python-requests.org
