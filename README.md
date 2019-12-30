@@ -5,7 +5,7 @@ Meraki Dashboard API automation/migration scripts in Python
 
 Here you can find Meraki Dashboard API scripts written for Python 3.
 
-Check back from time to time, as new scripts are added and existing ones are sometimes polished and improved after initial posting.
+Check back from time to time, as new scripts are added and existing ones are sometimes polished and improved after initial posting. Please note that since the Meraki APIs are expanded constantly, there may be more efficient ways to complete a task than what was available when these scripts were created. For the latest info on Meraki APIs, visit: https://developer.cisco.com/meraki/whats-new/
 
 Files contained in this repository:
 
@@ -66,6 +66,8 @@ Files contained in this repository:
 **mxfirewallcontrol_manual.pdf:** Manual for mxfirewallcontrol.py.
 
 **orgclientscsv.py:** A script to create a CSV file with all of the client devices in an organization. The CSV file will be created in the same folder where this script is located. The script makes no attempt to remove or combine duplicate entries. If you see the same client being reported several times, this is typically an indication of a client that has been moving.
+
+**provision_sites:** A Python 3 script to provision template-based networks with manually defined VLAN subnets to Meraki dashboard. The script can also claim devices and update their location on the world map.
 
 **setlocation.py:** Sets the street address and optionally the map marker of all devices in a network or organization. To be more easily clickable, devices will be placed in a spiral around a seed location. There is an option to preserve marker location for MR access points, to avoid breaking wireless map layout.
 
