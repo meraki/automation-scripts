@@ -69,6 +69,9 @@ API_BASE_URL_MEGA_PROXY     = 'https://api-mp.meraki.com/api/v0'
 API_BASE_URL_NO_MEGA        = 'https://api.meraki.com/api/v0'
 ACTION_BATCH_QUEUE          = []
 
+#Max number of loops to try when waiting for action batches to complete and retry interval in seconds
+ABWAIT_MAX_LOOPS            = 20
+ABWAIT_RETRY_INTERVAL       = 2
 
 #SECTION: Classes
       
@@ -373,10 +376,11 @@ def parsePortConfig(p_rawcfg):
                     if not str(currentPort) in stackMembers[currentStackMember][currentModule]:
                         stackMembers[currentStackMember][currentModule][currentPort] = {}
                     stackMembers[currentStackMember][currentModule][currentPort]['access'] = pieces[3]
-                    if not 'tags' in stackMembers[currentStackMember][currentModule][currentPort]:
-                        stackMembers[currentStackMember][currentModule][currentPort]['tags'] = ''
-                    stackMembers[currentStackMember][currentModule][currentPort]['tags'] += vlanNames[pieces[3]]                   
-                    stackMembers[currentStackMember][currentModule][currentPort]['tags'] += ' '                  
+                    if pieces[3] in vlanNames:
+                        if not 'tags' in stackMembers[currentStackMember][currentModule][currentPort]:
+                            stackMembers[currentStackMember][currentModule][currentPort]['tags'] = ''
+                        stackMembers[currentStackMember][currentModule][currentPort]['tags'] += vlanNames[pieces[3]]                   
+                        stackMembers[currentStackMember][currentModule][currentPort]['tags'] += ' '                  
                     
             elif pieces[1] == 'voice':
                 if pieces[2] == 'vlan':
@@ -406,8 +410,9 @@ def parsePortConfig(p_rawcfg):
                         splitStr = pieces[4].split(',')
                         for line in splitStr:
                             stackMembers[currentStackMember][currentModule][currentPort]['allowed'].append(line)
-                            stackMembers[currentStackMember][currentModule][currentPort]['tags'] += vlanNames[line]
-                            stackMembers[currentStackMember][currentModule][currentPort]['tags'] += ' '
+                            if line in vlanNames:
+                                stackMembers[currentStackMember][currentModule][currentPort]['tags'] += vlanNames[line]
+                                stackMembers[currentStackMember][currentModule][currentPort]['tags'] += ' '
                         
         elif firstPiece == 'vlan':
             try:
@@ -550,20 +555,28 @@ def getActionBatches(p_apiKey, p_orgId):
 def waitForActionBatchesToComplete(p_apiKey, p_orgId, p_batchIds):
     flag_waitSomeMore   = True
     flag_batchHasFailed = False
-    
+        
+    i = -1
     while flag_waitSomeMore:
+        i += 1
+        if i >= ABWAIT_MAX_LOOPS:
+            break
         flag_waitSomeMore   = False
         actionBatches       = getActionBatches(p_apiKey, p_orgId)
+        #print(actionBatches)
         for id in p_batchIds:
             for record in actionBatches:
                 if record['id'] == id:
-                    if not record['status']['completed']:
+                    if not record['status']['completed'] and not record['status']['failed']:
                         flag_waitSomeMore = True
                         break
                     if record['status']['failed']:
+                        print('ERROR 29: Action batch with batchId %s has failed' % id)
+                        if 'errors' in record['status']:
+                            print(record['status']['errors'])
                         return False
         if flag_waitSomeMore:
-            time.sleep(2)                        
+            time.sleep(ABWAIT_RETRY_INTERVAL)                        
     return True
     
     
@@ -584,6 +597,8 @@ def sendHostnameToQueue(p_apiKey, p_orgId, p_networkId, p_hostname, p_increment,
         success, batchId = queueActionBatch (p_apiKey, p_orgId, action)
         if not success:
             print('ERROR 13: Failed to queue action batch')
+            
+        return batchId
         
     return None
     
@@ -631,6 +646,8 @@ def sendPortConfigToQueue(p_apiKey, p_orgId, p_portConfig, p_serial, p_copperCou
         success, batchId = queueActionBatch (p_apiKey, p_orgId, action)
         if not success:
             print('ERROR 14: Failed to queue action batch')
+            
+        return batchId
     
     return None
 
@@ -861,6 +878,7 @@ def main(argv):
                 
     #submit config  
     print('Configuring devices...')    
+    batchIds = []
     for line in conversions:
         shortest        = len(line.portConfig)
         deviceListLen   = len(line.targetDevices)
@@ -876,10 +894,24 @@ def main(argv):
                     copperPortCount = device['copper']
                     sfpPortCount    = device['sfp']                    
                     break
-            sendHostnameToQueue(arg_apikey, orgId, targetNetwork, line.hostname, i, line.targetDevices[i])
-            sendPortConfigToQueue(arg_apikey, orgId, line.portConfig[i], line.targetDevices[i], copperPortCount, sfpPortCount)
+            batchId = sendHostnameToQueue(arg_apikey, orgId, targetNetwork, line.hostname, i, line.targetDevices[i])
+            if not batchId is None:
+                batchIds.append(batchId)
+            batchId = sendPortConfigToQueue(arg_apikey, orgId, line.portConfig[i], line.targetDevices[i], copperPortCount, sfpPortCount)
+            if not batchId is None:
+                batchIds.append(batchId)
             
-    queueActionBatch (arg_apikey, orgId, None, True)    
+    success, batchId = queueActionBatch (arg_apikey, orgId, None, True)
+    if not batchId is None:
+        batchIds.append(batchId)
+    
+    #check that all action batches have been completed before proceeding
+    print('Waiting for action batches to complete...')
+    result = waitForActionBatchesToComplete(arg_apikey, orgId, batchIds)
+    
+    if not result:
+        print('ERROR 28: An action batch has failed to execute')
+        sys.exit(2)
         
     print('\nEnd of script.')                      
 if __name__ == '__main__':
