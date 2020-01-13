@@ -2,26 +2,29 @@
 
 READ_ME = '''
 === PREREQUISITES ===
-Run in Python 3
-
-Install both requests & Meraki Dashboard API Python modules:
-pip[3] install --upgrade requests
+Run in Python 3 with Meraki dashboard API Python library @
+https://github.com/meraki/dashboard-api-python/
 pip[3] install --upgrade meraki
 
 === DESCRIPTION ===
-Exports CSV of MX L3 firewall rules from Dashboard appliance/combined network.
+Exports CSV of MX L3 outbound firewall rules.
 
 === USAGE ===
-python export_mx_l3.py -k <api_key> -n <net_id>
+python[3] export_mx_l3.py [-k <api_key>] -n <net_id>
+
+API key can also be exported as an environment variable named
+MERAKI_DASHBOARD_API_KEY
 '''
 
 
 import csv
 from datetime import datetime
 import getopt
-import logging
+import os
 import sys
-from meraki import meraki
+
+import meraki
+
 
 # Prints READ_ME help message for user to read
 def print_help():
@@ -50,20 +53,23 @@ def main(argv):
             net_id = arg
 
     # Check if all required parameters have been input
-    if api_key == None or net_id == None:
+    if (api_key == None and os.getenv('MERAKI_DASHBOARD_API_KEY') == None) or net_id == None:
         print_help()
         sys.exit(2)
 
     # Set the CSV output file and write the header row
-    timenow = '{:%Y%m%d_%H%M%S}'.format(datetime.now())
-    filename = 'mx_l3fw_rules_{0}.csv'.format(timenow)
-    output_file = open(filename, mode='w', newline='\n')
+    time_now = f'{datetime.now():%Y-%m-%d_%H-%M-%S}'
+    file_name = f'mx_l3fw_rules__{time_now}.csv'
+    output_file = open(file_name, mode='w', newline='\n')
     field_names = ['policy','protocol','srcCidr','srcPort','destCidr','destPort','comment','logging']
     csv_writer = csv.writer(output_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
     csv_writer.writerow(field_names)
 
-    # Read Dashboard configuration of MX L3 firewall rules
-    fw_rules = meraki.getmxl3fwrules(api_key, net_id)
+    # Dashboard API library class
+    m = meraki.DashboardAPI(api_key=api_key, log_file_prefix=__file__[:-3])
+
+    # Read configuration of MX L3 firewall rules
+    fw_rules = m.mx_l3_firewall.getNetworkL3FirewallRules(net_id)
 
     # Loop through each firewall rule and write to CSV
     for rule in fw_rules:
@@ -71,15 +77,8 @@ def main(argv):
         csv_writer.writerow(csv_row)
 
     output_file.close()
-    print('Export completed to file {0}'.format(filename))
+    print(f'Export completed to file {file_name}')
 
 
 if __name__ == '__main__':
-    inputs = sys.argv[1:]
-    try:
-        key_index = inputs.index('-k')
-    except ValueError:
-        print_help()
-        sys.exit(2)
-    
     main(sys.argv[1:])
