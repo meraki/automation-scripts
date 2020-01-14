@@ -74,15 +74,24 @@ def main(argv):
     input_file = open(arg_file)
     csv_reader = csv.reader(input_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
     next(csv_reader, None)
-    print('Reading file {0}'.format(arg_file))
+    print(f'Reading file {arg_file}')
     
     # Loop through each firewall rule from CSV file and build PUT data
     fw_rules = []
     for row in csv_reader:
         rule = dict({'policy': row[0], 'protocol': row[1], 'srcCidr': row[2], 'srcPort': row[3], 'destCidr': row[4], 'destPort': row[5], 'comment': row[6], 'syslogEnabled': (row[7] == True or row[7] == 'True' or row[7] == 'true')})
+        
+        # Append implied "/32" for IP addresses for just one host
+        if '/' not in rule['srcCidr'] and rule['srcCidr'].lower() != 'any':
+            rule['srcCidr'] += '/32'
+        if '/' not in rule['destCidr'] and rule['destCidr'].lower() != 'any':
+            rule['destCidr'] += '/32'
+
+        print(rule)
+        
         fw_rules.append(rule)
     old_rules = list(fw_rules)
-    print('Processed all {0} rules of file {1}'.format(len(fw_rules), arg_file))
+    print(f'Processed all {len(fw_rules)} rules of file {arg_file}')
 
     # Check if last (default) rule exists, and if so, remove and check for default logging
     default_rule_exists = False
