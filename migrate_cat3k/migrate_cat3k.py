@@ -581,6 +581,9 @@ def waitForActionBatchesToComplete(p_apiKey, p_orgId, p_batchIds):
     
     
 def sendHostnameToQueue(p_apiKey, p_orgId, p_networkId, p_hostname, p_increment, p_serial):
+
+    batchIdList = []
+    
     if not p_hostname is None:
         name = p_hostname
         if p_increment > 0:
@@ -598,14 +601,18 @@ def sendHostnameToQueue(p_apiKey, p_orgId, p_networkId, p_hostname, p_increment,
         if not success:
             print('ERROR 13: Failed to queue action batch')
         if not batchId is None:    
-            return batchId
+            batchIdList.append(batchId)
+    
+    if len(batchIdList) > 0:
+        return batchIdList
         
     return None
     
     
 def sendPortConfigToQueue(p_apiKey, p_orgId, p_portConfig, p_serial, p_copperCount, p_sfpCount):
     #p_portConfig module 0: copper ports, module 1: sfp ports
-    portList = []
+    portList    = []
+    batchIdList = []
             
     for port in p_portConfig['0']:
         portNum = int(port)
@@ -646,8 +653,11 @@ def sendPortConfigToQueue(p_apiKey, p_orgId, p_portConfig, p_serial, p_copperCou
         success, batchId = queueActionBatch (p_apiKey, p_orgId, action)
         if not success:
             print('ERROR 14: Failed to queue action batch')
-        if not batchId is None:   
-            return batchId
+        if not batchId is None:    
+            batchIdList.append(batchId)
+    
+    if len(batchIdList) > 0:
+        return batchIdList
     
     return None
 
@@ -894,12 +904,14 @@ def main(argv):
                     copperPortCount = device['copper']
                     sfpPortCount    = device['sfp']                    
                     break
-            batchId = sendHostnameToQueue(arg_apikey, orgId, targetNetwork, line.hostname, i, line.targetDevices[i])
-            if not batchId is None:
-                batchIds.append(batchId)
-            batchId = sendPortConfigToQueue(arg_apikey, orgId, line.portConfig[i], line.targetDevices[i], copperPortCount, sfpPortCount)
-            if not batchId is None:
-                batchIds.append(batchId)
+            tempBatchIdList = sendHostnameToQueue(arg_apikey, orgId, targetNetwork, line.hostname, i, line.targetDevices[i])
+            if not tempBatchIdList is None:
+                for id in tempBatchIdList:
+                    batchIds.append(id)
+            tempBatchIdList = sendPortConfigToQueue(arg_apikey, orgId, line.portConfig[i], line.targetDevices[i], copperPortCount, sfpPortCount)
+            if not tempBatchIdList is None:
+                for id in tempBatchIdList:
+                    batchIds.append(id)
             
     success, batchId = queueActionBatch (arg_apikey, orgId, None, True)
     if not batchId is None:
