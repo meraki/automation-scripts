@@ -597,8 +597,8 @@ def sendHostnameToQueue(p_apiKey, p_orgId, p_networkId, p_hostname, p_increment,
         success, batchId = queueActionBatch (p_apiKey, p_orgId, action)
         if not success:
             print('ERROR 13: Failed to queue action batch')
-            
-        return batchId
+        if not batchId is None:    
+            return batchId
         
     return None
     
@@ -606,7 +606,7 @@ def sendHostnameToQueue(p_apiKey, p_orgId, p_networkId, p_hostname, p_increment,
 def sendPortConfigToQueue(p_apiKey, p_orgId, p_portConfig, p_serial, p_copperCount, p_sfpCount):
     #p_portConfig module 0: copper ports, module 1: sfp ports
     portList = []
-        
+            
     for port in p_portConfig['0']:
         portNum = int(port)
         config = p_portConfig['0'][port]
@@ -618,7 +618,7 @@ def sendPortConfigToQueue(p_apiKey, p_orgId, p_portConfig, p_serial, p_copperCou
         config = p_portConfig['1'][port]
         if portNum <= int(p_sfpCount):
             portList.append({'number': portNum + int(p_copperCount), 'config': config})
-    
+        
     for port in portList:        
         body = {}
         switchportMode = 'access'
@@ -636,7 +636,7 @@ def sendPortConfigToQueue(p_apiKey, p_orgId, p_portConfig, p_serial, p_copperCou
         if 'native' in port['config']:
             if switchportMode == 'trunk':
                 body['vlan']    = port['config']['native']
-                       
+                                       
         action = {
             'resource'  : '/devices/' + p_serial + '/switchPorts/' + str(port['number']),
             'operation' : 'update',
@@ -646,8 +646,8 @@ def sendPortConfigToQueue(p_apiKey, p_orgId, p_portConfig, p_serial, p_copperCou
         success, batchId = queueActionBatch (p_apiKey, p_orgId, action)
         if not success:
             print('ERROR 14: Failed to queue action batch')
-            
-        return batchId
+        if not batchId is None:   
+            return batchId
     
     return None
 
