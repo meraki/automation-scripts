@@ -41,9 +41,6 @@ REQUESTS_READ_TIMEOUT       = 60
 
 LAST_MERAKI_REQUEST         = datetime.datetime.now()   #used by merakiRequestThrottler()
 
-#Used for time.sleep(API_EXEC_DELAY). Delay added to avoid hitting dashboard API max request rate
-API_EXEC_DELAY = 0.21
-
 def printhelp():
     #prints help text
 
