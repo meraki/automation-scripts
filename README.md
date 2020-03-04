@@ -39,7 +39,9 @@ Files contained in this repository:
 
 **googletimezonetest.py:** Example script that gets the time zone that corresponds to a street address by using Google Maps APIs. You can use this code to set network timezones dynamically in your Meraki Dashboard API scripts.
 
-**invlist.py:** Creates a list of all serial numbers and models of devices that are part of a Meraki network for an organization with a given name. Can print to Stdout or file.
+**inventorycsv.py:** Creates a list of all Meraki devices in one or all organizations accessible by an administrator. The primary purpose of the script is to create a CSV file, which can be opened and filtered with a spreadsheet editor, like Excel. The list can also be printed on screen instead.
+
+**invlist.py:** Creates a list of all serial numbers and models of devices that are part of a Meraki network for an organization with a given name. Can print to Stdout or file. See inventorycsv.py for an improved solution for this use case.
 
 **listip.py:** Almost exactly the same as invlist.py, but also prints the "lanIp" of the device. If the device has no "lanIp", it prints "None" for that field instead.
 
