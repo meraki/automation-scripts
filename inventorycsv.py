@@ -58,7 +58,7 @@ API_BASE_URL_NO_MEGA        = 'https://api.meraki.com/api/v0'
 
 
 def printHelpAndExit():
-    print(read_me)
+    print(readMe)
     sys.exit(0)
 
 
