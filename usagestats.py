@@ -110,8 +110,6 @@
 # #TODO: add exclude-meraki-traffic?
 # #TODO: add dbinfo?
 # #TODO: check why the script is throwing warnings when the same subnet has been configured multiple times (sub+vid+vname)
-#
-# This file was last modified on 2018-02-20
 
 
 import sys, getopt, requests, json, time, ipaddress, datetime, sqlite3, os.path, smtplib
@@ -338,23 +336,8 @@ def getorglist(p_apikey):
       
     
 def getshardhost(p_apikey, p_orgid):
-    #Looks up shard URL for a specific org. Use this URL instead of 'dashboard.meraki.com'
-    # when making API calls with API accounts that can access multiple orgs.
-    #On failure returns 'null'
-        
-    merakirequestthrottler()
-    try:
-        r = requests.get('https://dashboard.meraki.com/api/v0/organizations/%s/snmp' % p_orgid, headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT) )
-    except:
-        printusertext('ERROR 02: Unable to contact Meraki cloud')
-        sys.exit(2)
-    
-    if r.status_code != requests.codes.ok:
-        return 'null'
-        
-    rjson = r.json()
-    
-    return(rjson['hostname'])
+    #patch
+    return("api-mp.meraki.com")
    
    
 def getnwlist(p_apikey, p_shardhost, p_orgid):

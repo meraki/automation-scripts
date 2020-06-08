@@ -170,23 +170,8 @@ def getorgid(p_apikey, p_orgname):
     
     
 def getshardhost(p_apikey, p_orgid):
-    #Looks up shard URL for a specific org. Use this URL instead of 'dashboard.meraki.com'
-    # when making API calls with API accounts that can access multiple orgs.
-    #On failure returns 'null'
-        
-    time.sleep(API_EXEC_DELAY)
-    try:
-        r = requests.get('https://dashboard.meraki.com/api/v0/organizations/%s/snmp' % p_orgid, headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
-    except:
-        printusertext('ERROR 03: Unable to contact Meraki cloud')
-        sys.exit(2)
-    
-    if r.status_code != requests.codes.ok:
-        return 'null'
-        
-    rjson = r.json()
-    
-    return(rjson['hostname'])
+    #patch
+    return("api-mp.meraki.com")
    
     
 def gettemplatelist(p_apikey, p_shardhost, p_orgid):

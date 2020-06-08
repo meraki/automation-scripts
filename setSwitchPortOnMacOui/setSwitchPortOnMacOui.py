@@ -228,23 +228,8 @@ def getOrgs():
     
     
 def getShardHost(p_org):
-    #Looks up shard URL for a specific org. Use this URL instead of 'api.meraki.com'
-    # when making API calls with API accounts that can access multiple orgs.
-    #On failure returns None
-        
-    merakiRequestThrottler()
-    try:
-        r = requests.get('https://api.meraki.com/api/v0/organizations/%s/snmp' % p_org.id, headers={'X-Cisco-Meraki-API-Key': ARG_APIKEY, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT) )
-    except:
-        print('ERROR 03: Unable to contact Meraki cloud')
-        return None
-    
-    if r.status_code != requests.codes.ok:
-        return None
-        
-    rjson = r.json()
-    
-    return(rjson['hostname'])
+    #patch
+    return("api-mp.meraki.com")
     
     
 def getNetworkClients(p_org, p_net):

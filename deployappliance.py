@@ -10,8 +10,6 @@
 #
 # To make script chaining easier, all lines containing informational messages to the user
 #  start with the character @
-#
-# This file was last modified on 2017-06-30
 
 import sys, getopt, requests, json
 
@@ -61,18 +59,8 @@ def getorgid(p_apikey, p_orgname):
 	return('null')
 	
 def getshardurl(p_apikey, p_orgid):
-	#Looks up shard URL for a specific org. Use this URL instead of 'dashboard.meraki.com'
-	# when making API calls with API accounts that can access multiple orgs.
-	#On failure returns 'null'
-	
-	r = requests.get('https://dashboard.meraki.com/api/v0/organizations/%s/snmp' % p_orgid, headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'})
-	
-	if r.status_code != requests.codes.ok:
-		return 'null'
-		
-	rjson = r.json()
-
-	return(rjson['hostname'])
+	#patch
+	return("api-mp-meraki.com")
 	
 def getnwid(p_apikey, p_shardurl, p_orgid, p_nwname):
 	#looks up network id for a network name

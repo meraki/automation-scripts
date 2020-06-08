@@ -33,8 +33,6 @@
 # To run the server in HTTPS mode, you will need a certificate. Here is how to create the needed "cert.pem" 
 #  and "key.pem" files as a self-signed certificate using OpenSSL:
 #  https://stackoverflow.com/questions/10175812/how-to-create-a-self-signed-certificate-with-openssl
-#
-# Last modified on 2018-11-24 by Mihail Papazoglou
 
 import sys, getopt, requests, json, time, datetime, os, sqlite3
 from flask import Flask, jsonify, render_template, request, redirect, url_for, flash
@@ -202,22 +200,8 @@ def getOrgs():
     
     
 def getShardHost(p_org):
-    #Looks up shard URL for a specific org. Use this URL instead of 'api.meraki.com'
-    # when making API calls with API accounts that can access multiple orgs.
-            
-    merakirequestthrottler()
-    try:
-        r = requests.get('https://api.meraki.com/api/v0/organizations/%s/snmp' % p_org.id, headers={'X-Cisco-Meraki-API-Key': ARG_APIKEY, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT) )
-    except:
-        print('ERROR 08: Unable to contact Meraki cloud')
-        return None
-    
-    if r.status_code != requests.codes.ok:
-        return None
-        
-    rjson = r.json()
-    
-    return(rjson['hostname'])
+    #patch
+    return("api-mp.meraki.com")
   
     
 def refreshOrgList2():
