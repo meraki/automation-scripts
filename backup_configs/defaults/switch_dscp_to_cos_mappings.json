@@ -1,0 +1,34 @@
+{
+    "mappings": [
+        {
+            "dscp": 0,
+            "cos": 0,
+            "title": "default"
+        },
+        {
+            "dscp": 10,
+            "cos": 0,
+            "title": "AF11"
+        },
+        {
+            "dscp": 18,
+            "cos": 1,
+            "title": "AF21"
+        },
+        {
+            "dscp": 26,
+            "cos": 2,
+            "title": "AF31"
+        },
+        {
+            "dscp": 34,
+            "cos": 3,
+            "title": "AF41"
+        },
+        {
+            "dscp": 46,
+            "cos": 3,
+            "title": "EF voice"
+        }
+    ]
+}

@@ -1,0 +1,6 @@
+{
+    "wan1": {
+        "usingStaticIp": false,
+        "vlan": null
+    }
+}

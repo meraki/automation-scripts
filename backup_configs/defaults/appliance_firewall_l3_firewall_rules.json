@@ -1,0 +1,14 @@
+{
+    "rules": [
+        {
+            "comment": "Default rule",
+            "policy": "allow",
+            "protocol": "Any",
+            "srcPort": "Any",
+            "srcCidr": "Any",
+            "destPort": "Any",
+            "destCidr": "Any",
+            "syslogEnabled": false
+        }
+    ]
+}

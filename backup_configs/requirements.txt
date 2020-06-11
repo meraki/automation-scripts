@@ -1,0 +1,3 @@
+meraki==1.0.0b8
+pyyaml==5.3.1
+requests==2.23.0

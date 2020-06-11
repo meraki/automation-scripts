@@ -1,0 +1,5 @@
+{
+    "trafficShapingEnabled": true,
+    "defaultRulesEnabled": true,
+    "rules": []
+}

@@ -1,0 +1,7 @@
+{
+    "defaultSettings": {
+        "igmpSnoopingEnabled": true,
+        "floodUnknownMulticastTrafficEnabled": true
+    },
+    "overrides": []
+}

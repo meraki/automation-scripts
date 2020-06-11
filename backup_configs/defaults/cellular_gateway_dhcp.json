@@ -1,0 +1,5 @@
+{
+    "dhcpLeaseTime": "1 day",
+    "dnsNameservers": "upstream_dns",
+    "dnsCustomNameservers": []
+}

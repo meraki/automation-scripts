@@ -1,0 +1,15 @@
+{
+    "rules": [
+        {
+            "comment": "Default rule",
+            "policy": "allow",
+            "ipVersion": "any",
+            "protocol": "any",
+            "srcCidr": "any",
+            "srcPort": "any",
+            "dstCidr": "any",
+            "dstPort": "any",
+            "vlan": "any"
+        }
+    ]
+}

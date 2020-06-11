@@ -1,0 +1,10 @@
+[
+    {
+        "service": "ICMP",
+        "access": "unrestricted"
+    },
+    {
+        "service": "web",
+        "access": "blocked"
+    }
+]

@@ -1,0 +1,6 @@
+{
+    "defaultUplink": "wan1",
+    "loadBalancingEnabled": false,
+    "wanTrafficUplinkPreferences": [],
+    "vpnTrafficUplinkPreferences": []
+}

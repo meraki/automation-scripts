@@ -1,0 +1,9 @@
+{
+    "destinations": [
+        {
+            "ip": "8.8.8.8",
+            "description": "Google",
+            "default": true
+        }
+    ]
+}

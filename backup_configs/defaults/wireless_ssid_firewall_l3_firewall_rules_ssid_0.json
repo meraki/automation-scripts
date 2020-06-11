@@ -1,0 +1,18 @@
+{
+    "rules": [
+        {
+            "comment": "Wireless clients accessing LAN",
+            "policy": "deny",
+            "protocol": "Any",
+            "destPort": "Any",
+            "destCidr": "Local LAN"
+        },
+        {
+            "comment": "Default rule",
+            "policy": "allow",
+            "protocol": "Any",
+            "destPort": "Any",
+            "destCidr": "Any"
+        }
+    ]
+}
