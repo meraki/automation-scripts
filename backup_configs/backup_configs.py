@@ -24,8 +24,8 @@ import math
 import os
 import sys
 
-import meraki_v1
-import meraki_v1.aio
+import meraki
+import meraki.aio
 import requests
 import yaml
 
@@ -130,7 +130,7 @@ async def async_call(dashboard, call):
 
     try:
         response = await eval(function_call)
-    except meraki_v1.AsyncAPIError as e:
+    except meraki.AsyncAPIError as e:
         print(f'Error with {identifier}: {e}')
         return None
     else:
@@ -496,7 +496,7 @@ async def backup_ble_settings(dashboard, networks, devices):
 
 async def main_async(api_key, operations, endpoints, tag):
     global DEVICES, NETWORKS, TEMPLATES
-    async with meraki_v1.aio.AsyncDashboardAPI(api_key, maximum_concurrent_requests=3, maximum_retries=4,
+    async with meraki.aio.AsyncDashboardAPI(api_key, maximum_concurrent_requests=3, maximum_retries=4,
                                                print_console=True, suppress_logging=False) as dashboard:
         # Backup org
         await backup_org(dashboard, endpoints)
@@ -606,7 +606,7 @@ def run_backup(api_key, org_id, filter_tag):
 def estimate_backup(api_key, org_id, filter_tag):
     try:
         # Estimate of API calls for org
-        m = meraki_v1.DashboardAPI(api_key, suppress_logging=True)
+        m = meraki.DashboardAPI(api_key, suppress_logging=True)
         networks = m.organizations.getOrganizationNetworks(org_id, total_pages='all')
         templates = m.organizations.getOrganizationConfigTemplates(org_id)
         devices = m.organizations.getOrganizationDevices(org_id, total_pages='all')
@@ -640,7 +640,7 @@ def estimate_backup(api_key, org_id, filter_tag):
         total_calls = org_calls + device_calls + network_calls
         minutes = math.ceil(total_calls / 4 / 60)
         return total_calls, minutes
-    except meraki_v1.APIError:
+    except meraki.APIError:
         sys.exit('Please check that you have both the correct API key and org ID set.')
 
 
