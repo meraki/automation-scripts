@@ -24,9 +24,15 @@ Notes:
         AMP
         IPS
   The source for NAT/Port forwarding rules is the Config template. Local NAT overrides are ignored
+  
   This script uses the following elements, which are beta at time of writing:
     * Dashboard API v1: https://developer.cisco.com/meraki/api-v1/
     * Dashboard API mega proxy (api-mp.meraki.com)
+
+Required Python version and modules:
+  Developed and tested with Python 3.8.3
+  Requests: https://requests.readthedocs.io/
+  * Install by running: pip install requests
 """
 
 import sys, getopt, time, json, ipaddress
@@ -193,7 +199,7 @@ def updateAdministrator(p_apiKey, p_organizationId, p_adminId, p_settings):
     
 def getVlanSettings(p_apiKey, p_networkId):
     endpoint = "/networks/" + p_networkId + "/appliance/vlans/settings"
-    success, errors, headers, response = merakiRequest(p_apiKey, "GET", endpoint, p_verbose=FLAG_REQUEST_VERBOSE)    
+    success, errors, headers, response = merakiRequest(p_apiKey, "GET", endpoint, p_verbose=FLAG_REQUEST_VERBOSE)  
     return success, errors, headers, response
     
     
@@ -224,7 +230,7 @@ def updateVlan(p_apiKey, p_networkId, p_vlanId, p_vlanConfiguration):
     if "reservedIpRanges" in p_vlanConfiguration:
         if p_vlanConfiguration["reservedIpRanges"] == []:
             del p_vlanConfiguration["reservedIpRanges"]
-    if (not p_vlanConfiguration["dhcpBootOptionsEnabled"]) and ("dhcpOptions" in p_vlanConfiguration):
+    if "dhcpBootOptionsEnabled" in p_vlanConfiguration and (not p_vlanConfiguration["dhcpBootOptionsEnabled"]) and ("dhcpOptions" in p_vlanConfiguration):
         del p_vlanConfiguration["dhcpOptions"]    
     success = True
     errors  = None
@@ -549,6 +555,74 @@ def findUniqueNewNetName(p_sourceNetName, p_orgNetworks):
             doLoop = True
     return None
     
+    
+def checkSubnetInKnownRoutes(p_subnet, p_routesList):
+    try:
+        sourceSubnet = ipaddress.ip_network(p_subnet)
+    except:
+        return None
+    for route in p_routesList:
+        try:
+            routeSubnet = ipaddress.ip_network(route)
+        except:
+            return None
+        if sourceSubnet.subnet_of(routeSubnet):
+            return True
+    return False
+      
+    
+def cleanUnknownSourceSubnets(p_firewallRuleset, p_knownSubnets):
+    #Configuration templates allow for source IP addresses/subnets that are unroutable by a MX
+    #Such sources must be removed/modified, or copying rules will fail
+    cleanRuleset = []
+    for rule in p_firewallRuleset["rules"]:
+        splitSourceSubnets = rule["srcCidr"].split(",")
+        cleanSources = []
+        removedSubnets = []
+        for source in splitSourceSubnets:
+            isSubnet = False
+            try:
+                validationCheck = ipaddress.ip_network(source)
+                isSubnet = True
+            except:
+                if source.lower() != "any":
+                    print('WARNING: "%s" is not an IPv4 subnet' % source)
+            if isSubnet:
+                success = checkSubnetInKnownRoutes(source, p_knownSubnets)
+                if success is None or not success:
+                    removedSubnets.append(source)
+                    print('WARNING: Firewall rule modified to remove unroutable source "%s"' % source)
+                else:
+                    cleanSources.append(source)
+            else:
+                #source is "any" or a FQDN or something. Do not attempt to modify
+                cleanSources.append(source)
+        if len(cleanSources) > 0:
+            #form source CIDR string
+            cidr = ','.join(cleanSources)
+            #form comment
+            comment = ''
+            if len(removedSubnets) > 0:
+                comment = 'REMOVED SOURCE'
+                if len(removedSubnets) > 1:
+                    comment += 'S' 
+                for subnet in removedSubnets:
+                    comment += ' ' + str(subnet)
+                comment += ' -- '
+            comment += rule["comment"]
+            #assemble rule with modified/cleaned up sources and comment
+            cleanRule = {}
+            for item in rule:
+                cleanRule[item] = rule[item]
+            cleanRule["srcCidr"] = cidr
+            cleanRule["comment"] = comment
+            #paste rule to ruleset
+            cleanRuleset.append(cleanRule)
+        else:
+            print("WARNING: Firewall rule removed: No routable source subnets")
+            print(rule)
+    return {"rules": cleanRuleset}
+    
 
 def main(argv):
     #set default values for command line arguments
@@ -626,44 +700,63 @@ def main(argv):
                 newGroupPolicies.append(response)
         
     #- Copy VLANs and IP addressing
-    success, errors, headers, response = getVlanSettings(arg_apiKey, sourceNet["id"])
+    knownSubnets = []
+    success, errors, headers, response = getVlanSettings(arg_apiKey, sourceNet["configTemplateId"])
     
     if not response is None:
-        if response["vlansEnabled"]:
-            success, errors, headers, response = updateVlanSettings(arg_apiKey, newNetwork["id"], True)
-            
-            if not response is None:
-                if response["vlansEnabled"]:
-                    success, errors, headers, sourceVlans = getVlans(arg_apiKey, sourceNet["id"])
-                    
-                    if not sourceVlans is None:
-                        noConfigForVlanOne = True
-                        for vlan in sourceVlans:
-                            if "groupPolicyId" in vlan:
-                                policyId = getNewPolicyIdForOldId(vlan["groupPolicyId"], sourceGroupPolicies, newGroupPolicies)
-                                if not policyId is None:
-                                    vlan["groupPolicyId"] = policyId
-                                else:
-                                    print("WARNING: Please check that VLAN group policies of new network are correct!")
-                            if int(vlan["id"]) == 1:                       
-                                updateVlan(arg_apiKey, newNetwork["id"], vlan["id"], vlan)
-                                noConfigForVlanOne = False
-                            else:
-                                createVlan(arg_apiKey, newNetwork["id"], vlan)
-                        if noConfigForVlanOne:
-                            deleteVlan(arg_apiKey, newNetwork["id"], 1)
-        else:
+        if "vlansEnabled" in response and not response["vlansEnabled"]:
             #Source does not have VLANs enabled. Copy the single subnet parameters
             success, errors, headers, response = getSingleLan(arg_apiKey, sourceNet["id"])
             if not response is None:
-                updateSingleLan(arg_apiKey, newNetwork["id"], response)                               
+                updateSingleLan(arg_apiKey, newNetwork["id"], response)
+        else:
+            success, errors, headers, response = updateVlanSettings(arg_apiKey, newNetwork["id"], True)
+            
+            if not response is None:
+                success, errors, headers, sourceVlans = getVlans(arg_apiKey, sourceNet["id"])
+                
+                if not sourceVlans is None:
+                    noConfigForVlanOne = True
+                    for vlan in sourceVlans:
+                        knownSubnets.append(vlan["subnet"])
+                        if "groupPolicyId" in vlan:
+                            policyId = getNewPolicyIdForOldId(vlan["groupPolicyId"], sourceGroupPolicies, newGroupPolicies)
+                            if not policyId is None:
+                                vlan["groupPolicyId"] = policyId
+                            else:
+                                print("WARNING: Please check that VLAN group policies of new network are correct!")
+                        if int(vlan["id"]) == 1:                       
+                            updateVlan(arg_apiKey, newNetwork["id"], vlan["id"], vlan)
+                            noConfigForVlanOne = False
+                        else:
+                            createVlan(arg_apiKey, newNetwork["id"], vlan)
+                    if noConfigForVlanOne:
+                        deleteVlan(arg_apiKey, newNetwork["id"], 1)                         
     else:
         print("WARNING: Skipping copying VLAN settings: Could not check if enabled")
         
+    #- Copy Static Routes
+    success, errors, headers, response = getMxStaticRoutes(arg_apiKey, sourceNet["id"])
+    for route in response:
+        gatewayIpResolvedCorrectly = False
+        try:
+            #At time of writing, the GET staticRoutes endpoint has a bug that can return an invalid gatewayIp
+            #If this bug is detected, skip processing of invalid route and print a warning
+            ipValidationCheck = ipaddress.ip_address(route["gatewayIp"])
+            gatewayIpResolvedCorrectly = True
+        except:
+            print("WARNING: Skipping route: Invalid route gateway IP address")
+        if gatewayIpResolvedCorrectly:
+            knownSubnets.append(route["subnet"])
+            createMxStaticRoute(arg_apiKey, newNetwork["id"], route)
+            
     #- Copy L3 Firewall Rules
     success, errors, headers, sourceRules = getMxL3FirewallRules(arg_apiKey, sourceNet["id"])
     if not sourceRules is None:
-        updateMxL3FirewallRules(arg_apiKey, newNetwork["id"], sourceRules)
+        #Configuration templates allow for source IP addresses/subnets that are unroutable by a MX
+        #Such sources must be removed/modified, or copying rules will fail
+        cleanRules = cleanUnknownSourceSubnets(sourceRules, knownSubnets)
+        updateMxL3FirewallRules(arg_apiKey, newNetwork["id"], cleanRules)
         
     #- L7 Firewall Rules
     success, errors, headers, sourceRules = getMxL7FirewallRules(arg_apiKey, sourceNet["id"]) 
@@ -718,19 +811,6 @@ def main(argv):
                     admin["networks"].append(privilege)
                     updateAdministrator(arg_apiKey, orgId, admin["id"], admin)
     
-    #- Copy Static Routes
-    success, errors, headers, response = getMxStaticRoutes(arg_apiKey, sourceNet["id"])
-    for route in response:
-        gatewayIpResolvedCorrectly = False
-        try:
-            #At time of writing, the GET staticRoutes endpoint has a bug that can return an invalid gatewayIp
-            #If this bug is detected, skip processing of invalid route and print a warning
-            ipValidationCheck = ipaddress.ip_address(route["gatewayIp"])
-            gatewayIpResolvedCorrectly = True
-        except:
-            print("WARNING: Skipping route: Invalid route gateway IP address")
-        if gatewayIpResolvedCorrectly:
-            createMxStaticRoute(arg_apiKey, newNetwork["id"], route)
         
     print('\nCreated network "%s"' % newNetName)
     
