@@ -54,27 +54,20 @@ LAST_MERAKI_REQUEST         = datetime.datetime.now()   #used by merakiRequestTh
 
 
 class ConfigLine:
-    netName = ''
-    serial  = ''
-    vlans   = []
+    def __init__(self):
+        self.netName = ''
+        self.serial  = ''
+        self.vlans   = []
     
 class Vlan:
-    id      = ''
-    subnet  = ''
-    mxIp    = ''
+    def __init__(self):
+        self.id      = ''
+        self.subnet  = ''
+        self.mxIp    = ''
 
 
 #SECTION: General use functions
-
-#DEBUG
-def dump(obj):
-    for attr in dir(obj):
-        if hasattr( obj, attr ):
-            if attr[0] != "_":
-                print( 'obj.%s = "%s"' % (attr, getattr(obj, attr)))
-    return
-    
-    
+ 
 def killScript():
     print('Execution interrupted')
     sys.exit(2)
@@ -102,6 +95,14 @@ def loadFile(p_fileName):
         
     return returnValue
     
+    
+def configDump(p_config):
+    for network in p_config:
+        print ("\nNetwork:", network.netName)
+        print ("Serial:", network.serial)
+        for vlan in network.vlans:
+            print(vlan.id, str(vlan.subnet))            
+    
   
 def parseConfig(p_config):
     # returns parsed config list, or None on error
@@ -120,11 +121,10 @@ def parseConfig(p_config):
                     print('ERROR 02: Invalid config in line %s' % lineCounter)
                     return None
                     
-                retVal.append(ConfigLine())
-                index = len(retVal) - 1
+                newLine = ConfigLine()
                 
-                retVal[index].serial    = splitLine[0].strip()
-                retVal[index].netName   = splitLine[1].strip()
+                newLine.serial    = splitLine[0].strip()
+                newLine.netName   = splitLine[1].strip()
                 
                 for i in range(2, len(splitLine)):
                     vlanElements = splitLine[i].split(':')
@@ -132,16 +132,20 @@ def parseConfig(p_config):
                         print('ERROR 03: Invalid VLAN definition in line %s' % lineCounter)
                         return None
                         
-                    retVal[index].vlans.append(Vlan())
-                    vlanIndex = len(retVal[index].vlans) - 1
+                    newVlan     = Vlan()
+                    newVlan.id  = vlanElements[0].strip()
                     
-                    retVal[index].vlans[vlanIndex].id       = vlanElements[0].strip()
                     try:
-                        retVal[index].vlans[vlanIndex].subnet   = ipaddress.IPv4Network(vlanElements[1].strip(), False)
-                        retVal[index].vlans[vlanIndex].mxIp     = list(retVal[index].vlans[vlanIndex].subnet.hosts())[0]
+                        newVlan.subnet   = ipaddress.IPv4Network(vlanElements[1].strip(), False)
+                        newVlan.mxIp     = list(newVlan.subnet.hosts())[0]
                     except:
                         print('ERROR 04: Invalid subnet definition in line %s' % lineCounter)
                         return None
+                        
+                    newLine.vlans.append(newVlan)
+                    
+                retVal.append(newLine)
+                
     
     return retVal
     
@@ -305,7 +309,7 @@ def main(argv):
     config = parseConfig(fileRaw)
     if config is None:
         killScript()
-    
+            
     print('Resolving organization parameters...')
     orgId = getOrgId(argApiKey, argOrgName)
     if orgId is None:
@@ -345,8 +349,9 @@ def main(argv):
                         
             if len(item.vlans) > 0:
                 print('Setting VLAN subnets...')
-                
+                                
                 for vlan in item.vlans:
+                    print("Setting VLAN subnet", vlan.id, str(vlan.subnet))
                     success = updateVlan(argApiKey, shard, newNetId, vlan.id, str(vlan.subnet), str(vlan.mxIp))
                     if success is None:
                         print('ERROR 09: Unable to update VLAN %s' % vlan.id)
