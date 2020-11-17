@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 '''
+DEPRECATED > use report_statuses.py script instead please!
+
 === PREREQUISITES ===
 Run in Python 3
 
