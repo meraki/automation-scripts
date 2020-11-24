@@ -559,13 +559,13 @@ def run_backup(api_key, org_id, filter_tag):
             current_operations.append(spec['paths'][uri]['get'])
 
     # Export current GET operations to spreadsheet; for comparison later to check for new operations that were not used
-    # output_file = open('current_GET_operations.csv', mode='w', newline='\n')
-    # field_names = ['operationId', 'tags', 'description', 'parameters']
-    # csv_writer = csv.DictWriter(output_file, field_names, quoting=csv.QUOTE_ALL, extrasaction='ignore')
-    # csv_writer.writeheader()
-    # for op in current_operations:
-    #     csv_writer.writerow(op)
-    # output_file.close()
+    output_file = open('current_GET_operations.csv', mode='w', newline='\n')
+    field_names = ['operationId', 'tags', 'description', 'parameters']
+    csv_writer = csv.DictWriter(output_file, field_names, quoting=csv.QUOTE_ALL, extrasaction='ignore')
+    csv_writer.writeheader()
+    for op in current_operations:
+        csv_writer.writerow(op)
+    output_file.close()
 
     # Read input mappings of backup GET operations, the actual list of API calls that will be made
     input_mappings = []
@@ -614,7 +614,7 @@ def estimate_backup(api_key, org_id, filter_tag):
             networks = [n for n in networks if filter_tag in n['tags']]
             templates = []
             devices = [d for d in devices if d['networkId'] in [n['id'] for n in networks]]
-        org_calls = 16
+        org_calls = 19
 
         # Estimate of API calls for devices
         total_devices = len(devices)
@@ -623,7 +623,7 @@ def estimate_backup(api_key, org_id, filter_tag):
         mv_devices = len([d for d in devices if d['model'][:2] == 'MV'])
         mg_devices = len([d for d in devices if d['model'][:2] == 'MG'])
         mx_devices = total_devices - mr_devices - ms_devices - mv_devices - mg_devices
-        device_calls = (mr_devices + ms_devices + mx_devices) + mr_devices + ms_devices + 2 * mv_devices + 2 * mg_devices
+        device_calls = (mr_devices + ms_devices + mx_devices) + mr_devices + 2 * ms_devices + 3 * mv_devices + 2 * mg_devices
 
         # Estimate of API calls for networks
         mr_networks = len([n for n in networks if 'wireless' in n['productTypes']]) + \
@@ -635,7 +635,7 @@ def estimate_backup(api_key, org_id, filter_tag):
         mg_networks = len([n for n in networks if 'cellularGateway' in n['productTypes']]) + \
                       len([t for t in templates if 'cellularGateway' in t['productTypes']])
         mv_networks = len([n for n in networks if 'camera' in n['productTypes']])
-        network_calls = 19 * mr_networks + 20 * ms_networks + 31 * mx_networks + 6 * mg_networks + 4 * mv_networks
+        network_calls = 19 * mr_networks + 22 * ms_networks + 32 * mx_networks + 6 * mg_networks + 4 * mv_networks
 
         total_calls = org_calls + device_calls + network_calls
         minutes = math.ceil(total_calls / 4 / 60)
