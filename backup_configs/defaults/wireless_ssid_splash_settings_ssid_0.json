@@ -6,10 +6,6 @@
     "splashTimeout": 1440,
     "redirectUrl": null,
     "useRedirectUrl": false,
-    "guestSponsorship": {
-        "durationInMinutes": 1440,
-        "guestCanRequestTimeframe": false
-    },
     "welcomeMessage": null,
     "splashLogo": {
         "md5": null
