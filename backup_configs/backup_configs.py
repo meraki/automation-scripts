@@ -8,7 +8,7 @@ This script iterates through a dashboard organization and backs up the configura
 and devices, for the config settings that have API endpoint support.
 
 === USAGE ===
-python[3] backup_configs.py -o <old_org> [-k <api_key>] [-t <tag>] [-y]
+python[3] backup_configs.py -o <org_id> [-k <api_key>] [-t <tag>] [-y]
 API key can, and is recommended to, be set as an environment variable named MERAKI_DASHBOARD_API_KEY. 
 If the optional tag is provided, then filter only for those networks with the tag, along with those networks' devices.
 Optional flag -y to automatically continue to run without waiting for user confirmation.
