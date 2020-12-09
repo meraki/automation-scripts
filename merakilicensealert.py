@@ -1,29 +1,27 @@
-# This is a script to send an email alert if the remaining license time in an org an admin has access to is
-#  less than X days, or if its license capacity is not enough for its current device count. The alert is 
-#  sent using an SMTP server; by  default Gmail. Use an automation platform like Zapier to read this email
-#  and trigger further actions.
-#
-# To run the script, enter:
-#  python merakilicensealert.py -k <key> [-u <user> -p <pass> -d <dest>] [-s <srv>] [-t <days>] [-m include_empty]
-#
-# Mandatory argument:
-#  -k <key>             : Your Meraki Dashboard API key
-# Arguments to enable sending emails. All three must be given to send email:
-#  -u <user>            : The username (email address) that will be used to send the alert message
-#  -p <pass>            : Password for the email address where the message is sent from
-#  -d <dest>            : Recipient email address
-# Optional arguments:
-#  -s <server>          : Server to use for sending SMTP. If omitted, Gmail will be used
-#  -t <days>            : Alert threshold in days for generating alert. Default is 90
-#  -m include_empty     : Flag: Also send warnings for new orgs with no devices 
-# 
-# Example 1, send email for orgs with 180 or less days license remaining:
-#  python merakilicensealert.py -k 1234 -u sourceaccount@gmail.com -p 4321 -d alerts@myserver.com -t 180
-# Example 2, print orgs with 360 or less days remaining to screen:
-#  python merakilicensealert.py -k 1234 -t 360
-#
-# To make script chaining easier, all lines containing informational messages to the user
-#  start with the character @
+readMe= """This is a script to send an email alert if the remaining license time in an org an admin has 
+ access to is less than X days, or if its license capacity is not enough for its current device 
+ count. The alert is sent using an SMTP server; by  default Gmail. Use an automation platform
+ like Zapier to read this email and trigger further actions.
+
+Command line syntax:
+ python merakilicensealert.py -k <key> [-u <user> -p <pass> -d <dest>] [-s <srv>] [-t <days>]
+    [-m include_empty]
+
+Mandatory argument:
+ -k <key>             : Your Meraki Dashboard API key
+Arguments to enable sending emails. All three must be given to send email:
+ -u <user>            : The username (email address) that will be used to send the alert message
+ -p <pass>            : Password for the email address where the message is sent from
+ -d <dest>            : Recipient email address
+Optional arguments:
+ -s <server>          : Server to use for sending SMTP. If omitted, Gmail will be used
+ -t <days>            : Alert threshold in days for generating alert. Default is 90
+ -m include_empty     : Flag: Also send warnings for new orgs with no devices 
+
+Example 1, send email for orgs with 180 or less days license remaining:
+ python merakilicensealert.py -k 1234 -u source@gmail.com -p 4321 -d alerts@myserver.com -t 180
+Example 2, print orgs with 360 or less days remaining to screen:
+ python merakilicensealert.py -k 1234 -t 360"""
 
 
 import sys, getopt, requests, json, time, smtplib
@@ -49,40 +47,9 @@ REQUESTS_READ_TIMEOUT = 30
 #used by merakirequestthrottler(). DO NOT MODIFY
 LAST_MERAKI_REQUEST = datetime.now()   
 
-def printusertext(p_message):
-    #prints a line of text that is meant for the user to read
-    #do not process these lines when chaining scripts
-    print('@ %s' % p_message)
-
     
 def printhelp():
-    #prints help text
-
-    printusertext('This is a script to send an email alert if the remaining license time in an org an admin has access to is')
-    printusertext(' less than X days, or if its license capacity is not enough for its current device count. The alert is')
-    printusertext(' sent using an SMTP server; by  default Gmail. Use an automation platform like Zapier to read this email')
-    printusertext(' and trigger further actions.')
-    printusertext('')
-    printusertext('To run the script, enter:')
-    printusertext(' python merakilicensealert.py -k <key> [-u <user> -p <pass> -d <dest>] [-s <srv>] [-t <days>] [-m include_empty]')
-    printusertext('')
-    printusertext('Mandatory argument:')
-    printusertext(' -k <key>             : Your Meraki Dashboard API key')
-    printusertext('Arguments to enable sending emails. All three must be given to send email:')
-    printusertext(' -u <user>            : The username (email address) that will be used to send the alert message')
-    printusertext(' -p <pass>            : Password for the email address where the message is sent from')
-    printusertext(' -d <dest>            : Recipient email address')
-    printusertext('Optional arguments:')
-    printusertext(' -s <server>          : Server to use for sending SMTP. If omitted, Gmail will be used')
-    printusertext(' -t <days>            : Alert threshold in days for generating alert. Default is 90')
-    printusertext(' -m include_empty     : Flag: Also send warnings for new orgs with no devices ')
-    printusertext('')
-    printusertext('Example 1, send email for orgs with 180 or less days license remaining:')
-    printusertext(' python merakilicensealert.py -k 1234 -u sourceaccount@gmail.com -p 4321 -d alerts@myserver.com -t 180')
-    printusertext('Example 2, print orgs with 360 or less days remaining to screen:')
-    printusertext(' python merakilicensealert.py -k 1234 -t 360')
-    printusertext('')
-    printusertext('Use double quotes ("") in Windows to pass arguments containing spaces. Names are case-sensitive.')
+    print(readMe)
     
     
 def merakirequestthrottler(p_requestcount=1):
@@ -103,7 +70,7 @@ def getorglist(p_apikey):
     try:
         r = requests.get('https://dashboard.meraki.com/api/v0/organizations', headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT))
     except:
-        printusertext('ERROR 01: Unable to contact Meraki cloud')
+        print('ERROR 01: Unable to contact Meraki cloud')
         sys.exit(2)
     
     returnvalue = []
@@ -128,13 +95,12 @@ def getlicensestate(p_apikey, p_shardhost, p_orgid):
     try:
         r = requests.get('https://%s/api/v0/organizations/%s/licenseState' % (p_shardhost, p_orgid) , headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT))
     except:
-        printusertext('ERROR 03: Unable to contact Meraki cloud')
+        print('ERROR 03: Unable to contact Meraki cloud')
         sys.exit(2)
     
     returnvalue = []
     if r.status_code != requests.codes.ok:
-        returnvalue.append({'status':'null'})
-        return returnvalue
+        return None
     
     rjson = r.json()
     
@@ -158,26 +124,30 @@ def checklicensewarning(p_apikey, p_orglist, p_timethreshold, p_modeincludeempty
     i = 0
     
     for org in p_orglist:
+        print('INFO: Checking org %s "%s" ' % (org.id, org.name))
         licensestate  = getlicensestate(p_apikey, org.shardhost, org.id)
-        if licensestate['expirationDate'] == 'N/A':
-            if p_modeincludeempty:
-                timeremaining = 0
-            else:
-                if licensestate['status'] != 'License Required': 
-                    timeremaining = p_timethreshold + 1
-                else:
+        if not licensestate is None:
+            if licensestate['expirationDate'] == 'N/A':
+                if p_modeincludeempty:
                     timeremaining = 0
+                else:
+                    if licensestate['status'] != 'License Required': 
+                        timeremaining = p_timethreshold + 1
+                    else:
+                        timeremaining = 0
+            else:
+                timeremaining = calcdaysremaining(licensestate['expirationDate'])
+            if licensestate['status'] != 'OK' or timeremaining <= p_timethreshold:
+                if licensestate['status'] != 'N/A' or p_modeincludeempty:
+                    filterlist.append(c_organizationdata())
+                    filterlist[i].id = org.id
+                    filterlist[i].name = org.name
+                    filterlist[i].shardhost = org.shardhost
+                    filterlist[i].licensestate = licensestate['status']
+                    filterlist[i].timeremaining = timeremaining
+                    i += 1
         else:
-            timeremaining = calcdaysremaining(licensestate['expirationDate'])
-        if licensestate['status'] != 'OK' or timeremaining <= p_timethreshold:
-            if licensestate['status'] != 'N/A' or p_modeincludeempty:
-                filterlist.append(c_organizationdata())
-                filterlist[i].id = org.id
-                filterlist[i].name = org.name
-                filterlist[i].shardhost = org.shardhost
-                filterlist[i].licensestate = licensestate['status']
-                filterlist[i].timeremaining = timeremaining
-                i += 1
+            print("WARNING: Unable to fetch license state")
     
     return(filterlist)
 
@@ -234,7 +204,7 @@ def main(argv):
     if arg_target != '':
         emailparams += 1
     if 0 < emailparams < 3:
-        printusertext('ERROR 04: -u <user> -p <pass> -d <dest> must be given to send email')
+        print('ERROR 04: -u <user> -p <pass> -d <dest> must be given to send email')
         sys.exit(2)
         
     #check and set flag
@@ -243,22 +213,22 @@ def main(argv):
     elif arg_flag == 'include_empty':
         flag_includeempty = True
     else:
-        printusertext('ERROR 05: Invalid value for parameter -m <mode>')
+        print('ERROR 05: Invalid value for parameter -m <mode>')
         sys.exit(2)
     
     try:
         threshold = int(arg_time)
     except:
-        printusertext('ERROR 06: Value in parameter -t <days> must be an integer')
+        print('ERROR 06: Value in parameter -t <days> must be an integer')
         sys.exit(2)
         
-    printusertext('INFO: Retrieving organization info')
+    print('INFO: Retrieving organization info')
         
     #compile list of organizations to be processed
     orglist = []
     orgjson = getorglist(arg_apikey)
     if orgjson[0]['id'] == 'null':
-        printusertext('ERROR 07: Unable to retrieve org list')
+        print('ERROR 07: Unable to retrieve org list')
         sys.exit(2)
             
     i = 0
@@ -282,20 +252,20 @@ def main(argv):
                 flag_unabletoresolveshard = False
                 break
         if flag_unabletoresolveshard:
-            printusertext('ERROR 08: Unable to read data for org "%s"' % record.name)
+            print('ERROR 08: Unable to read data for org "%s"' % record.name)
             sys.exit(2)
         else:
             record.shardhost = shardhost 
             
     #find orgs in license incompliance state
-    printusertext('INFO: Checking orgs for license warnings')
+    print('INFO: Checking orgs for license warnings')
     
     warninglist = []
     warninglist = checklicensewarning(arg_apikey, orglist, threshold, flag_includeempty)
                                      
     #send email with incompliant orgs
     if len(warninglist) > 0:
-        printusertext('INFO: Warnings found')
+        print('INFO: Warnings found')
         if emailparams == 3:
             fromaddr = arg_user
             toaddrs  = arg_target
@@ -317,17 +287,17 @@ def main(argv):
                 server.sendmail(fromaddr, toaddrs, msg)
                 server.quit()
             except:
-                printusertext('ERROR 09: Unable to send email')
+                print('ERROR 09: Unable to send email')
                 sys.exit(2)
-            printusertext('INFO: Email sent to %s' % toaddrs)
+            print('INFO: Email sent to %s' % toaddrs)
         else:
             for line in warninglist:
                 print('Org name: "%s", License status: %s, Days remaining: %d' % (line.name, line.licensestate, line.timeremaining))
     else:
-        printusertext('INFO: No license warnings found')
+        print('INFO: No license warnings found')
     
                    
-    printusertext('INFO: End of script.')
+    print('INFO: End of script.')
             
 if __name__ == '__main__':
     main(sys.argv[1:])
