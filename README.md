@@ -67,6 +67,8 @@ Files contained in this repository:
 
 **mxfirewallcontrol_manual.pdf:** Manual for mxfirewallcontrol.py.
 
+**offline_logging:** A Python 3 script to log data from the Meraki dashboard to a MongoDB database. Currently focused on logging client activity.
+
 **orgclientscsv.py:** A script to create a CSV file with all of the client devices in an organization. The CSV file will be created in the same folder where this script is located. The script makes no attempt to remove or combine duplicate entries. If you see the same client being reported several times, this is typically an indication of a client that has been moving.
 
 **provision_sites:** A Python 3 script to provision template-based networks with manually defined VLAN subnets to Meraki dashboard. The script can also claim devices and update their location on the world map.
