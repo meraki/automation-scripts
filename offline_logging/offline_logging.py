@@ -1,7 +1,8 @@
 read_me = """Python 3 script that logs data from the Meraki dashboard into a MongoDB database.
 You will need to have MongoDB installed and supply a configuration file for this script to run.
 You can get the MongoDB Community Server here: https://www.mongodb.com/try/download/community
-You can find a sample configuration file here: **INSERT GITHUB LINK**
+You can find a sample configuration file here: 
+  https://github.com/meraki/automation-scripts/blob/master/offline_logging/config.yaml
 
 Script syntax:
     python offline_logging.py -c <config_file>
