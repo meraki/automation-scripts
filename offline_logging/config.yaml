@@ -4,31 +4,33 @@
 
 # This comfiguration file uses YAML 1.1 format: https://yaml.org/spec/1.1/
 
-# How often to scan Meraki dashboard for updated info, in minutes. Minimum: 5, maximum: 43000
-scan_interval_minutes: 60
+# How often to scan Meraki dashboard for updated info, in minutes. Minumum: 5, maximum: 43000
+scan_interval_minutes: 10
 meraki_dashboard_api:
     # Modify this value to match your Meraki Dashboard API key
     api_key: 1234
+    
     # Modify this value to match the organizationId of the organization you are logging data from
     # To find your organizationId, by calling this endpoint: https://developer.cisco.com/meraki/api-v1/#!get-organizations
-    organization_id: 8765
+    organization_id: 4567
 mongodb:
     host: localhost
     port: 27017
-    database_name: merakiPython
+    database_name: meraki
         
 # Which networks to include in scans. If a network has a name, id or tag that matches any of the items in the lists below,
 # it will be included in scans. Alternatively, you can set "include_all_networks: true" to log all networks
 sources:
     network_names: #list
-        - "my network"
+        - "Headquarters"
+        - "Stockholm Branch"
     network_ids: #list
     network_tags: #list
-        - "offline-logging"
+        - "logging"
     include_all_networks: false
 
-# Which endpoints of the Meraki dashboard API to scan. Operation names match methods in the Meraki Python module:
-# https://github.com/meraki/dashboard-api-python
+# Which endpoints of the Meraki dashboard API to scan. Operation names match Operation Ids in the API:
+# https://developer.cisco.com/meraki/api-v1
 # Set "enabled: true" for the ones you want to scan and "enabled: false" for the ones you want to omit
 
 endpoints:
@@ -40,3 +42,18 @@ endpoints:
         enabled: true
         collection: networkClientsApplicationUsage
         mode: append
+    getNetworkClientTrafficHistory:
+        # This can be pretty slow in large environments, since every client needs to be fetched individually
+        enabled: true
+        collection: networkClientTrafficHistory
+        mode: update
+    getNetworkMerakiAuthUsers:
+        enabled: true
+        # whether to log template users, if network is bound to a config template
+        include_template_users: true 
+        collection: networkMerakiAuthUsers
+        mode: update
+    getOrganizationAdmins:
+        enabled: true
+        collection: organizationAdmins
+        mode: update
