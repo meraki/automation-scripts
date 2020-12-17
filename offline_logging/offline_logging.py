@@ -154,7 +154,7 @@ def merakiRequest(p_apiKey, p_httpVerb, p_endpoint, p_additionalHeaders=None, p_
                     p_verbose=p_verbose)
                 if success:
                     if not responseBody is None:
-                        responseBody.append(nextBody)
+                        responseBody = responseBody + nextBody
                 else:
                     responseBody = None
     
@@ -273,13 +273,19 @@ def log_to_database(db, document, collection, mode, keyValuePair=None):
     if mode == 'append':
         try:
             dbc.insert_one(document)
-        except:
+        except Exception as e:
+            print(e)
             print("ERROR: Could not create document in database")
+            return False
     elif mode == 'update':
         try:
             dbc.update_one(keyValuePair, {"$set": document}, upsert=True)
-        except:
+        except Exception as e:
+            print(e)
             print("ERROR: Could not update document in database")
+            return False
+            
+    return True
       
     
 def perform_scan(config):
@@ -298,9 +304,7 @@ def perform_scan(config):
         
         mongo_client = pymongo.MongoClient("mongodb://" + config['mongodb']['host'] + ":" + str(config['mongodb']['port']) + "/")    
         db = mongo_client[config['mongodb']['database_name']]
-        
-        clients = None
-        
+                
         if 'getOrganizationAdmins' in config['endpoints'] and config['endpoints']['getOrganizationAdmins']['enabled']:
             success, errors, headers, all_admins = getOrganizationAdmins(api_key, org_id)
             if not all_admins is None:
@@ -310,24 +314,37 @@ def perform_scan(config):
                             config['endpoints']['getOrganizationAdmins']['mode'], 
                             keyValuePair={'id': admin['id']})
         
-        for network in filtered_networks:    
+                
+        for network in filtered_networks: 
+            # value used as a flag if "getNetworkClients" is disabled
+            clients = None         
+            
             if 'getNetworkClients' in config['endpoints'] and config['endpoints']['getNetworkClients']['enabled']:
-                success, errors, headers, clients = getClients(api_key, network['id'], scan_interval)
-                if clients is None:
+                success, errors, headers, raw_clients = getClients(api_key, network['id'], scan_interval)
+                if raw_clients is None:
                     print("ERROR: Cloud not fetch clients for net %s" % network['id'])
-                    continue
-                scan_time = datetime.datetime.now()
-                for client in clients:
-                    document = client
-                    document['scanTime'] = scan_time
-                    document['scanIntervalMinutes'] = config['scan_interval_minutes']
-                    document['networkId'] = network['id']
-                    document['networkName'] = network['name']
-                    log_to_database(db, document, config['endpoints']['getNetworkClients']['collection'],
-                        config['endpoints']['getNetworkClients']['mode'])
+                else:
+                    scan_time = datetime.datetime.now()
+                    
+                    if config['endpoints']['getNetworkClients']['ignore_manufacturer_meraki']:
+                        clients = []
+                        for client in raw_clients:
+                            if not client['manufacturer'] in ["Cisco Meraki", "Meraki"]:
+                                clients.append(client)
+                    else:
+                        clients = raw_clients
+                    
+                    for client in clients:
+                        document = client
+                        document['scanTime'] = scan_time
+                        document['scanIntervalMinutes'] = config['scan_interval_minutes']
+                        document['networkId'] = network['id']
+                        document['networkName'] = network['name']
+                        log_to_database(db, document, config['endpoints']['getNetworkClients']['collection'],
+                            config['endpoints']['getNetworkClients']['mode'])
             if 'getNetworkClientsApplicationUsage' in config['endpoints'] and config['endpoints']['getNetworkClientsApplicationUsage']['enabled']:
                 if clients is None:
-                    print("ERROR: Client getNetworkClients must be enabled for getNetworkClientsApplicationUsage")
+                    print("ERROR: Client list must be fetched for getNetworkClientsApplicationUsage")
                 else:
                     client_list = ""
                     for client in clients:
@@ -339,33 +356,40 @@ def perform_scan(config):
                     
                     if usage is None:
                         print("ERROR: Cloud not fetch clients' usage for net %s" % network['id'])
-                        continue
-                    
-                    scan_time = datetime.datetime.now()                
-                    for item in usage:
-                        document = item
-                        document['scanTime'] = scan_time
-                        document['scanIntervalMinutes'] = config['scan_interval_minutes']
-                        document['networkId'] = network['id']
-                        document['networkName'] = network['name']
-                        log_to_database(db, document, config['endpoints']['getNetworkClientsApplicationUsage']['collection'],
-                            config['endpoints']['getNetworkClientsApplicationUsage']['mode'])
+                    else:          
+                        scan_time = datetime.datetime.now()                
+                        for item in usage:
+                            document = item
+                            document['scanTime'] = scan_time
+                            document['scanIntervalMinutes'] = config['scan_interval_minutes']
+                            document['networkId'] = network['id']
+                            document['networkName'] = network['name']
+                            log_to_database(db, document, config['endpoints']['getNetworkClientsApplicationUsage']['collection'],
+                                config['endpoints']['getNetworkClientsApplicationUsage']['mode'])
             if 'getNetworkClientTrafficHistory' in config['endpoints'] and config['endpoints']['getNetworkClientTrafficHistory']['enabled']:
                 if clients is None:
-                    print("ERROR: Client getNetworkClients must be enabled for getNetworkClientTrafficHistory")
+                    print("ERROR: Client list must be fetched for getNetworkClientTrafficHistory")
                 else:
                     for client in clients:
                         success, errors, headers, traffic_history = getClientTrafficHistory(api_key, network['id'], client['id'])
                         document = {
-                            'clientId': client['id'],
-                            'networkId': network['id'],
-                            'networkName': network['name'],
-                            'scanTime': scan_time,
-                            'scanIntervalMinutes': config['scan_interval_minutes']
+                            'clientId'              : client['id'],
+                            'clientMac'             : client['mac'],
+                            'clientIp'              : client['ip'],
+                            'clientDescription'     : client['description'],
+                            'networkId'             : network['id'],
+                            'networkName'           : network['name'],
+                            'scanTime'              : scan_time,
+                            'scanIntervalMinutes'   : config['scan_interval_minutes']
                         }
                         document['trafficHistory'] = traffic_history
-                        log_to_database(db, document, config['endpoints']['getNetworkClientTrafficHistory']['collection'],
+                        success = log_to_database(db, document, config['endpoints']['getNetworkClientTrafficHistory']['collection'],
                             config['endpoints']['getNetworkClientTrafficHistory']['mode'], keyValuePair={'clientId': client['id']})   
+                        if not success:
+                            print("clientId                    : %s" % document['clientId'])
+                            print("networkId                   : %s" % document['networkId'])
+                            print("networkName                 : %s" % document['networkName'])
+                            print("trafficHistory record count : %s" % len(document['trafficHistory']))
             if 'getNetworkMerakiAuthUsers' in config['endpoints'] and config['endpoints']['getNetworkMerakiAuthUsers']['enabled']:
                 success, errors, headers, auth_users = getNetworkMerakiAuthUsers(api_key, network['id'])
                 if 'configTemplateId' in network and config['endpoints']['getNetworkMerakiAuthUsers']['include_template_users']:

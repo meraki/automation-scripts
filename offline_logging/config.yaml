@@ -36,14 +36,19 @@ sources:
 endpoints:
     getNetworkClients:
         enabled: true
+        # whether to skip clients with MAC address manufacturer "Meraki" or "Cisco Meraki"
+        ignore_manufacturer_meraki: true
         collection: networkClients
         mode: append
     getNetworkClientsApplicationUsage:
+        # requires getNetworkClients
         enabled: true
         collection: networkClientsApplicationUsage
         mode: append
     getNetworkClientTrafficHistory:
-        # This can be pretty slow in large environments, since every client needs to be fetched individually
+        # requires getNetworkClients
+        # This can be very slow in large environments, since every client needs to be fetched individually
+        # and log entries on long-running networks can be huge, even hitting the MongoDB 16MB/document limit
         enabled: true
         collection: networkClientTrafficHistory
         mode: update
