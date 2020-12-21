@@ -5,7 +5,7 @@
 # This comfiguration file uses YAML 1.1 format: https://yaml.org/spec/1.1/
 
 # How often to scan Meraki dashboard for updated info, in minutes. Minumum: 5, maximum: 43000
-scan_interval_minutes: 10
+scan_interval_minutes: 60
 meraki_dashboard_api:
     # Modify this value to match your Meraki Dashboard API key
     api_key: 1234
@@ -42,6 +42,7 @@ endpoints:
         mode: append
     getNetworkClientsApplicationUsage:
         # requires getNetworkClients
+        # Note that this will not work correctly for short scan intervals. 20min+ is recommended
         enabled: true
         collection: networkClientsApplicationUsage
         mode: append
@@ -50,6 +51,10 @@ endpoints:
         # This can be very slow in large environments, since every client needs to be fetched individually
         # and log entries on long-running networks can be huge, even hitting the MongoDB 16MB/document limit
         enabled: true
+        # Splits large traffic history arrays to multiple pages to be able to write them into the database. 
+        # Lower this value if you are getting "document too large" errors, or increase to have fewer documents
+        # per client
+        max_history_records_per_document: 10000
         collection: networkClientTrafficHistory
         mode: update
     getNetworkMerakiAuthUsers:

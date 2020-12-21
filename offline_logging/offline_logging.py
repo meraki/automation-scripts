@@ -267,7 +267,7 @@ def filter_admins(p_admins, p_networks, p_tags):
     return result
     
     
-def log_to_database(db, document, collection, mode, keyValuePair=None):
+def log_to_database(db, document, collection, mode='append', keyValuePair=None):
     dbc = db[collection]
     
     if mode == 'append':
@@ -286,6 +286,33 @@ def log_to_database(db, document, collection, mode, keyValuePair=None):
             return False
             
     return True
+    
+    
+def database_delete_all_matches(db, collection, filter):
+    dbc = db[collection]
+    try:
+        dbc.delete_many(filter)
+    except Exception as e:
+        print(e)
+        print("ERROR: Could not delete document in database")
+        return False
+       
+    return True
+    
+    
+def split_history_array(history, max_records):
+    result = []
+    line = []
+    for record in history:
+        line.append(record)
+        if len(line) >= max_records:
+            result.append(line)
+            line = []
+    
+    if len(line) > 0:
+        result.append(line)
+            
+    return result
       
     
 def perform_scan(config):
@@ -372,24 +399,53 @@ def perform_scan(config):
                 else:
                     for client in clients:
                         success, errors, headers, traffic_history = getClientTrafficHistory(api_key, network['id'], client['id'])
-                        document = {
-                            'clientId'              : client['id'],
-                            'clientMac'             : client['mac'],
-                            'clientIp'              : client['ip'],
-                            'clientDescription'     : client['description'],
-                            'networkId'             : network['id'],
-                            'networkName'           : network['name'],
-                            'scanTime'              : scan_time,
-                            'scanIntervalMinutes'   : config['scan_interval_minutes']
-                        }
-                        document['trafficHistory'] = traffic_history
-                        success = log_to_database(db, document, config['endpoints']['getNetworkClientTrafficHistory']['collection'],
-                            config['endpoints']['getNetworkClientTrafficHistory']['mode'], keyValuePair={'clientId': client['id']})   
-                        if not success:
-                            print("clientId                    : %s" % document['clientId'])
-                            print("networkId                   : %s" % document['networkId'])
-                            print("networkName                 : %s" % document['networkName'])
-                            print("trafficHistory record count : %s" % len(document['trafficHistory']))
+                        
+                        if not traffic_history is None:                        
+                            history_pages = split_history_array(traffic_history, 
+                                config['endpoints']['getNetworkClientTrafficHistory']['max_history_records_per_document'])
+                            
+                            total_pages = len(history_pages)
+                                                
+                            if total_pages > 0:
+                                base_info = {
+                                    'clientId'              : client['id'],
+                                    'clientMac'             : client['mac'],
+                                    'clientIp'              : client['ip'],
+                                    'clientDescription'     : client['description'],
+                                    'networkId'             : network['id'],
+                                    'networkName'           : network['name'],
+                                    'scanTime'              : scan_time,
+                                    'scanIntervalMinutes'   : config['scan_interval_minutes'],
+                                    'totalPages'            : total_pages
+                                }
+                                
+                                filter = {
+                                    'clientId'  : base_info['clientId'],
+                                    'networkId' : base_info['networkId']
+                                }
+                                
+                                if config['endpoints']['getNetworkClientTrafficHistory']['mode'] == 'update':
+                                    success = database_delete_all_matches(db, 
+                                        config['endpoints']['getNetworkClientTrafficHistory']['collection'], filter)
+                                                                                    
+                                page_number = 0
+                                for page in history_pages:
+                                    page_number += 1
+                                    document = {}
+                                    for key in base_info:
+                                        document[key] = base_info[key]
+                                    document['pageNumber'] = page_number
+                                    document['trafficHistory'] = page
+                                    success = log_to_database(db, document, config['endpoints']['getNetworkClientTrafficHistory']['collection'], mode="append")   
+                                    if not success:
+                                        print("clientId                    : %s" % document['clientId'])
+                                        print("clientMac                   : %s" % document['clientMac'])
+                                        print("clientIp                    : %s" % document['clientIp'])
+                                        print("clientDescription           : %s" % document['clientDescription'])
+                                        print("networkId                   : %s" % document['networkId'])
+                                        print("networkName                 : %s" % document['networkName'])
+                                        print("pageNumber                   : %s" % document['pageNumber'])
+                                        print("trafficHistory record count : %s" % len(document['trafficHistory']))
             if 'getNetworkMerakiAuthUsers' in config['endpoints'] and config['endpoints']['getNetworkMerakiAuthUsers']['enabled']:
                 success, errors, headers, auth_users = getNetworkMerakiAuthUsers(api_key, network['id'])
                 if 'configTemplateId' in network and config['endpoints']['getNetworkMerakiAuthUsers']['include_template_users']:
