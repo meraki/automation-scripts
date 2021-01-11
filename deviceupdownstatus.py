@@ -1,32 +1,27 @@
-# This is a script to print a list of all devices in a organization's inventory and their up/down status.
-#  The script will not return up/down status for MV security cameras, as this was not supported at time of writing.
-#
-# To run the script, enter:
-#  python deviceupdownstatus.py -k <api key> -o <org name> [-a <snmp auth key> -p <snmp priv key>]
-#
-# Mandatory arguments:
-#  -k <api key>         : Your Meraki Dashboard API key
-#  -o <org name>        : Your Dashboard Organization name
-# Optional arguments to use SNMPv3:
-#  -a <snmp auth key>   : SNMPv3 authentication key. Required for SNMPv3
-#  -p <snmp priv key>   : SNMPv3 privacy key. Required for SNMPv3
-# 
-# Example:
-#  python deviceupdownstatus.py -k 1234 -o "Meraki Inc" -a authpass123 -p privpass123
-#
-# This script was developed using Python 3.6.4. You will need the Requests and PySNMP modules to run it. You can install
-#  these modules via pip:
-#  pip install requests
-#  pip install pysnmp
-#
-# More info on these modules:
-#   http://python-requests.org
-#   http://pysnmp.sourceforge.net
-#
-# To make script chaining easier, all lines containing informational messages to the user
-#  start with the character @
-#
-# This file was last modified on 2018-03-01
+readMe = '''This is a script to print a list of all devices in a organization's inventory and their up/down status.
+ The script will not return up/down status for MV security cameras, as this was not supported at time of writing.
+
+To run the script, enter:
+  python deviceupdownstatus.py -k <api key> -o <org name> [-a <snmp auth key> -p <snmp priv key>]
+
+Mandatory arguments:
+  -k <api key>         : Your Meraki Dashboard API key
+  -o <org name>        : Your Dashboard Organization name
+Optional arguments to use SNMPv3:
+  -a <snmp auth key>   : SNMPv3 authentication key. Required for SNMPv3
+  -p <snmp priv key>   : SNMPv3 privacy key. Required for SNMPv3
+
+Example:
+  python deviceupdownstatus.py -k 1234 -o "Meraki Inc" -a authpass123 -p privpass123
+
+This script was developed using Python 3.6.4. You will need the Requests and PySNMP modules to run it. You can install
+ these modules via pip:
+  pip install requests
+  pip install pysnmp
+
+More info on these modules:
+  http://python-requests.org
+  http://pysnmp.sourceforge.net'''
 
 import sys, getopt, requests, json, time
 from pysnmp.hlapi import *
@@ -71,25 +66,7 @@ def printusertext(p_message):
 
 
 def printhelp():
-    #prints help text
-
-    printusertext('This is a script to print a list of all devices in a organization\'s inventory and their up/down status.')
-    printusertext(' The script will not return up/down status for MV security cameras, as this was not supported at time of writing.')
-    printusertext('')
-    printusertext('To run the script, enter:')
-    printusertext(' python deviceupdownstatus.py -k <api key> -o <org name> [-a <snmp auth key> -p <snmp priv key>]')
-    printusertext('')
-    printusertext('Mandatory argument:s')
-    printusertext(' -k <key>             : Your Meraki Dashboard API key')
-    printusertext(' -o <org name>        : Your Dashboard Organization name')
-    printusertext('Optional arguments to use SNMPv3:')
-    printusertext(' -a <snmp auth key>   : SNMPv3 authentication key. Required for SNMPv3')
-    printusertext(' -p <snmp priv key>   : SNMPv3 privacy key. Required for SNMPv3')
-    printusertext('')
-    printusertext('Example:')
-    printusertext(' python deviceupdownstatus.py -k 1234 -o "Meraki Inc" -a authpass123 -p privpass123')
-    printusertext('')
-    printusertext('Use double quotes ("") in Windows to pass arguments containing spaces. Names are case-sensitive.')    
+    print(readMe) 
     
         
 def snmppolldevicestatuses (p_shardhost, p_usercommunity, p_authkey = '', p_privkey = ''):
@@ -279,7 +256,7 @@ def getinventory(p_apikey, p_shardhost, p_orgid):
     
     merakirequestthrottler()
     try:
-        r = requests.get('https://%s/api/v0/organizations/%s/inventory' % (p_shardhost, p_orgid), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT) )
+        r = requests.get('https://api.meraki.com/api/v0/organizations/%s/inventory' % p_orgid, headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT) )
     except:
         printusertext('ERROR 09: Unable to contact Meraki cloud')
         sys.exit(2)
@@ -311,7 +288,7 @@ def getdevicename(p_apikey, p_shardhost, p_nwid, p_serial):
     
     merakirequestthrottler()
     try:
-        r = requests.get('https://%s/api/v0/networks/%s/devices/%s' % (p_shardhost, p_nwid, p_serial), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT) )
+        r = requests.get('https://api.meraki.com/api/v0/networks/%s/devices/%s' % (p_nwid, p_serial), headers={'X-Cisco-Meraki-API-Key': p_apikey, 'Content-Type': 'application/json'}, timeout=(REQUESTS_CONNECT_TIMEOUT, REQUESTS_READ_TIMEOUT) )
     except:
         printusertext('ERROR 10: Unable to contact Meraki cloud')
         sys.exit(2)
