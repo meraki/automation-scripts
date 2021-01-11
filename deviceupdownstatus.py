@@ -1,11 +1,14 @@
-readMe = '''This is a script to print a list of all devices in a organization's inventory and their up/down status.
- The script will not return up/down status for MV security cameras, as this was not supported at time of writing.
+readMe = '''This is a script to print a list of all devices in a organization's inventory and their
+ up/down status. The script will not return up/down status for MV security cameras, as this
+ was not supported at time of writing. Note that this script is very old and SNMP no longer
+ needs to be used for getting device up/down statuses. For a more modern approach, use this
+ endpoint instead: https://developer.cisco.com/meraki/api-v1/#!get-organization-devices-statuses
 
 To run the script, enter:
-  python deviceupdownstatus.py -k <api key> -o <org name> [-a <snmp auth key> -p <snmp priv key>]
+  python deviceupdownstatus.py -k <apikey> -o <org name> [-a <snmp auth key> -p <snmp priv key>]
 
 Mandatory arguments:
-  -k <api key>         : Your Meraki Dashboard API key
+  -k <apikey>          : Your Meraki Dashboard API key
   -o <org name>        : Your Dashboard Organization name
 Optional arguments to use SNMPv3:
   -a <snmp auth key>   : SNMPv3 authentication key. Required for SNMPv3
@@ -14,8 +17,8 @@ Optional arguments to use SNMPv3:
 Example:
   python deviceupdownstatus.py -k 1234 -o "Meraki Inc" -a authpass123 -p privpass123
 
-This script was developed using Python 3.6.4. You will need the Requests and PySNMP modules to run it. You can install
- these modules via pip:
+This script was developed using Python 3.6.4. You will need the Requests and PySNMP modules
+ to run it. You can install these modules via pip:
   pip install requests
   pip install pysnmp
 
