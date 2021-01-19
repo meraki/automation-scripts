@@ -37,6 +37,8 @@ Files contained in this repository:
 
 **getbeacons.py:** This script prints a list of all bluetooth beacons in an organization to terminal/sdtout or a file (Devices which are part of a network are considered in-use).
 
+**get_license_info.py** Prints the license info summary for a specific organization or all organizations an admin has access to.
+
 **googletimezonetest.py:** Example script that gets the time zone that corresponds to a street address by using Google Maps APIs. You can use this code to set network timezones dynamically in your Meraki Dashboard API scripts.
 
 **inventorycsv.py:** Creates a list of all Meraki devices in one or all organizations accessible by an administrator. The primary purpose of the script is to create a CSV file, which can be opened and filtered with a spreadsheet editor, like Excel. The list can also be printed on screen instead.
