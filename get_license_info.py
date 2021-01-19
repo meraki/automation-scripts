@@ -178,7 +178,6 @@ def findOrganizationIdForName(p_organizationList, p_organizationName):
         for org in p_organizationList:
             if org["name"] == p_organizationName:
                 return org["id"]
-        print("%-30s %s" %("Organization ID","Organization Name"))
     return None
         
 
