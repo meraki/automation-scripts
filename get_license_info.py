@@ -4,11 +4,14 @@ Syntax:
   python get_license_info.py -k <api_key> [-o <org_name>]
     
 Mandatory parameters:
-  -k <api_key>        The API key for the administrator performing running thhe script
+  -k <api_key>        The API key for the administrator running the script
 
 Optional parameters:
   -o <org_name>       The name of the organization to display license info for.
                       If omitted, all organizations accessible will be listed.
+
+Example:
+  python get_license_info.py -k 1234 -o "Example Company Inc"
                         
 Required Python 3 modules:
   requests
