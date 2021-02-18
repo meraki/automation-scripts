@@ -2,7 +2,7 @@
 A Python 3 script to log data from the Meraki dashboard into an external database periodically.
 
 # The use case
-Use this script to cover use cases such as:
+This script is an example of how to cover use cases such as:
 * A policy requiring data to be stored in a particular physical location, outside of the Meraki cloud
 * A need for longer storage interval than what the Meraki cloud provides
 * A need for storing regular timestamped snapshots of particular data
