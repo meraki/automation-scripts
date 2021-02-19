@@ -14,19 +14,25 @@ The project consists of a Python 3 script that interacts with a MongoDB database
 To use this project, you will need the following:
 * A Meraki organization with API access enabled and a Dashboard API key: https://documentation.meraki.com/General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API
 * Python 3: https://www.python.org/downloads/
-* The Python 3 Requests module: https://requests.readthedocs.io
+* The Requests module for Python 3: https://requests.readthedocs.io
+* The PyYAML module for Python 3: https://pyyaml.org/
+* The PyMongo module for Python 3: https://pymongo.readthedocs.io
 * MongoDB. You can get the Community Server edition for free here: https://www.mongodb.com/try/download/community
 * A tool to view your database. You can install MongoDB Compass along with the MongoDB Community Server
 
 # Installation and startup
 * Install Python 3. If installing on Windows, it is recommended to select the "Add to PATH" option during installation
-* Install the Python 3 Requests module. The easiest way to do this is to run:
+* Install the required third party Python 3 modules. The easiest way to do this is to run:
 ```
 Windows:
 pip install requests
+pip install pyyaml
+pip install pymongo
 
 Linux/Mac:
 pip3 install requests
+pip3 install pyyaml
+pip3 install pymongo
 ```
 * Install MongoDB and MongoDB Compass
 * Copy **offline_logging.py** and **config.yaml** into a folder on your server
