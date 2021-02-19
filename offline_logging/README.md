@@ -30,7 +30,7 @@ pip3 install requests
 ```
 * Install MongoDB and MongoDB Compass
 * Copy **offline_logging.py** and **config.yaml** into a folder on your server
-* Open **config.yaml** with a text editor...
+* Open **config.yaml** with a text editor. It is a configuration file the follows the YAML 1.1 format (https://yaml.org/spec/1.1/). Edit the following items in it:
 * ...find the **meraki_dashboard_api** section and modify the values for **api_key** and **organization_id** to match your environment. If you do not know your organizationId, you can use the interactive tools on this page to find it: https://developer.cisco.com/meraki/api-v1/#!get-organizations
 * ...find the **sources** section and define which networks to include in scans. Networks can be included by name, id, network tag, or you can set the **include_all_networks** boolean flag to scan everything. Refer to the examples in the config file for the correct format
 * ...find the **endpoints** section and see which items can be logged. Every item has a boolean attribute named **enabled** which can be used to turn the item on or off. To find out more about what exactly each item logs, search for its name on the Meraki Dashboard API documentation page: https://developer.cisco.com/meraki/api-v1/#!overview
