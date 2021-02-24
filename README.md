@@ -33,6 +33,8 @@ Files contained in this repository:
 
 **deviceupdownstatus.py:** Hybrid Dashboard API/SNMP script that prints a list of all devices in an organization's inventory, along with their current up/down status. Requires the Requests and PySNMP modules. Supports SNMPv2c and SNMPv3.
 
+**find_clients.py:** Python 3 script that finds all clients with descriptions including a query string and prints their basic statistics.
+
 **find_ports.py:** This script finds all MS switchports that match the input search parameter, searching either by clients from a file listing MAC addresses (one per line), a specific tag in Dashboard currently applied to ports, or the specific access policy currently configured.
 
 **getbeacons.py:** This script prints a list of all bluetooth beacons in an organization to terminal/sdtout or a file (Devices which are part of a network are considered in-use).
