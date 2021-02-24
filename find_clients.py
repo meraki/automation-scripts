@@ -284,8 +284,8 @@ def main(argv):
                         description, 
                         client["mac"],
                         client["ip"],
-                        client["usage"]["recv"],
-                        client["usage"]["sent"]))
+                        client["usage"]["sent"],
+                        client["usage"]["recv"]))
     print("\nEnd or results")
     
 if __name__ == '__main__':
