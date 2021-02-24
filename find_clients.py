@@ -1,9 +1,9 @@
-read_me = """Python 3 script to find clients with a specified string in their name
-  and print their network usage statistics.
+read_me = """Python 3 script to find clients with a specified string in their name,
+    MAC or IP, and print their network usage statistics.
 
 Script syntax:
     python find_clients.py -k <api key> [ -o <org name> -n <net name>
-        -c <client description> -t <timespan>]
+        -c <client filter> -t <timespan>]
         
 Mandatory parameters:
     -k <api key>            : Your Meraki Dashboard API key
@@ -11,7 +11,7 @@ Mandatory parameters:
 Optional parameters:
     -o <org name>           : Organization name query string
     -n <net name>           : Network name query string
-    -c <client description> : Client description query string
+    -c <client filter>      : Client query string. Matches description, IP or MAC
     -t <timespan>           : Look back timespan in days. Default is 7
     
     Ommiting a query string will match all items. Query strings are not
@@ -27,7 +27,7 @@ To install these Python 3 modules via pip you can use the following commands:
     pip install requests
     
 Depending on your operating system and Python environment, you may need to use commands 
- "python3" and "pip3" instead of "python" and "pip".
+    "python3" and "pip3" instead of "python" and "pip".
 """
 
 import sys, getopt, time, datetime
@@ -49,6 +49,9 @@ API_STATUS_RATE_LIMIT   = 429
 
 #Set to True or False to enable/disable console logging of sent API requests
 FLAG_REQUEST_VERBOSE    = False
+
+#Modify to customise what to print in tables when a field is None/empty
+BLANK_FIELD             = ""
 
 #change this to "https://api.meraki.com/api/v1" to disable mega proxy
 API_BASE_URL            = "https://api-mp.meraki.com/api/v1"
@@ -259,7 +262,9 @@ def main(argv):
         for net in networks:
             netHeaderNotPrinted = True
             success, errors, headers, rawClients = getNetworkClients(arg_apiKey, net["id"], timespan)
-            clients = filterByKeyValue(rawClients, "description", arg_clientNameQuery)
+            clients  = filterByKeyValue(rawClients, "description", arg_clientNameQuery)
+            clients += filterByKeyValue(rawClients, "mac", arg_clientNameQuery)
+            clients += filterByKeyValue(rawClients, "ip", arg_clientNameQuery)
             if len(clients) > 0:
                 for client in clients:
                     if (orgHeaderNotPrinted):
@@ -270,7 +275,7 @@ def main(argv):
                         print('%-32s %-18s %-16s %-13s %s' % ("Description", "Mac", "IP", "Up KB", "Down KB"))
                         netHeaderNotPrinted = False
                         
-                    description = "<none>"
+                    description = BLANK_FIELD
                     if "description" in client:
                         if not client["description"] is None:
                             descStr = str(client["description"])
@@ -278,12 +283,16 @@ def main(argv):
                                 description = descStr[:29] + "..."
                             else: 
                                 description = descStr
-                        
+                    
+                    ip = BLANK_FIELD
+                    if "ip" in client:
+                        if not client["ip"] is None:
+                            ip = client["ip"]
                     
                     print('%-32s %-18s %-16s %-13s %s' % (
                         description, 
                         client["mac"],
-                        client["ip"],
+                        ip,
                         client["usage"]["sent"],
                         client["usage"]["recv"]))
     print("\nEnd or results")
