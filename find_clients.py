@@ -10,12 +10,12 @@ Mandatory parameters:
     
 Optional parameters:
     -o <org name>           : Organization name query string
-    -n <net name>           : Network name query string
+    -n <net name>           : Network query string. Matches names, tags and productTypes
     -c <client filter>      : Client query string. Matches description, IP or MAC
     -t <timespan>           : Look back timespan in days. Default is 7
     
     Ommiting a query string will match all items. Query strings are not
-    case sensitive.
+    case sensitive. Examples of valid productType filters: wireless, switch, appliance
 
 Example:
     python find_clients.py -k 1234 -o "Big Industries" -c "iphone"
@@ -211,13 +211,21 @@ def filterByKeyValue (array, key, value):
                 result.append(item)
         
     return result
+    
+    
+def deduplicateList (array):
+    result = []
+    for item in array:
+        if not item in result:
+            result.append(item)
+    return result
 
 
 def main(argv):
     arg_apiKey          = None
     arg_orgNameQuery    = ""
-    arg_netNameQuery    = ""
-    arg_clientNameQuery = ""
+    arg_netQuery    = ""
+    arg_clientQuery = ""
     arg_timespanDays    = 7
     
     try:
@@ -231,9 +239,9 @@ def main(argv):
         if opt == '-o':
             arg_orgNameQuery = arg
         if opt == '-n':
-            arg_netNameQuery = arg
+            arg_netQuery = arg
         if opt == '-c':
-            arg_clientNameQuery = arg
+            arg_clientQuery = arg
         if opt == '-t':
             arg_timespanDays = arg
             
@@ -257,15 +265,18 @@ def main(argv):
     for org in organizations:
         orgHeaderNotPrinted = True
         success, errors, headers, rawNets = getNetworks(arg_apiKey, org["id"])
-        networks = filterByKeyValue(rawNets, "name", arg_netNameQuery)       
-        
+        networks  = filterByKeyValue(rawNets, "name", arg_netQuery)  
+        networks += filterByKeyValue(rawNets, "tags", arg_netQuery)
+        networks += filterByKeyValue(rawNets, "productTypes", arg_netQuery)
+        networks  = deduplicateList(networks)
+                
         for net in networks:
             netHeaderNotPrinted = True
             success, errors, headers, rawClients = getNetworkClients(arg_apiKey, net["id"], timespan)
-            clients  = filterByKeyValue(rawClients, "description", arg_clientNameQuery)
-            if arg_clientNameQuery != "":
-                clients += filterByKeyValue(rawClients, "mac", arg_clientNameQuery)
-                clients += filterByKeyValue(rawClients, "ip", arg_clientNameQuery)
+            clients  = filterByKeyValue(rawClients, "description", arg_clientQuery)
+            clients += filterByKeyValue(rawClients, "mac", arg_clientQuery)
+            clients += filterByKeyValue(rawClients, "ip", arg_clientQuery)
+            clients  = deduplicateList(clients)
             if len(clients) > 0:
                 for client in clients:
                     if (orgHeaderNotPrinted):
