@@ -15,7 +15,8 @@ Optional parameters:
     -t <timespan>           : Look back timespan in days. Default is 7
     
     Ommiting a query string will match all items. Query strings are not
-    case sensitive. Examples of valid productType filters: wireless, switch, appliance
+    case sensitive. Examples of valid productType filters: wireless, switch, appliance.
+    Filters for productTypes must be exact matches. All other filters support partial matching
 
 Example:
     python find_clients.py -k 1234 -o "Big Industries" -c "iphone"
@@ -202,13 +203,17 @@ def filterByKeyValue (array, key, value):
     result = []
     if not array is None:
         for item in array:
-            itemValue = ""
-            if key in item:
-                if not item[key] is None:
-                    itemValue = str(item[key]).lower()
-            position = itemValue.find(queryStr)
-            if position > -1:
-                result.append(item)
+            if isinstance(item[key], list):
+                if value in item[key]:
+                    result.append(item)
+            else:
+                itemValue = ""
+                if key in item:
+                    if not item[key] is None:
+                        itemValue = str(item[key]).lower()
+                position = itemValue.find(queryStr)
+                if position > -1:
+                    result.append(item)
         
     return result
     
