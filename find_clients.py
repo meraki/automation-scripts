@@ -263,8 +263,9 @@ def main(argv):
             netHeaderNotPrinted = True
             success, errors, headers, rawClients = getNetworkClients(arg_apiKey, net["id"], timespan)
             clients  = filterByKeyValue(rawClients, "description", arg_clientNameQuery)
-            clients += filterByKeyValue(rawClients, "mac", arg_clientNameQuery)
-            clients += filterByKeyValue(rawClients, "ip", arg_clientNameQuery)
+            if arg_clientNameQuery != "":
+                clients += filterByKeyValue(rawClients, "mac", arg_clientNameQuery)
+                clients += filterByKeyValue(rawClients, "ip", arg_clientNameQuery)
             if len(clients) > 0:
                 for client in clients:
                     if (orgHeaderNotPrinted):
