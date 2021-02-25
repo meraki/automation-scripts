@@ -204,7 +204,7 @@ def filterByKeyValue (array, key, value):
     if not array is None:
         for item in array:
             if isinstance(item[key], list):
-                if value in item[key]:
+                if queryStr in item[key]:
                     result.append(item)
             else:
                 itemValue = ""
