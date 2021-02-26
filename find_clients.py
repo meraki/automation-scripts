@@ -2,7 +2,7 @@ read_me = """Python 3 script to find clients with a specified string in their na
     MAC or IP, and print their network usage statistics.
 
 Script syntax:
-    python find_clients.py -k <api key> [ -o <org name> -n <net name>
+    python find_clients.py -k <api key> [ -o <org name> -n <net filter>
         -c <client filter> -t <timespan>]
         
 Mandatory parameters:
@@ -10,7 +10,7 @@ Mandatory parameters:
     
 Optional parameters:
     -o <org name>           : Organization name query string
-    -n <net name>           : Network query string. Matches names, tags and productTypes
+    -n <net filter>         : Network query string. Matches names, tags and productTypes
     -c <client filter>      : Client query string. Matches description, IP or MAC
     -t <timespan>           : Look back timespan in days. Default is 7
     
@@ -312,7 +312,7 @@ def main(argv):
                         ip,
                         client["usage"]["sent"],
                         client["usage"]["recv"]))
-    print("\nEnd or results")
+    print("\nEnd of results")
     
 if __name__ == '__main__':
     main(sys.argv[1:])
