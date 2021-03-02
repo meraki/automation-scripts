@@ -4,24 +4,25 @@ READ_ME = '''
 === PREREQUISITES ===
 Run in Python 3
 
-Install both requests & Meraki Dashboard API Python modules:
+Install Requests, PyYAML and Meraki Dashboard API Python modules:
 pip[3] install --upgrade requests
 pip[3] install --upgrade meraki
+pip[3] install --upgrade pyyaml
 
 === DESCRIPTION ===
-Exports CSV of MX site-to-site VPN rules from Dashboard network.
+Exports YAML of MX site-to-site VPN rules from Dashboard network.
 
 === USAGE ===
 python export_mx_s2svpn.py -k <api_key> -o <org_id>
 '''
 
 
-import csv
 from datetime import datetime
 import getopt
-import logging
 import sys
-from meraki import meraki
+import os
+import meraki
+import yaml
 
 # Prints READ_ME help message for user to read
 def print_help():
@@ -53,24 +54,28 @@ def main(argv):
     if api_key == None or org_id == None:
         print_help()
         sys.exit(2)
+        
+    dashboard = meraki.DashboardAPI(
+        api_key=api_key,
+        base_url='https://api-mp.meraki.com/api/v1/',
+        output_log=True,
+        log_file_prefix=os.path.basename(__file__)[:-3],
+        log_path='',
+        print_console=False
+    )
 
-    # Set the CSV output file and write the header row
+    # Set the output file
     timenow = '{:%Y%m%d_%H%M%S}'.format(datetime.now())
-    filename = 'mx_s2svpnfw_rules_{0}.csv'.format(timenow)
-    output_file = open(filename, mode='w', newline='\n')
-    field_names = ['policy','protocol','srcCidr','srcPort','destCidr','destPort','comment','logging']
-    csv_writer = csv.writer(output_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-    csv_writer.writerow(field_names)
+    filename = 'mx_s2svpnfw_rules_{0}.yaml'.format(timenow)
 
     # Read Dashboard configuration of MX L3 firewall rules
-    fw_rules = meraki.getmxvpnfwrules(api_key, org_id)
+    fw_rules = dashboard.appliance.getOrganizationApplianceVpnVpnFirewallRules(org_id)
+    
+    print(fw_rules)
+    
+    with open(filename, 'w') as file:
+        documents = yaml.dump(fw_rules, file)
 
-    # Loop through each firewall rule and write to CSV
-    for rule in fw_rules:
-        csv_row = [rule['policy'], rule['protocol'], rule['srcCidr'], rule['srcPort'],  rule['destCidr'], rule['destPort'], rule['comment'], rule['syslogEnabled']]
-        csv_writer.writerow(csv_row)
-
-    output_file.close()
     print('Export completed to file {0}'.format(filename))
 
 
