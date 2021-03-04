@@ -50,7 +50,7 @@ endpoints:
         # requires getNetworkClients
         # This can be very slow in large environments, since every client needs to be fetched individually
         # and log entries on long-running networks can be huge, even hitting the MongoDB 16MB/document limit
-        enabled: true
+        enabled: false
         # Splits large traffic history arrays to multiple pages to be able to write them into the database. 
         # Lower this value if you are getting "document too large" errors, or increase to have fewer documents
         # per client
@@ -67,3 +67,11 @@ endpoints:
         enabled: true
         collection: organizationAdmins
         mode: update
+    getNetworkSmDevices:
+        enabled: true
+        collection: networkSmDevices
+        mode: update
+        # Set "filter_by_device_tag_enabled" to true to only log devices with a specific device tag
+        # Set the device tag to be matched in "target_device_tag"
+        filter_by_device_tag_enabled: false
+        target_device_tag: logging

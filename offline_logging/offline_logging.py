@@ -65,7 +65,7 @@ def merakiRequest(p_apiKey, p_httpVerb, p_endpoint, p_additionalHeaders=None, p_
         
     query = ""
     if not p_queryItems is None:
-        query = "?" + urlencode(p_queryItems)
+        query = "?" + urlencode(p_queryItems, True)
     url = API_BASE_URL + p_endpoint + query
     
     verb = p_httpVerb.upper()
@@ -190,6 +190,17 @@ def getClientTrafficHistory(p_apiKey, p_networkId, p_clientId):
 def getNetworkMerakiAuthUsers(p_apiKey, p_networkId):
     endpoint = "/networks/%s/merakiAuthUsers" % p_networkId
     success, errors, headers, response = merakiRequest(p_apiKey, "GET", endpoint, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, headers, response
+    
+
+def getNetworkSmDevices(p_apiKey, p_networkId):
+    endpoint = "/networks/%s/sm/devices" % p_networkId
+    query = {"fields[]": ['ip', 'systemType', 'lastConnected', 'location', 'lastUser', 
+        'ownerEmail', 'ownerUsername', 'imei', 'simCarrierNetwork']}
+    
+    success, errors, headers, response = merakiRequest(p_apiKey, "GET", endpoint, p_queryItems=query,
+        p_verbose=FLAG_REQUEST_VERBOSE)    
+        
     return success, errors, headers, response
     
     
@@ -462,8 +473,29 @@ def perform_scan(config):
                         log_to_database(db, document, config['endpoints']['getNetworkMerakiAuthUsers']['collection'],
                             config['endpoints']['getNetworkMerakiAuthUsers']['mode'], 
                             keyValuePair={'id': user['id'], 'networkId': network['id']})
+            if 'getNetworkSmDevices' in config['endpoints'] and config['endpoints']['getNetworkSmDevices']['enabled']:
+                if 'systemsManager' in network['productTypes']:
+                    success, errors, headers, sm_devices = getNetworkSmDevices(api_key, network['id'])
+                    if not sm_devices is None:
+                        tag_disabled = not config['endpoints']['getNetworkSmDevices']['filter_by_device_tag_enabled']
+                        tag_filter = config['endpoints']['getNetworkSmDevices']['target_device_tag']
+                        scan_time = datetime.datetime.now()  
+                        for device in sm_devices:
+                            if tag_disabled or tag_filter in device['tags']:
+                                document = {
+                                    'scanTime': scan_time,
+                                    'scanIntervalMinutes': config['scan_interval_minutes'],
+                                    'networkId': network['id'],
+                                    'networkName': network['name']
+                                }
+                                for key in device:
+                                    document[key] = device[key]
+                                
+                                log_to_database(db, document, 
+                                    config['endpoints']['getNetworkSmDevices']['collection'],
+                                    config['endpoints']['getNetworkSmDevices']['mode'], 
+                                    keyValuePair={'id': device['id']})                              
             
-                    
     print(str(datetime.datetime.now()) + " -- Scan complete")
 
 
