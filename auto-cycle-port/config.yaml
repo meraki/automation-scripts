@@ -1,0 +1,22 @@
+# YAML configuration file for auto-cycle-port.yaml
+# You can find the script here: TODO: insert github link
+
+# Your Meraki Dashboard API key. It needs to have full org-wide privileges
+apiKey: 1234
+
+# The name of the organization you wish to run this script for
+organizationName: Big Industries Inc
+
+# The model of device you want to track up/down status of. For example: MG21
+trackedDeviceModel: MG21
+
+# The number of the switchport to cycle. The switch needs to be part of the same network
+# as the tracked device. Only one switch per network will be modified.
+targetPortNumber: 8
+
+# How often to scan for unreachable devices and cycle ports
+scanIntervalMinutes: 15
+
+# Path to the log file to use for persistent log output. Filename only will place the file in
+# the same folder as the script
+logFilePath: auto-cycle.log
