@@ -3,7 +3,7 @@ the same network is unreachable. For example, if a MG21 is unreachable, it cycle
 PoE port it is connected to.
 
 Requires a YAML configuration file. You can find an example of such a file here:
-TODO: ADD GITHUB LINK
+https://github.com/meraki/automation-scripts/tree/master/auto-cycle-port
 
 Script syntax:
     python auto-cycle-port.py -c <config_file>
