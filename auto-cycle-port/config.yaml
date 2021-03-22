@@ -1,5 +1,5 @@
 # YAML configuration file for auto-cycle-port.yaml
-# You can find the script here: TODO: insert github link
+# You can find the script here: https://github.com/meraki/automation-scripts/tree/master/auto-cycle-port
 
 # Your Meraki Dashboard API key. It needs to have full org-wide privileges
 apiKey: 1234
