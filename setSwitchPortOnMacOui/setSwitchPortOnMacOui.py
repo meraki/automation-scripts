@@ -229,7 +229,7 @@ def getOrgs():
     
 def getShardHost(p_org):
     #patch
-    return("api-mp.meraki.com")
+    return("api.meraki.com")
     
     
 def getNetworkClients(p_org, p_net):

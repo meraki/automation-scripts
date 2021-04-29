@@ -150,7 +150,7 @@ def getNetId(p_apiKey, p_orgId, p_shard, p_netName):
     
 def getShardHost(p_apiKey, p_orgId):
     #patch
-    return("api-mp.meraki.com")
+    return("api.meraki.com")
     
     
 def addRoute(p_apiKey, p_shard, p_netId, p_routeData):

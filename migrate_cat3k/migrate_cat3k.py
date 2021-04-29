@@ -1,7 +1,7 @@
 read_me = '''This is a Python 3 script to migrate configuration from Catalyst 3750-X to Meraki MS-series switches.
 
 Usage syntax:
-  python migrate_cat3k.py -k <API key> -o <org name> -i <init file> [-u <default user> -p <default pass> -x <proxy>]
+  python migrate_cat3k.py -k <API key> -o <org name> -i <init file> [-u <default user> -p <default pass>]
 
 Mandatory parameters:
   -k <API key>              : Your Meraki Dashboard API key
@@ -11,9 +11,6 @@ Mandatory parameters:
 Optional parameters:
   -u <default user>         : Catalyst switch SSH username, if none is defined in init config    
   -p <default pass>         : Catalyst switch SSH password, if none is defined in init config  
-  -x <proxy>                : Whether to use the new Dashboard API mega proxy or not. Valid forms:
-                                -x use_mega_proxy           Sends API requests to "api-mp.meraki.com" (default)
-                                -x do_not_use_mega_proxy    Sends API requests to "api.meraki.com"
 
 Usage example:
   python migrate_cat3k.py -k 1234 -o "My Meraki Account" -i init_config.txt
@@ -64,8 +61,10 @@ REQUESTS_READ_TIMEOUT       = 90
 #SECTION: GLOBAL VARIABLES AND CLASSES: DO NOT MODIFY
 
 LAST_MERAKI_REQUEST         = datetime.datetime.now()   #used by merakiRequestThrottler()
-API_BASE_URL                = 'https://api-mp.meraki.com/api/v0'
-API_BASE_URL_MEGA_PROXY     = 'https://api-mp.meraki.com/api/v0'
+
+#PATCH: MEGA PROXY IS DEPRECATED
+API_BASE_URL                = 'https://api.meraki.com/api/v0'
+API_BASE_URL_MEGA_PROXY     = 'https://api.meraki.com/api/v0'
 API_BASE_URL_NO_MEGA        = 'https://api.meraki.com/api/v0'
 ACTION_BATCH_QUEUE          = []
 

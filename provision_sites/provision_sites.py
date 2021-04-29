@@ -2,7 +2,7 @@ read_me = '''This is a Python 3 script to provision template-based networks with
  to Meraki dashboard.
  
 Syntax:
-  python provision_sites.py -k <api key> -o <org name> -i <input file> [-n <net type> -u <update mode> -x <proxy mode>]
+  python provision_sites.py -k <api key> -o <org name> -i <input file> [-n <net type> -u <update mode>]
   
 Mandatory parameters:
   -k <api key>          : Your Meraki Dashboard API key
@@ -19,9 +19,6 @@ Optional parameters:
                            with names that match the ones in the input file. Valid forms:
                             -u fail                       Interrupts script if network is not new (default)
                             -u update                     Attempts to update existing networks to match input file
-  -x <proxy mode>       : Whether to use the new Dashboard API mega proxy or not. Valid forms:
-                            -x use-mega-proxy             Sends API requests to "api-mp.meraki.com" (default)
-                            -x do-not-use-mega-proxy      Sends API requests to "api.meraki.com"
   
 Usage example:
   python provision_sites.py -k 1234 -o "Big Industries Inc" -i site_info.csv
@@ -69,8 +66,10 @@ ABWAIT_RETRY_INTERVAL       = 2
 
 
 LAST_MERAKI_REQUEST         = datetime.datetime.now()   #used by merakiRequestThrottler()
-API_BASE_URL                = 'https://api-mp.meraki.com/api/v0'
-API_BASE_URL_MEGA_PROXY     = 'https://api-mp.meraki.com/api/v0'
+
+# PATCH: MEGA PROXY FQDN IS DEPRECATED
+API_BASE_URL                = 'https://api.meraki.com/api/v0'
+API_BASE_URL_MEGA_PROXY     = 'https://api.meraki.com/api/v0'
 API_BASE_URL_NO_MEGA        = 'https://api.meraki.com/api/v0'
 ACTION_BATCH_QUEUE          = []
 
@@ -569,9 +568,7 @@ def main(argv):
     if (not arg_updateExisting is None) and arg_updateExisting == 'update':
         flag_doNotUpdateExisting = False
         
-    API_BASE_URL = API_BASE_URL_MEGA_PROXY
-    if (not arg_proxy is None) and arg_proxy == 'do-not-use-mega-proxy':
-        API_BASE_URL = API_BASE_URL_NO_MEGA
+    API_BASE_URL = API_BASE_URL_NO_MEGA
         
 
     print('Reading input file...')
