@@ -25,10 +25,6 @@ Notes:
         IPS
   The source for NAT/Port forwarding rules is the Config template. Local NAT overrides are ignored
   
-  This script uses the following elements, which are beta at time of writing:
-    * Dashboard API v1: https://developer.cisco.com/meraki/api-v1/
-    * Dashboard API mega proxy (api-mp.meraki.com)
-
 Required Python version and modules:
   Developed and tested with Python 3.8.3
   Requests: https://requests.readthedocs.io/
@@ -54,8 +50,7 @@ API_STATUS_RATE_LIMIT   = 429
 #Set to True or False to enable/disable console logging of sent API requests
 FLAG_REQUEST_VERBOSE    = True
 
-#change this to "https://api.meraki.com/api/v1" to disable mega proxy
-API_BASE_URL            = "https://api-mp.meraki.com/api/v1"
+API_BASE_URL            = "https://api.meraki.com/api/v1"
 
 
 def merakiRequest(p_apiKey, p_httpVerb, p_endpoint, p_additionalHeaders=None, p_queryItems=None, p_requestBody=None, p_verbose=False, p_retry=0):

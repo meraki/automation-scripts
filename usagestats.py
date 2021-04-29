@@ -337,7 +337,7 @@ def getorglist(p_apikey):
     
 def getshardhost(p_apikey, p_orgid):
     #patch
-    return("api-mp.meraki.com")
+    return("api.meraki.com")
    
    
 def getnwlist(p_apikey, p_shardhost, p_orgid):

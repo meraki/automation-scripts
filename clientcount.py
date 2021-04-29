@@ -159,7 +159,7 @@ def getOrgs():
     
 def getShardHost(p_org):
     #quick-n-dirty patch
-    return("api-mp.meraki.com")
+    return("api.meraki.com")
   
     
 def refreshOrgList():

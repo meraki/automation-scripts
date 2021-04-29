@@ -62,8 +62,7 @@ API_STATUS_RATE_LIMIT   = 429
 #Set to True or False to enable/disable console logging of sent API requests
 FLAG_REQUEST_VERBOSE    = True
 
-#change this to "https://api.meraki.com/api/v1" to disable mega proxy
-API_BASE_URL            = "https://api-mp.meraki.com/api/v1"
+API_BASE_URL            = "https://api.meraki.com/api/v1"
 
 class NoRebuildAuthSession(Session):
     def rebuild_auth(self, prepared_request, response):

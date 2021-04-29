@@ -383,7 +383,7 @@ def getorgid(p_apikey, p_orgname):
     
 def getshardurl(p_apikey, p_orgid):
     #patch
-    return("api-mp.meraki.com")
+    return("api.meraki.com")
     
 def getnwid(p_apikey, p_shardurl, p_orgid, p_nwname):
     #looks up network id for a network name

@@ -2,7 +2,7 @@ readMe = '''This is a script to list the inventory of a specific organization or
  accessible by an administrator to a CSV file.
  
 Syntax:
- python inventorycsv.py -k <api key> [-o <org name> -f <file path> -x <proxy mode>]
+ python inventorycsv.py -k <api key> [-o <org name> -f <file path>]
  
 Mandatory parameters:
  -k <api key>       Your Meraki Dashboard API key. Requires org-level privilege
@@ -12,9 +12,6 @@ Optional parameters:
  -f <file path>     The file name or path of the file to be used for output. If omitted, default
                      is file name "inventory_[timestamp].csv" in the current directory. Use
                      "/print" to display on the monitor instead.
- -x <proxy mode>    Whether to use the new Dashboard API mega proxy or not. Valid forms:
-                     -x use-mega-proxy             Sends API requests to "api-mp.meraki.com" (default)
-                     -x do-not-use-mega-proxy      Sends API requests to "api.meraki.com"
                      
 Examples:
     python inventorycsv.py -k 1234
@@ -49,8 +46,10 @@ REQUESTS_READ_TIMEOUT       = 90
 
 
 LAST_MERAKI_REQUEST         = datetime.datetime.now()   #used by merakiRequestThrottler()
-API_BASE_URL                = 'https://api-mp.meraki.com/api/v0'
-API_BASE_URL_MEGA_PROXY     = 'https://api-mp.meraki.com/api/v0'
+
+#PATCH: MEGA PROXY IS DEPRECATED
+API_BASE_URL                = 'https://api.meraki.com/api/v0'
+API_BASE_URL_MEGA_PROXY     = 'https://api.meraki.com/api/v0'
 API_BASE_URL_NO_MEGA        = 'https://api.meraki.com/api/v0'
 
 

@@ -54,8 +54,7 @@ FLAG_REQUEST_VERBOSE    = False
 #Modify to customise what to print in tables when a field is None/empty
 BLANK_FIELD             = ""
 
-#change this to "https://api.meraki.com/api/v1" to disable mega proxy
-API_BASE_URL            = "https://api-mp.meraki.com/api/v1"
+API_BASE_URL            = "https://api.meraki.com/api/v1"
 
 
 def merakiRequest(p_apiKey, p_httpVerb, p_endpoint, p_additionalHeaders=None, p_queryItems=None, 

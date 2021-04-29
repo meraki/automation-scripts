@@ -57,7 +57,7 @@ def main(argv):
         
     dashboard = meraki.DashboardAPI(
         api_key=api_key,
-        base_url='https://api-mp.meraki.com/api/v1/',
+        base_url='https://api.meraki.com/api/v1/',
         output_log=True,
         log_file_prefix=os.path.basename(__file__)[:-3],
         log_path='',

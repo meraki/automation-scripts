@@ -84,7 +84,7 @@ def getorgid(p_apikey, p_orgname):
 	
 def getshardurl(p_apikey, p_orgid):
 	#patch
-	return("api-mp.meraki.com")
+	return("api.meraki.com")
 	
 def getnwlist(p_apikey, p_shardurl, p_orgid):
 	#returns a list of all networks in an organization

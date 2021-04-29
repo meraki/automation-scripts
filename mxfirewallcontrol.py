@@ -171,7 +171,7 @@ def getorgid(p_apikey, p_orgname):
     
 def getshardhost(p_apikey, p_orgid):
     #patch
-    return("api-mp.meraki.com")
+    return("api.meraki.com")
    
     
 def gettemplatelist(p_apikey, p_shardhost, p_orgid):
