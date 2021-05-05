@@ -286,20 +286,22 @@ def main(argv):
                     else:
                         for key in filter:
                             if key in port:
-                                if port[key] == filter[key]:                    
-                                    flag_tagExists = False
-                                    for tag in port['tags']:
-                                        if tag == arg_tag:
-                                            flag_tagExists = True
-                                            break
-                                    if not flag_tagExists:
-                                        newTags = []
-                                        for tag in port['tags']:
-                                            newTags.append(tag)
-                                        newTags.append(arg_tag)
-                                        
-                                        requestBody = {'tags': newTags}                        
-                                        success, errors, headers, result = updateDeviceSwitchPort(arg_apiKey, device['serial'], port['portId'], requestBody)
+                                if port[key] == filter[key]:  
+                                    flag_portMatchesFilter = True
+                    if flag_portMatchesFilter:
+                        flag_tagExists = False
+                        for tag in port['tags']:
+                            if tag == arg_tag:
+                                flag_tagExists = True
+                                break
+                        if not flag_tagExists:
+                            newTags = []
+                            for tag in port['tags']:
+                                newTags.append(tag)
+                            newTags.append(arg_tag)
+                            
+                            requestBody = {'tags': newTags}                        
+                            success, errors, headers, result = updateDeviceSwitchPort(arg_apiKey, device['serial'], port['portId'], requestBody)
     
 if __name__ == '__main__':
     main(sys.argv[1:])
