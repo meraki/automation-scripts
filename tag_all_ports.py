@@ -2,10 +2,10 @@ readMe = """Python 3 script that tags all MS switchports in an organization
 with a user-defined tag.
 
 Script syntax, Windows:
-    python tag_all_ports.py -k <api_key> [-o <org_name>] -t <tag>
+    python tag_all_ports.py -k <api_key> [-o <org_name>] [-f <filter>] -t <tag>
  
 Script syntax, Linux and Mac:
-    python3 tag_all_ports.py -k <api_key> [-o <org_name>] -t <tag>
+    python3 tag_all_ports.py -k <api_key> [-o <org_name>] [-f <filter>] -t <tag>
     
 Mandatory parameters:
     -k <api_key>            Your Meraki Dashboard API key
@@ -15,9 +15,14 @@ Optional parameters:
     -o <org_name>           If multiple organizations are accessible by your
                             API key, you need to provide the name of the one
                             to apply the changes to
+    -f <filter>             Filter ports by attribute. Filter must be entered in
+                            form "<key>:<value>"
                             
-Example, tag all ports in the only organization I have access to with "video":
-    python tag_all_ports.py -k 1234 -t video
+Example, tag all access ports in the only organization I have access to with "video":
+    python tag_all_ports.py -k 1234 -f type:access -t video
+    
+For examples of valid key filters that can be used, please read: 
+    https://developer.cisco.com/meraki/api-v1/#!get-device-switch-ports
 
 Required Python 3 modules:
     requests
@@ -211,9 +216,10 @@ def main(argv):
     arg_apiKey  = None
     arg_orgName = None
     arg_tag     = None
+    arg_filter  = None
     
     try:
-        opts, args = getopt.getopt(argv, 'k:o:t:')
+        opts, args = getopt.getopt(argv, 'k:o:t:f:')
     except getopt.GetoptError:
         sys.exit(2)
         
@@ -224,6 +230,8 @@ def main(argv):
             arg_orgName = str(arg)
         if opt == '-t':
             arg_tag     = str(arg)
+        if opt == '-f':
+            arg_filter  = str(arg)
             
     if arg_apiKey is None or arg_tag is None:
         killScript()
@@ -255,6 +263,14 @@ def main(argv):
     
     if inventory is None:
         killScript('Unable to fetch inventory for org %s "%s"' % (organizationId, organizationName))
+        
+    filter = None
+    if not arg_filter is None:
+        splitStr = arg_filter.split(":")
+        if len(splitStr) > 1:
+            filter = {splitStr[0]: splitStr[1]}
+        else:
+            killScript("Invalid port attribute filter")
     
     for device in inventory:
         if device['model'][:2] == "MS" and not device['networkId'] is None:
@@ -263,20 +279,27 @@ def main(argv):
             if ports is None:
                 log("Error fetching port info")
             else:
-                for port in ports:         
-                    flag_tagExists = False
-                    for tag in port['tags']:
-                        if tag == arg_tag:
-                            flag_tagExists = True
-                            break
-                    if not flag_tagExists:
-                        newTags = []
-                        for tag in port['tags']:
-                            newTags.append(tag)
-                        newTags.append(arg_tag)
-                        
-                        requestBody = {'tags': newTags}                        
-                        success, errors, headers, result = updateDeviceSwitchPort(arg_apiKey, device['serial'], port['portId'], requestBody)
+                for port in ports:
+                    flag_portMatchesFilter = False
+                    if filter is None:
+                        flag_portMatchesFilter = True
+                    else:
+                        for key in filter:
+                            if key in port:
+                                if port[key] == filter[key]:                    
+                                    flag_tagExists = False
+                                    for tag in port['tags']:
+                                        if tag == arg_tag:
+                                            flag_tagExists = True
+                                            break
+                                    if not flag_tagExists:
+                                        newTags = []
+                                        for tag in port['tags']:
+                                            newTags.append(tag)
+                                        newTags.append(arg_tag)
+                                        
+                                        requestBody = {'tags': newTags}                        
+                                        success, errors, headers, result = updateDeviceSwitchPort(arg_apiKey, device['serial'], port['portId'], requestBody)
     
 if __name__ == '__main__':
     main(sys.argv[1:])
