@@ -91,6 +91,8 @@ Files contained in this repository:
 
 **setSwitchPortOnMacOui.py:** This is a script to set attributes of a switch port, if a client with a matching MAC OUI is found connected to it. This script uses two endpoints that were in Beta at time of writing: "List the clients that have used this network in the timespan" and "Action batches". The use case is to provision easily provision switchport settings for IP phones of the same vendor. The script has a protective lock to only attempt to configure ports on MS1xx, MS2xx and MS3xx switches.
 
+**tag_all_ports.py:** Tags all MS switch ports in an organization with a user-defined tag.
+
 **topusers:** Finds bandwidth hoggers in a network through a web UI.
 
 **update_ports.py:** This script finds all MS switchports that match the input search parameter, searching either by clients from a file listing MAC addresses (one per line), a specific tag in Dashboard currently applied to ports, or the specific access policy currently configured. It then changes the configuration of the port by applying the new access policy specified.
