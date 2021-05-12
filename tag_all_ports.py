@@ -2,10 +2,12 @@ readMe = """Python 3 script that tags all MS switchports in an organization
 with a user-defined tag.
 
 Script syntax, Windows:
-    python tag_all_ports.py -k <api_key> [-o <org_name>] [-f <filter>] -t <tag>
+    python tag_all_ports.py -k <api_key> -t <tag> [-o <org_name>]
+        [-n <network_name>] [-f <filter>] [-a <add/remove>]
  
 Script syntax, Linux and Mac:
-    python3 tag_all_ports.py -k <api_key> [-o <org_name>] [-f <filter>] -t <tag>
+    python3 tag_all_ports.py -k <api_key> -t <tag> [-o <org_name>]
+        [-n <network_name>] [-f <filter>] [-a <add/remove>]
     
 Mandatory parameters:
     -k <api_key>            Your Meraki Dashboard API key
@@ -15,8 +17,13 @@ Optional parameters:
     -o <org_name>           If multiple organizations are accessible by your
                             API key, you need to provide the name of the one
                             to apply the changes to
+    -n <network_name>       If defined, will apply changes only to a network with
+                            a name that matches this parameter value. If omitted,
+                            all networks will be processed
     -f <filter>             Filter ports by attribute. Filter must be entered in
                             form "<key>:<value>"
+    -a <add/remove>         Action to complete. Use value "add" to add the specified
+                            tag or "remove" to remove it. If omitted "add" is assumed
                             
 Example, tag all access ports in the only organization I have access to with "video":
     python tag_all_ports.py -k 1234 -f type:access -t video
@@ -173,6 +180,11 @@ def getOrganizations(p_apiKey):
     endpoint = "/organizations"
     success, errors, headers, response = merakiRequest(p_apiKey, "GET", endpoint, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, headers, response
+    
+def getOrganizationNetworks(p_apiKey, p_organizationId):
+    endpoint = "/organizations/%s/networks" % p_organizationId
+    success, errors, headers, response = merakiRequest(p_apiKey, "GET", endpoint, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, headers, response
         
 def getOrganizationInventoryDevices(p_apiKey, p_organizationId):
     endpoint = "/organizations/%s/inventoryDevices" % p_organizationId
@@ -217,9 +229,11 @@ def main(argv):
     arg_orgName = None
     arg_tag     = None
     arg_filter  = None
+    arg_netName = None
+    arg_action  = "add"
     
     try:
-        opts, args = getopt.getopt(argv, 'k:o:t:f:')
+        opts, args = getopt.getopt(argv, 'k:o:t:f:n:a:')
     except getopt.GetoptError:
         sys.exit(2)
         
@@ -232,9 +246,18 @@ def main(argv):
             arg_tag     = str(arg)
         if opt == '-f':
             arg_filter  = str(arg)
+        if opt == '-n':
+            arg_netName = str(arg)
+        if opt == '-a':
+            arg_action  = str(arg)
             
     if arg_apiKey is None or arg_tag is None:
         killScript()
+        
+    action = arg_action.lower()
+    
+    if not (action in ["add", "remove"]):
+        killScript('Invalid action requested: "%s"' % arg_action)
             
     success, errors, headers, organizations = getOrganizations(arg_apiKey)
     
@@ -259,6 +282,16 @@ def main(argv):
         if organizationId is None:
             killScript("No organization found with that name")
     
+    success, errors, headers, networks = getOrganizationNetworks(arg_apiKey, organizationId)
+    
+    if networks is None:
+        killScript('Unable to fetch networks for org %s "%s"' % (organizationId, organizationName))
+    
+    filteredNetworkIds = []    
+    for net in networks:
+        if (arg_netName is None) or (net["name"] == arg_netName):
+            filteredNetworkIds.append(net["id"])
+                
     success, errors, headers, inventory = getOrganizationInventoryDevices(arg_apiKey, organizationId)
     
     if inventory is None:
@@ -273,7 +306,7 @@ def main(argv):
             killScript("Invalid port attribute filter")
     
     for device in inventory:
-        if device['model'][:2] == "MS" and not device['networkId'] is None:
+        if device['model'][:2] == "MS" and (device['networkId'] in filteredNetworkIds):
             log("Processing device %s" % device['serial']) 
             success, errors, headers, ports = getDeviceSwitchPorts(arg_apiKey, device['serial'])
             if ports is None:
@@ -288,20 +321,30 @@ def main(argv):
                             if key in port:
                                 if port[key] == filter[key]:  
                                     flag_portMatchesFilter = True
-                    if flag_portMatchesFilter:
+                    if flag_portMatchesFilter:                 
                         flag_tagExists = False
                         for tag in port['tags']:
                             if tag == arg_tag:
                                 flag_tagExists = True
                                 break
-                        if not flag_tagExists:
-                            newTags = []
-                            for tag in port['tags']:
-                                newTags.append(tag)
-                            newTags.append(arg_tag)
+                        if action == "add":   
+                            if not flag_tagExists:
+                                newTags = []
+                                for tag in port['tags']:
+                                    newTags.append(tag)
+                                newTags.append(arg_tag)
+                                
+                                requestBody = {'tags': newTags}                        
+                                success, errors, headers, result = updateDeviceSwitchPort(arg_apiKey, device['serial'], port['portId'], requestBody)
+                        else: # action is remove
+                            if flag_tagExists:
+                                newTags = []
+                                for tag in port['tags']:
+                                    if tag != arg_tag:
+                                        newTags.append(tag)                                    
+                                requestBody = {'tags': newTags}                      
+                                success, errors, headers, result = updateDeviceSwitchPort(arg_apiKey, device['serial'], port['portId'], requestBody)
                             
-                            requestBody = {'tags': newTags}                        
-                            success, errors, headers, result = updateDeviceSwitchPort(arg_apiKey, device['serial'], port['portId'], requestBody)
     
 if __name__ == '__main__':
     main(sys.argv[1:])
