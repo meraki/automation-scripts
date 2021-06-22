@@ -55,8 +55,8 @@ API_BASE_URL            = "https://api.meraki.com/api/v1"
 
 DOCS_BASE_URL           = ""
 
-TEMPLATE_FILE_SDK_CORE  = "template_sdk_core.js"
-TEMPLATE_FILE_ENDPOINT  = "template_endpoint.js"
+TEMPLATE_FILE_SDK_CORE  = "sdk_core.template"
+TEMPLATE_FILE_ENDPOINT  = "endpoint.template"
 
 
 def merakiRequest(p_apiKey, p_httpVerb, p_endpoint, p_additionalHeaders=None, p_queryItems=None, 
@@ -224,6 +224,18 @@ def loadFile(filename):
         data = file.read()
     return data
     
+  
+def dashifyOperationId(operationId):
+    result = ""
+
+    for char in operationId:
+        if char.isupper():
+            result += "-%s" % char.lower()
+        else:
+            result += char
+
+    return result
+    
         
 def main(argv):    
     arg_apiKey      = None
@@ -281,6 +293,7 @@ def main(argv):
     for path in openApiSpec["paths"]:
         for method in openApiSpec["paths"][path]:   
             operationId = openApiSpec["paths"][path][method]["operationId"]
+            operationIdDash = dashifyOperationId(operationId)
             description = openApiSpec["paths"][path][method]["description"].replace("\n", " ")
             pathVars = []
             query = []
@@ -301,7 +314,9 @@ def main(argv):
             
             outputEndpoint = endpointTemplate
             
-            outputEndpoint = outputEndpoint.replace("/* DOCS GENERAL */", "// %s: %s" %(operationId, description));            
+            outputEndpoint = outputEndpoint.replace("/* DOCS TITLE */", "// %s: %s" %(operationId, description));          
+            outputEndpoint = outputEndpoint.replace("/* DOCS ENDPOINT */", "\n    // %s %s" %(method.upper(), path));          
+            outputEndpoint = outputEndpoint.replace("/* OFFICIAL DOCS LINK */", "\n\n    // Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!%s" % operationIdDash);          
             outputEndpoint = outputEndpoint.replace("/* ENDPOINT ID */", operationId);
             outputEndpoint = outputEndpoint.replace("/* METHOD */", '"%s"' % method);
             
