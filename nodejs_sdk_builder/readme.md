@@ -2,7 +2,7 @@
 A Python 3 script that generates a Meraki Dashboard API SDK for Node.js.
 
 # Project overview
-The project consists of a Python 3 script and two template files, **sdk_core.template** and **endpoint.template**. It uses these files, as well as information retrieved from the Meraki Dashboard API to create a Javascript SDK.
+The project consists of a Python 3 script and two template files, `sdk_core.template` and `endpoint.template`. It uses these files, as well as information retrieved from the Meraki Dashboard API to create a Javascript SDK.
 
 # Running the script
 * Install Python 3 if you have not done so already. If installing on Windows, it is recommended to select the "Add to PATH" option during installation
@@ -15,7 +15,7 @@ Linux/Mac:
 pip3 install requests
 ```
 
-* Run the script, replacing **<api_key>** with your Meraki Dashboard API key:
+* Run the script, replacing `<api_key>` with your Meraki Dashboard API key:
 ```
 Windows:
 python nodejs_sdk_builder.py -k <api_key>
@@ -24,7 +24,7 @@ Linux/Mac:
 python3 nodejs_sdk_builder.py -k <api_key>
 ```
 
-* By default, the script will pull the list of available endpoints from the first organization accessible by your administrator account. If you want to specify which organization to pick, use this form instead, replacing **<api_key>** with your Meraki Dashboard API key and **<org_name>** with the name of the organization you want the script to use:
+* By default, the script will pull the list of available endpoints from the first organization accessible by your administrator account. If you want to specify which organization to pick, use this form instead, replacing `<api_key>` with your Meraki Dashboard API key and `<org_name>` with the name of the organization you want the script to use:
 ```
 Windows:
 python nodejs_sdk_builder.py -k <api_key> -o <org_name>
@@ -34,11 +34,11 @@ python3 nodejs_sdk_builder.py -k <api_key> -o <org_name>
 ```
 
 # Using the generated SDK
-The script creates a Meraki Dashboard API SDK module for Node.js as a single file in the same directory as the script itself. By default, the output file will be named **Meraki_<timestamp>.js**.
+The script creates a Meraki Dashboard API SDK module for Node.js as a single file in the same directory as the script itself. By default, the output file will be named `Meraki_<timestamp>.js`.
     
 How to use the output module:
 * Copy the module to the same directory as your Node.js code
-* Rename the file to Meraki.js
+* Rename the file to `Meraki.js`
 * Add the following lines to your code, replacing <api_key> with your Meraki Dashboard API key:
 ```
     const Meraki = require('./Meraki');
@@ -63,18 +63,18 @@ How to find endpoints in this file:
 
 General structure of endpoints in this SDK:
 ```
-MerakiClass.<operation_id>(<self>, <url_param_1>, <url_param_2>, <query>, <body>)
+MerakiClass.operationId(<self>, <url_param_1>, <url_param_2>, <query>, <body>)
 
 ```
     
 These variable parts are present in all endpoints:
-* **<operation_id>**: This is the Operation Id of the endpoint, as specified in the Meraki Dashboard API documentation page
-* **<self>**: The first argument is always your MerakiClass instance. This is needed for the module to work properly 
+* `<operation_id>`: This is the Operation Id of the endpoint, as specified in the Meraki Dashboard API documentation page
+* `<self>`: The first argument is always your MerakiClass instance. This is needed for the module to work properly 
     
 Depending on the endpoint, it can require additional arguments to function. Refer to the particular endpoint method for its additional arguments. They can be the following:
-* **<url_param_1>**, **<url_param_2>**: The URL of the endpoint you are using might contain variable parts. For example, getOrganizationNetworks requires an organizationId. If needed, these are mandatory
-* **<query>**: If the endpoint you are using has the option to receive additional parameters as a query string, they can be provided using this argument object. See example below on how to use it
-* **<body>**: If the endpoint you are using has the option to receive additional parameters as a request body, they can be provided using this argument object. See example below on how to use it
+* `<url_param_1>`, `<url_param_2>`: The URL of the endpoint you are using might contain variable parts. For example, getOrganizationNetworks requires an organizationId. If needed, these are mandatory
+* `<query>`: If the endpoint you are using has the option to receive additional parameters as a query string, they can be provided using this argument object. See example below on how to use it
+* `<body>`: If the endpoint you are using has the option to receive additional parameters as a request body, they can be provided using this argument object. See example below on how to use it
         
 Using an endpoint that has query string parameter options:
 ```
