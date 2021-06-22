@@ -63,20 +63,18 @@ How to find endpoints in this file:
 
 General structure of endpoints in this SDK:
 ```
-    MerakiClass.<operation_id>(<self>, <url_param_1>, <url_param_2>, <query>, <body>)
+MerakiClass.<operation_id>(<self>, <url_param_1>, <url_param_2>, <query>, <body>)
+
+```
     
-    These variable parts are present in all endpoints:
-    **<operation_id>**: This is the Operation Id of the endpoint, as specified in the Meraki Dashboard API documentation page
-    **<self>**: The first argument is always your MerakiClass instance. This is needed for the module to work properly 
+These variable parts are present in all endpoints:
+* **<operation_id>**: This is the Operation Id of the endpoint, as specified in the Meraki Dashboard API documentation page
+* **<self>**: The first argument is always your MerakiClass instance. This is needed for the module to work properly 
     
-    Depending on the endpoint, it can require additional arguments to function. Refer to the particular endpoint method
-    for its additional arguments. They can be the following:
-    **<url_param_1>**, **<url_param_2>**: The URL of the endpoint you are using might contain variable parts. For example, 
-        getOrganizationNetworks requires an organizationId. If needed, these are mandatory
-    **<query>**: If the endpoint you are using has the option to receive additional parameters as a query string, they can
-        be provided using this argument object. See example below on how to use it
-    **<body>**: If the endpoint you are using has the option to receive additional parameters as a request body, they can
-        be provided using this argument object. See example below on how to use it
+Depending on the endpoint, it can require additional arguments to function. Refer to the particular endpoint method for its additional arguments. They can be the following:
+* **<url_param_1>**, **<url_param_2>**: The URL of the endpoint you are using might contain variable parts. For example, getOrganizationNetworks requires an organizationId. If needed, these are mandatory
+* **<query>**: If the endpoint you are using has the option to receive additional parameters as a query string, they can be provided using this argument object. See example below on how to use it
+* **<body>**: If the endpoint you are using has the option to receive additional parameters as a request body, they can be provided using this argument object. See example below on how to use it
         
 Using an endpoint that has query string parameter options:
 ```
