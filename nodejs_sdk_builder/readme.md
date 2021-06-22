@@ -4,6 +4,11 @@ A Python 3 script that generates a Meraki Dashboard API SDK for Node.js.
 # Project overview
 The project consists of a Python 3 script and two template files, `sdk_core.template` and `endpoint.template`. It uses these files, as well as information retrieved from the Meraki Dashboard API to create a Javascript SDK.
 
+Key features:
+* Handles request timeouts, rate limiter status codes and multi-page responses in a tidy manner
+* Includes a retry function for when hitting the rate limiter
+* Returns a Promise that is resolved or rejected based on the API response, and can be handled with ".then" and ".catch"
+
 # Running the script
 * Install Python 3 if you have not done so already. If installing on Windows, it is recommended to select the "Add to PATH" option during installation
 * Install the requests Python 3 module. The easiest way to do this is to run:
