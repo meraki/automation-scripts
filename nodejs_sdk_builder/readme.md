@@ -56,12 +56,12 @@ How to use the output module:
         });
 ```
         
-How to find endpoints in this file:
+How to find endpoints in the module file:
 * Go to the Meraki Dashboard API documentation page: https://developer.cisco.com/meraki/api-v1/
 * Find the endpoint that you want to use
-* Copy its Operation Id and locate it in this file using the search function of your text editor
+* Copy its Operation Id and locate it in the module file using the search function of your text editor
 
-General structure of endpoints in this SDK:
+General structure of endpoints in the generated SDK:
 ```
 MerakiClass.operationId(<self>, <url_param_1>, <url_param_2>, <query>, <body>)
 
