@@ -64,7 +64,6 @@ How to find endpoints in this file:
 General structure of endpoints in this SDK:
 ```
     MerakiClass.<operation_id>(<self>, <url_param_1>, <url_param_2>, <query>, <body>)
-```
     
     These variable parts are present in all endpoints:
     **<operation_id>**: This is the Operation Id of the endpoint, as specified in the Meraki Dashboard API documentation page
