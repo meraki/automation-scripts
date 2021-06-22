@@ -63,7 +63,7 @@ How to find endpoints in the module file:
 
 General structure of endpoints in the generated SDK:
 ```
-MerakiClass.operationId(<self>, <url_param_1>, <url_param_2>, <query>, <body>)
+MerakiClass.<operation_id>(<self>, <url_param_1>, <url_param_2>, <query>, <body>)
 
 ```
     
