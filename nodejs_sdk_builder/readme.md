@@ -39,7 +39,7 @@ The script creates a Meraki Dashboard API SDK module for Node.js as a single fil
 How to use the output module:
 * Copy the module to the same directory as your Node.js code
 * Rename the file to `Meraki.js`
-* Add the following lines to your code, replacing <api_key> with your Meraki Dashboard API key:
+* Add the following lines to your code, replacing `<api_key>` with your Meraki Dashboard API key:
 ```
     const Meraki = require('./Meraki');
     var api = new Meraki.MerakiClass("<api_key>");
@@ -109,5 +109,5 @@ Using an endpoint that has request body parameter options:
 ```
 
 # Useful links
-The official Meraki API developer page: https://developer.cisco.com/meraki
-Meraki Dashboard API quick reference with alpha/beta endpoint highlighting: https://github.com/mpapazog/meraki-diff-docs
+* The official Meraki API developer page: https://developer.cisco.com/meraki
+* Meraki Dashboard API quick reference with alpha/beta endpoint highlighting: https://github.com/mpapazog/meraki-diff-docs
