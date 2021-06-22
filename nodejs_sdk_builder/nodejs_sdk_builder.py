@@ -331,6 +331,8 @@ def main(argv):
             else:
                 outputEndpoint = outputEndpoint.replace("/* RESOURCE PARAM */", '');
                 
+            if resourcePath[-5:] == ' + ""':
+                resourcePath = resourcePath[:-5]
             outputEndpoint = outputEndpoint.replace("/* RESOURCE PATH */", resourcePath);
                 
             configStr   = ""
