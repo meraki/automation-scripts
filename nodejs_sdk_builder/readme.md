@@ -40,6 +40,8 @@ python3 nodejs_sdk_builder.py -k <api_key> -o <org_name>
 
 # Using the generated SDK
 The script creates a Meraki Dashboard API SDK module for Node.js as a single file in the same directory as the script itself. By default, the output file will be named `Meraki_<timestamp>.js`.
+
+The SDK requires the Axios package: https://www.npmjs.com/package/axios
     
 How to use the output module:
 * Copy the module to the same directory as your Node.js code
