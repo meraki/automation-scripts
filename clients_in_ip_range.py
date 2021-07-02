@@ -61,11 +61,6 @@ FLAG_REQUEST_VERBOSE    = True
 
 API_BASE_URL            = "https://api.meraki.com/api/v1"
 
-DOCS_BASE_URL           = ""
-
-TEMPLATE_FILE_SDK_CORE  = "sdk_core.template"
-TEMPLATE_FILE_ENDPOINT  = "endpoint.template"
-
 
 def merakiRequest(p_apiKey, p_httpVerb, p_endpoint, p_additionalHeaders=None, p_queryItems=None, 
         p_requestBody=None, p_verbose=False, p_retry=0):
