@@ -21,6 +21,8 @@ Files contained in this repository:
 
 **clientcount.py:** Script to count the total unique client MAC addresses connected to MR access points for an organization during the last month. Can be used as guidance when sizing systems that have per-user licensing, like the Cisco Identity Services Engine.
 
+**clients_in_ip_range.py:** Prints a list of all clients in one or more organizations that belong to the specified IPv4 subnet or IPv4 address range. Can be used to check if a subnet is in use somewhere or to assess which clients will be affected by a proposed firewall rule change.
+
 **cloneprovision.py:** Mass-provisions MX security appliances as individually managed networks, without using templates.
 
 **copymxvlans.py:** This script can be used to export MX VLAN configuration of a source org to a file and import it to a destination org. The script will look for the exact same network names as they were in the source org. Use copynetworks.py and movedevices.py to migrate networks and devices if needed.
