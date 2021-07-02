@@ -10,7 +10,7 @@ Mandatory parameters:
     -k <api_key>            Your Meraki Dashboard API key
     -i <ip_range>           The IP range or subnet to match client IP addresses against
                             Valid forms:
-                                <network_ip>/<netmask>
+                                <network_ip>/<netmask bits>
                                 <start_ip>-<end_ip>
     
 Optional parameters:
