@@ -1,10 +1,10 @@
 readMe = """Python 3 script that lists all clients with IPv4 addresses within the specified range or subnet.
 
 Script syntax, Windows:
-    python clients_in_ip_range.py -k <api_key> -r <ip_range> [-o <org_name>]
+    python clients_in_ip_range.py -k <api_key> -i <ip_range> [-o <org_name>]
  
 Script syntax, Linux and Mac:
-    python3 clients_in_ip_range.py -k <api_key> -r <ip_range> [-o <org_name>]
+    python3 clients_in_ip_range.py -k <api_key> -i <ip_range> [-o <org_name>]
     
 Mandatory parameters:
     -k <api_key>            Your Meraki Dashboard API key
