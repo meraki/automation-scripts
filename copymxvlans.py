@@ -332,11 +332,11 @@ def stripIdFromVlanData (vlanData):
    
 def importVlans(apiKey, networks, fileName, overwriteExisting):
 
-    if True:
+    try:
         file = open(fileName, "r")
         networksVlans = yaml.safe_load(file)
         file.close()        
-    else:
+    except:
         killScript("Unable to open VLAN configuration file")
         
     for netName in networksVlans:
