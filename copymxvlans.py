@@ -355,7 +355,7 @@ def importVlans(apiKey, networks, fileName, overwriteExisting):
                         unique = checkIfVlanIsUnique(vlan["id"], existingVlans)
                         if unique:
                             success, errors, headers, result = createNetworkApplianceVlan(apiKey, net["id"], vlan["id"], vlan["name"])
-                        if overwriteExisting or not unique:
+                        if overwriteExisting or unique:
                             success, errors, headers, result = updateNetworkApplianceVlan(apiKey, net["id"], vlan["id"], stripIdFromVlanData(vlan))
                             
                                       
