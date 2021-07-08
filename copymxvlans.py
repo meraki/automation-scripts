@@ -1,4 +1,7 @@
-readMe = """This is a script to migrate the MX VLAN configuration of one organization to another
+readMe = """This is a script to migrate the MX VLAN configuration of one organization to another. The
+script requires the target organization to have existing MX networks with the same names as the ones
+being copied. For a script to copy networks, have a look at this: 
+https://github.com/meraki/automation-scripts/blob/master/copynetworks.py
 
 Script syntax, Windows:
     python copymxvlans.py -k <api_key> -o <org_name> [-n <network_name>] [-t <network_tag>]
@@ -218,9 +221,9 @@ def updateNetworkApplianceVlansSettings(apiKey, networkId, vlansEnabled):
     return success, errors, headers, response
     
     
-def createNetworkApplianceVlan(apiKey, networkId, vlanId, vlanName):
+def createNetworkApplianceVlan(apiKey, networkId, vlanId, vlanName, subnet, applianceIp):
     endpoint = "/networks/%s/appliance/vlans" % networkId
-    body = { "id": vlanId, "name": vlanName }
+    body = { "id": vlanId, "name": vlanName, "subnet": subnet, "applianceIp": applianceIp }
     success, errors, headers, response = merakiRequest(apiKey, "POST", endpoint, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, headers, response
     
@@ -265,15 +268,9 @@ def keyIsSafeToCopy(key, vlan):
     if key == "networkId":
         return False
     if key == "dhcpOptions":
-        if len(vlan["dhcpOptions"]) == 0:
-            return False
         for option in vlan["dhcpOptions"]:
             if option["code"] == '':
                 return False
-    if key == "fixedIpAssignments" and vlan["fixedIpAssignments"] == {}:
-        return False
-    if key == "reservedIpRanges" and len(vlan["reservedIpRanges"]) == 0:
-        return False
 
     return True
         
@@ -354,7 +351,7 @@ def importVlans(apiKey, networks, fileName, overwriteExisting):
                     for vlan in networksVlans[netName]:
                         unique = checkIfVlanIsUnique(vlan["id"], existingVlans)
                         if unique:
-                            success, errors, headers, result = createNetworkApplianceVlan(apiKey, net["id"], vlan["id"], vlan["name"])
+                            success, errors, headers, result = createNetworkApplianceVlan(apiKey, net["id"], vlan["id"], vlan["name"], vlan["subnet"], vlan["applianceIp"])
                         if overwriteExisting or unique:
                             success, errors, headers, result = updateNetworkApplianceVlan(apiKey, net["id"], vlan["id"], stripIdFromVlanData(vlan))
                             
