@@ -6,13 +6,16 @@
     The SDK requires the Axios package: https://www.npmjs.com/package/axios
     
     How to use this module:
-    * Copy this module to the same directory as your Node.js code
-    * Rename this file to Meraki.js
+    * Copy the module to the same directory as your Node.js code
+    * Rename the file to Meraki.js
     * Add the following lines to your code, replacing <api_key> with your Meraki Dashboard API key:
+    
         const Meraki = require('./Meraki');
         var api = new Meraki.MerakiClass("<api_key>");
+    
     * After that, you can use the endpoint methods like in this example:
-        api.getOrganizations(api)
+    
+        api.getOrganizations()
             .then(function(response){
                 // Code for handling request success
                 console.log(response);
@@ -20,34 +23,34 @@
                 // Code for handling request error
                 console.log(error);
             });
+    
             
-    How to find endpoints in this file:
+    How to find endpoints in the module file:
     * Go to the Meraki Dashboard API documentation page: https://developer.cisco.com/meraki/api-v1/
     * Find the endpoint that you want to use
-    * Copy its Operation Id and locate it in this file using the search function of your text editor
+    * Copy its Operation Id and locate it in the module file using the search function of your text editor
+
+    General structure of endpoints in the generated SDK:
     
-    General structure of endpoints in this SDK:
-        MerakiClass.<operation_id>(<self>, <url_param_1>, <url_param_2>, <query>, <body>)
+    MerakiClass.<operation_id>(<url_param_1>, <url_param_2>, <query>, <body>)
+
+    
         
-        These variable parts are present in all endpoints:
-        <operation_id>: This is the Operation Id of the endpoint, as specified in the Meraki Dashboard API documentation page
-        <self>: The first argument is always your MerakiClass instance. This is needed for the module to work properly 
+    Every endpoint method has a unique name that corresponds to the operation to be carried out by the Meraki Dashboard:
+    * <operation_id>: This is the Operation Id of the endpoint, as specified in the Meraki Dashboard API documentation page
         
-        Depending on the endpoint, it can require additional arguments to function. Refer to the particular endpoint method
-        for its additional arguments. They can be the following:
-        <url_param_1>, <url_param_2>: The URL of the endpoint you are using might contain variable parts. For example, 
-            getOrganizationNetworks requires an organizationId. If needed, these are mandatory
-        <query>: If the endpoint you are using has the option to receive additional parameters as a query string, they can
-            be provided using this argument object. See example below on how to use it
-        <body>: If the endpoint you are using has the option to receive additional parameters as a request body, they can
-            be provided using this argument object. See example below on how to use it
+    Depending on the endpoint, it can require additional arguments to function. Refer to the particular endpoint method for its additional arguments. They can be the following:
+    * <url_param_1>, <url_param_2>: The URL of the endpoint you are using might contain variable parts. For example, getOrganizationNetworks requires an organizationId. If needed, these are mandatory
+    * <query>: If the endpoint you are using has the option to receive additional parameters as a query string, they can be provided using this argument object. See example below on how to use it
+    * <body>: If the endpoint you are using has the option to receive additional parameters as a request body, they can be provided using this argument object. See example below on how to use it
             
     Using an endpoint that has query string parameter options:
+    
         const Meraki = require('./Meraki');
         var api = new Meraki.MerakiClass("12345678");
         var serial = "AAAA-BBBB-CCCC";
         var query = { timespan: 10000 };
-        api.getDeviceClients(api, serial, query)
+        api.getDeviceClients(serial, query)
             .then(function(response){
                 // Code for handling request success
                 console.log(response);
@@ -55,13 +58,15 @@
                 // Code for handling request error
                 console.log(error);
             });
+    
             
     Using an endpoint that has request body parameter options:
+    
         const Meraki = require('./Meraki');
         var api = new Meraki.MerakiClass("12345678");
         var organizationId = "87654321";
         var body = { name: "New network" };
-        api.createOrganizationNetwork (api, organizationId, body)
+        api.createOrganizationNetwork (organizationId, body)
             .then(function(response){
                 // Code for handling request success
                 console.log(response);
@@ -69,6 +74,21 @@
                 // Code for handling request error
                 console.log(error);
             });
+    
+
+    The endpoint methods return a Promise that is resolved or rejected with the following structure:
+    
+        {
+            success: <boolean>,
+            status: <integer>,
+            data: <object>,
+            errors: <object>
+        }
+    
+    * success: This is a boolean that flags if the request was successful or not. True indicates that the request was sent and the response had a HTTP status code of 2xx. False indicates failure to communicate with the Meraki Dashboard or a HTTP status code of 4xx/5xx
+    * status: The HTTP status code returned by the Meraki Dashboard
+    * data: The response body returned by the Meraki Dashboard, if the request was successful
+    * errors: The error explanations returned by the Meraki Dashboard, if any
         
 */
 

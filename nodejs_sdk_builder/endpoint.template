@@ -2,7 +2,8 @@
 
     /* DOCS TITLE *//* DOCS ENDPOINT *//* OFFICIAL DOCS LINK *//* DOCS QUERY *//* DOCS BODY*/
 
-    /* ENDPOINT ID */ (self/* RESOURCE PARAM *//* QUERY PARAM *//* BODY PARAM */) {
+    /* ENDPOINT ID */ (/* PARAMETERS */) {
+        var self = this;
         return new Promise(function (resolve, reject) {
             self.request(self, /* METHOD */, /* RESOURCE PATH *//* CONFIG */)
                 .then(function(response) {

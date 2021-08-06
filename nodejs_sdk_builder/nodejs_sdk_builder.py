@@ -321,15 +321,18 @@ def main(argv):
             outputEndpoint = outputEndpoint.replace("/* METHOD */", '"%s"' % method);
             
             resourcePath = '"%s"' % path
+            
+            paramString = ""
                 
             if len(pathVars) > 0:
-                paramString = ""
                 for p in pathVars:
-                    paramString += ", %s" % p["name"]
+                    if paramString != "":
+                        paramString += ", "
+                    paramString += "%s" % p["name"]
                     resourcePath = resourcePath.replace( "{%s}" % p["name"], '" + %s + "' % p["name"])
-                outputEndpoint = outputEndpoint.replace("/* RESOURCE PARAM */", paramString);
-            else:
-                outputEndpoint = outputEndpoint.replace("/* RESOURCE PARAM */", '');
+                #outputEndpoint = outputEndpoint.replace("/* RESOURCE PARAM */", paramString);
+            #else:
+            #    outputEndpoint = outputEndpoint.replace("/* RESOURCE PARAM */", '');
                 
             if resourcePath[-5:] == ' + ""':
                 resourcePath = resourcePath[:-5]
@@ -339,8 +342,11 @@ def main(argv):
             queryDocs   = ""
             bodyDocs    = ""
             
-            if len(query) > 0:            
-                outputEndpoint = outputEndpoint.replace("/* QUERY PARAM */", ', query');
+            if len(query) > 0:  
+                if paramString != "":
+                    paramString += ", "          
+                #outputEndpoint = outputEndpoint.replace("/* QUERY PARAM */", ', query');
+                paramString += "query"
                 configStr = ", { query: query }"
                 queryDocs = "\n\n    // Query parameters:"
                 for q in query:
@@ -350,8 +356,11 @@ def main(argv):
                 
             outputEndpoint = outputEndpoint.replace("/* DOCS QUERY */", queryDocs);
                 
-            if len(body) > 0:                
-                outputEndpoint = outputEndpoint.replace("/* BODY PARAM */", ', body');
+            if len(body) > 0:    
+                if paramString != "":
+                    paramString += ", "              
+                #outputEndpoint = outputEndpoint.replace("/* BODY PARAM */", ', body');
+                paramString += "body"
                 bodyDocs = "\n\n    // Request body schema:"
                 for b in body:
                     bodyDocs += "\n    //   %s: %s. %s" % (b["name"], b["type"].capitalize(), b["description"])
@@ -359,8 +368,8 @@ def main(argv):
                     configStr = ", { data: body }"
                 else:
                     configStr = ", { query: query, data: body }"
-            else:
-                outputEndpoint = outputEndpoint.replace("/* BODY PARAM */", '');
+                    
+            outputEndpoint = outputEndpoint.replace("/* PARAMETERS */", paramString);
                 
             outputEndpoint = outputEndpoint.replace("/* DOCS BODY*/", bodyDocs);
             
