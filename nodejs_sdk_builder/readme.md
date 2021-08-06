@@ -53,7 +53,7 @@ How to use the output module:
 ```
 * After that, you can use the endpoint methods like in this example:
 ```
-    api.getOrganizations(api)
+    api.getOrganizations()
         .then(function(response){
             // Code for handling request success
             console.log(response);
@@ -70,13 +70,12 @@ How to find endpoints in the module file:
 
 General structure of endpoints in the generated SDK:
 ```
-MerakiClass.<operation_id>(<self>, <url_param_1>, <url_param_2>, <query>, <body>)
+MerakiClass.<operation_id>(<url_param_1>, <url_param_2>, <query>, <body>)
 
 ```
     
-These variable parts are present in all endpoints:
+Every endpoint method has a unique name that corresponds to the operation to be carried out by the Meraki Dashboard:
 * `<operation_id>`: This is the Operation Id of the endpoint, as specified in the Meraki Dashboard API documentation page
-* `<self>`: The first argument is always your MerakiClass instance. This is needed for the module to work properly 
     
 Depending on the endpoint, it can require additional arguments to function. Refer to the particular endpoint method for its additional arguments. They can be the following:
 * `<url_param_1>`, `<url_param_2>`: The URL of the endpoint you are using might contain variable parts. For example, getOrganizationNetworks requires an organizationId. If needed, these are mandatory
@@ -89,7 +88,7 @@ Using an endpoint that has query string parameter options:
     var api = new Meraki.MerakiClass("12345678");
     var serial = "AAAA-BBBB-CCCC";
     var query = { timespan: 10000 };
-    api.getDeviceClients(api, serial, query)
+    api.getDeviceClients(serial, query)
         .then(function(response){
             // Code for handling request success
             console.log(response);
@@ -105,7 +104,7 @@ Using an endpoint that has request body parameter options:
     var api = new Meraki.MerakiClass("12345678");
     var organizationId = "87654321";
     var body = { name: "New network" };
-    api.createOrganizationNetwork (api, organizationId, body)
+    api.createOrganizationNetwork (organizationId, body)
         .then(function(response){
             // Code for handling request success
             console.log(response);
@@ -114,6 +113,20 @@ Using an endpoint that has request body parameter options:
             console.log(error);
         });
 ```
+
+The endpoint methods return a Promise that is resolved or rejected with the following structure:
+```
+    {
+        success: <boolean>,
+        status: <integer>,
+        data: <object>,
+        errors: <object>
+    }
+```
+* `success`: This is a boolean that flags if the request was successful or not. True indicates that the request was sent and the response had a HTTP status code of 2xx. False indicates failure to communicate with the Meraki Dashboard or a HTTP status code of 4xx/5xx
+* `status`: The HTTP status code returned by the Meraki Dashboard
+* `data`: The response body returned by the Meraki Dashboard, if the request was successful
+* `errors`: The error explanations returned by the Meraki Dashboard, if any
 
 # Useful links
 * The official Meraki API developer page: https://developer.cisco.com/meraki
