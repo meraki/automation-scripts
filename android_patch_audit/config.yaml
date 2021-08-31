@@ -1,0 +1,49 @@
+# Configuration file for android_patch_audit.py. You can find an example configuration file here:
+# TODO: INSERT GITHUB LINK
+
+# For instructions on how to generate a Meraki Dashboard API key and enable API access for your
+# organization, please read this documentation article:
+# https://documentation.meraki.com/General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API
+
+general:
+    # The Meraki Dashboard API key of your administrator account
+    apiKey: 1234
+    
+    # The name of the Meraki dashboard organization you want to interact with
+    organizationName: Big Industries Inc
+    
+    # By default the script will run multiple scans at scheduled intervals until manually terminated
+    # If you want the script to only run once and then quit, set enableScheduler to false
+    enableScheduler: true
+    runIntervalHours: 24
+    
+    # How many devices you want the script to attempt to process at a time. The larger the batch size,
+    # the less time one scan cycle will take. Increase the value of processingBatchSize to have a scan
+    # cycle complete faster, or decrease it if API requests for tagging devices start failing due to
+    # the URL query string being too long
+    processingBatchSize: 100
+    
+policy:
+    # How many days old an Android device's security patch can be before it is marked as a violation
+    maximumAndroidSecurityPatchAgeDays: 60
+    
+reporting:
+    # Whether to print out a list of violating devices. Set enabled: false to disable
+    enabled: true
+    
+enforcement:
+    # Options for automatically adding and removing tags to devices to reflect their compliance/violation status
+
+    tagCompliantDevices:
+        # Apply tag to compliant devices. The tag is removed for devices that are no longer compliant
+        # Set "enabled: true" or "enabled: false" to enable or disable this feature and "tag" to specify
+        # the tag to be added
+        enabled: true
+        tag: android-patch-compliant   
+        
+    tagViolatingDevices: 
+        # Apply tag to violating devices. The tag is removed for devices that are no longer violating
+        # Set "enabled: true" or "enabled: false" to enable or disable this feature and "tag" to specify
+        # the tag to be added
+        enabled: true
+        tag: android-patch-violating
