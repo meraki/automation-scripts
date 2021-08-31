@@ -12,7 +12,7 @@ Optional parameters:
                         If this parameter is omitted, default value is "config.yaml"
         
 This script requires a configuration file in YAML format to run. See an example of such a file here:
-TODO: INSERT GITHUB LINK
+https://github.com/meraki/automation-scripts/blob/master/android_patch_audit/config.yaml
 
 Please refer to the comments in the example configuration file for explanations of the different options.
                               

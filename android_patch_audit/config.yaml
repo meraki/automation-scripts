@@ -1,5 +1,8 @@
-# Configuration file for android_patch_audit.py. You can find an example configuration file here:
-# TODO: INSERT GITHUB LINK
+# Configuration file for android_patch_audit.py. You can find the script here:
+# https://github.com/meraki/automation-scripts/blob/master/android_patch_audit/android_patch_audit.py
+
+# You can find an example configuration file here:
+# https://github.com/meraki/automation-scripts/blob/master/android_patch_audit/config.yaml
 
 # For instructions on how to generate a Meraki Dashboard API key and enable API access for your
 # organization, please read this documentation article:
