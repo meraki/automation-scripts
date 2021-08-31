@@ -15,6 +15,8 @@ Files contained in this repository:
 
 **addroutes/addroutes.py:** Script to add static routes to a non-template network from a CSV file.
 
+**android_patch_audit:** Script to check the date of the last security patch of Android devices managed by Meraki Systems Manager. It can generate a report of violating devices and trigger enforcement actions by applying tags to them.
+
 **auto-cycle-port:** Checks if devices of a particular model are offline. If offline devices are found, specific switchports in the same network are cycled.
 
 **checksubnets.py:** This is a script to check if the LAN IPs (management addresses) of all access points in one or more organizations belong to specific IPv4 subnets. The purpose of the script is to find access points with misconfigured management addresses or VLANs, which may cause issues with 802.1x authentications. The output can be displayed on screen or sent as an email report.
