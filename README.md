@@ -45,6 +45,8 @@ Files contained in this repository:
 
 **find_ports.py:** This script finds all MS switchports that match the input search parameter, searching either by clients from a file listing MAC addresses (one per line), a specific tag in Dashboard currently applied to ports, or the specific access policy currently configured.
 
+**firmware_lock/firmware_lock.py:** A Python 3 script to lock firmware for devices in an organization to desired builds or release trains. The script works by checking for scheduled firmware updates at defined intervals and delaying any that do not meet the desired criteria by a week if there is less than one week remaining before the update is scheduled to happen.
+
 **getbeacons.py:** This script prints a list of all bluetooth beacons in an organization to terminal/sdtout or a file (Devices which are part of a network are considered in-use).
 
 **get_license_info.py** Prints the license info summary for a specific organization or all organizations an admin has access to.
