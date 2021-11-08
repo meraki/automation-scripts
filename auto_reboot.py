@@ -3,10 +3,10 @@ The default tag matched is "auto-reboot". Tag devices in the Meraki dashboard wi
 enable automatic reboots.
 
 Script syntax, Windows:
-    python auto_reboot.py [-k <api_key>] [-o <org_name>] [-d <day_of_week>] [-t <time>] [-g <device tag>]
+    python auto_reboot.py [-k <api_key>] [-o <org_name>] [-d <day_of_week>] [-t <time>] [-g <device_tag>]
  
 Script syntax, Linux and Mac:
-    python3 auto_reboot.py [-k <api_key>] [-o <org_name>] [-d <day_of_week>] [-t <time>] [-g <device tag>]
+    python3 auto_reboot.py [-k <api_key>] [-o <org_name>] [-d <day_of_week>] [-t <time>] [-g <device_tag>]
         
 Optional parameters: 
     -k <api_key>        Your Meraki Dashboard API key. If omitted, the script will try to use one stored in
@@ -18,11 +18,11 @@ Optional parameters:
                         Thursday, Saturday, Sunday. If omitted, default is Sunday
     -t <time>           Time to perform the operation. 24h format is recommended. If omitted, default is "00:00".
                         Note that time is relative to system time of the computer that runs this script
-    -g <device tag>     Devices that have the specified tag as a device tag will be rebooted. If omitted, 
+    -g <device_tag>     Devices that have the specified tag as a device tag will be rebooted. If omitted, 
                         default is "auto-reboot"
                    
 Example, reboot all devices with tag "access-point" in organization Big Industries Inc every Sunday at 00:00:
-    python auto_reboot.py -k 1234 -o "Big Industries Inc" -t access-point
+    python auto_reboot.py -k 1234 -o "Big Industries Inc" -g access-point
                    
 Required Python 3 modules:
     requests
