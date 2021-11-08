@@ -26,9 +26,11 @@ Example, reboot all devices with tag "access-point" in organization Big Industri
                    
 Required Python 3 modules:
     requests
+    schedule
     
 To install these Python 3 modules via pip you can use the following commands:
     pip install requests
+    pip install schedule
     
 Depending on your operating system and Python environment, you may need to use commands 
 "python3" and "pip3" instead of "python" and "pip".
