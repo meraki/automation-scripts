@@ -13,9 +13,9 @@ Optional parameters:
                         OS environment variable MERAKI_DASHBOARD_API_KEY
     -o <org_name>       The name of the organization to perform the reboots on. Use keyword "/all" instead of
                         an organization name to perform the operation for all organizations accessible by
-                        your API key. This parameter can be omitted if you API key can only access one org
+                        your API key. This parameter can be omitted if your API key can only access one org
     -d <day_of_week>    Day of the week to perform the operation. Valid options: Monday, Tuesday, Wednesday,
-                        Thursday, Saturday, Sunday. If omitted, default is Sunday
+                        Thursday, Friday, Saturday, Sunday. If omitted, default is Sunday
     -t <time>           Time to perform the operation. 24h format is recommended. If omitted, default is "00:00".
                         Note that time is relative to system time of the computer that runs this script
     -g <device_tag>     Devices that have the specified tag as a device tag will be rebooted. If omitted, 
