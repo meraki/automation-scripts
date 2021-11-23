@@ -1,19 +1,21 @@
 readMe = """Python 3 script that lists all clients with IPv4 addresses within the specified range or subnet.
 
 Script syntax, Windows:
-    python clients_in_ip_range.py -k <api_key> -i <ip_range> [-o <org_name>]
+    python clients_in_ip_range.py [-k <api_key>] -i <ip_range> [-o <org_name>]
  
 Script syntax, Linux and Mac:
-    python3 clients_in_ip_range.py -k <api_key> -i <ip_range> [-o <org_name>]
+    python3 clients_in_ip_range.py [-k <api_key>] -i <ip_range> [-o <org_name>]
     
 Mandatory parameters:
-    -k <api_key>            Your Meraki Dashboard API key
     -i <ip_range>           The IP range or subnet to match client IP addresses against
                             Valid forms:
                                 <network_ip>/<netmask bits>
                                 <start_ip>-<end_ip>
     
 Optional parameters:
+    -k <api_key>            Your Meraki Dashboard API key. If left blank, the script will look for an
+                            OS environment variable named "MERAKI_DASHBOARD_API_KEY" and load the key
+                            from there instead                            
     -o <org_name>           Specify the name of the organization to scan for matching clients.
                             If omitted, all organizations will be scanned
                             
@@ -39,7 +41,7 @@ Depending on your operating system and Python environment, you may need to use c
 """
 
 
-import sys, getopt, time, datetime, ipaddress
+import sys, getopt, time, datetime, ipaddress, os
 
 from urllib.parse import urlencode
 from requests import Session, utils
@@ -60,6 +62,8 @@ API_STATUS_RATE_LIMIT   = 429
 FLAG_REQUEST_VERBOSE    = True
 
 API_BASE_URL            = "https://api.meraki.com/api/v1"
+
+API_KEY_ENV_VAR_NAME    = "MERAKI_DASHBOARD_API_KEY"
 
 
 def merakiRequest(p_apiKey, p_httpVerb, p_endpoint, p_additionalHeaders=None, p_queryItems=None, 
@@ -243,6 +247,12 @@ def expandSubnets(subnets):
             hosts.append(host)
     return hosts
     
+    
+def getApiKey(argument):
+    if not argument is None:
+        return str(argument)
+    return os.environ.get(API_KEY_ENV_VAR_NAME, None) 
+    
         
 def main(argv):    
     arg_apiKey  = None
@@ -252,7 +262,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, 'k:o:i:')
     except getopt.GetoptError:
-        sys.exit(2)
+        killScript()
         
     for opt, arg in opts:
         if opt == '-k':
@@ -262,7 +272,9 @@ def main(argv):
         if opt == '-i':
             arg_ipRange = str(arg)
             
-    if arg_apiKey is None or arg_ipRange is None:
+    apiKey = getApiKey(arg_apiKey)
+            
+    if apiKey is None or arg_ipRange is None:
         killScript()        
         
     log("Expanding subnets...")
@@ -275,7 +287,7 @@ def main(argv):
         
     log("Fetching information from Meraki cloud...")
     
-    success, errors, headers, allOrganizations = getOrganizations(arg_apiKey)
+    success, errors, headers, allOrganizations = getOrganizations(apiKey)
     
     if allOrganizations is None:
         killScript("Unable to fetch organizations for that API key")
@@ -299,12 +311,12 @@ def main(argv):
                                 
     for org in orgs:
         org["networks"] = []
-        success, errors, headers, orgNetworks = getOrganizationNetworks(arg_apiKey, org["id"])
+        success, errors, headers, orgNetworks = getOrganizationNetworks(apiKey, org["id"])
         if not orgNetworks is None:
             org["networks"] = orgNetworks
             for net in org["networks"]:
                 net["clients"] = []
-                success, errors, headers, netClients = getNetworkClients(arg_apiKey, net["id"])
+                success, errors, headers, netClients = getNetworkClients(apiKey, net["id"])
                 if not netClients is None:
                     net["clients"] = netClients    
 
@@ -313,6 +325,7 @@ def main(argv):
     for org in orgs:
         matchingNetworks = []
         for net in org["networks"]:
+            log('Processing network "%s"...' % net["name"])
             matchingClients = []
             for client in net["clients"]:
                 if "ip" in client and (not client["ip"] is None):
