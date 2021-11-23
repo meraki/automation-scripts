@@ -322,6 +322,8 @@ def main(argv):
 
     log("Matching client IP addresses to subnets...")
     
+    printOrgs = {}
+    
     for org in orgs:
         matchingNetworks = []
         for net in org["networks"]:
@@ -335,8 +337,11 @@ def main(argv):
                 matchingNetworks.append({"name": net["name"], "clients": matchingClients})
         
         if len(matchingNetworks) > 0:
-            print ('\n===\n\nOrganization %s:' % org["name"])
-            for net in matchingNetworks:
+            printOrgs[org["name"]] = matchingNetworks
+        
+    for org in printOrgs:
+            print ('\n===\n\nOrganization %s:' % org)
+            for net in printOrgs[org]:
                 print ('\nNetwork %s:\n' % net["name"])
                 print ('%-31s %-16s %-18s %-25s %s' % ("Description", "IP","MAC", "User", "Manufacturer"))
                 for client in net["clients"]:
