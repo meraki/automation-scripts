@@ -3,15 +3,14 @@ is created by fetching the OpenAPI 2.0 specification of a Meraki dashboard organ
 Items will created for all endpoints available to that organization, including possible alpha/beta ones.
 
 Script syntax, Windows:
-    python postman_collection_generator.py -k <api_key> [-o <org_name>]
+    python postman_collection_generator.py [-k <api_key>] [-o <org_name>]
  
 Script syntax, Linux and Mac:
-    python3 postman_collection_generator.py -k <api_key> [-o <org_name>]
-    
-Mandatory parameters:
-    -k <api_key>    Your Meraki Dashboard API key
+    python3 postman_collection_generator.py [-k <api_key>] [-o <org_name>]
     
 Optional parameters: 
+    -k <api_key>    Your Meraki Dashboard API key. If omitted, the script will attempt to lead a key from
+                    an environment variable named "MERAKI_DASHBOARD_API_KEY" instead
     -o <org_name>   The name of the organization to fetch the OpenAPI 2.0 spec from. If omitted, the script
                     will use the first one accessible by the specified API key
                    
@@ -33,7 +32,7 @@ Depending on your operating system and Python environment, you may need to use c
 """
 
 
-import sys, getopt, time, datetime, json, re
+import sys, getopt, time, datetime, json, re, os
 
 from urllib.parse import urlencode
 from requests import Session, utils
@@ -56,6 +55,8 @@ FLAG_REQUEST_VERBOSE        = True
 API_BASE_URL                = "https://api.meraki.com/api/v1"
 
 DEFAULT_CONFIG_FILE_NAME    = "config.yaml"
+
+API_KEY_ENV_VAR_NAME    = "MERAKI_DASHBOARD_API_KEY"
 
 KEYWORDS = ["DHCP", "SNMP", "SM", "IdPs", "SSIDs", "SAML", "VPN", "VPP", "APNS", "MQTT", "LAN", "CDP", "LLDP",
     "OpenAPI", "HTTP", "API", "RF", "VLAN", "STP", "QoS", "MTU", "DSCP", "CoS", "PII"]
@@ -485,6 +486,12 @@ def extractVariableList(itemList):
             result = before + [item] + after
                 
     return result
+    
+    
+def getApiKey(argument):
+    if not argument is None:
+        return str(argument)
+    return os.environ.get(API_KEY_ENV_VAR_NAME, None) 
    
    
 def main(argv):    
@@ -501,11 +508,11 @@ def main(argv):
             arg_apiKey  = str(arg)
         if opt == '-o':
             arg_orgName = str(arg)
-                    
-    if arg_apiKey == None:
-        killScript()
+                            
+    apiKey = getApiKey(arg_apiKey)
         
-    apiKey = arg_apiKey
+    if apiKey == None:
+        killScript()
         
     success, errors, allOrgs = getOrganizations(apiKey)    
     if allOrgs is None:
