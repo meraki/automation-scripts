@@ -1,11 +1,11 @@
-readMe = """This is a Python 3 script to set the MX client tracking mode for a set of networks.
-The networks can be filtered by using a network tag.
+readMe = """This is a Python 3 script to verify if the MX client tracking setting on a set of
+networks have a client tracking setting different than the one required.
 
 Script syntax, Windows:
-    python set_client_tracking.py -m <tracking_mode> [-k <api_key>] [-o <org_name>] [-t <net_tag>]
+    python audit_client_tracking.py -m <tracking_mode> [-k <api_key>] [-o <org_name>] [-t <net_tag>]
 
 Script syntax, Linux and Mac:
-    python3 set_client_tracking.py -m <tracking_mode> [-k <api_key>] [-o <org_name>] [-t <net_tag>]
+    python3 audit_client_tracking.py -m <tracking_mode> [-k <api_key>] [-o <org_name>] [-t <net_tag>]
 
 Mandatory parameters:
     -m <mode>           Valid options:
@@ -18,14 +18,14 @@ Optional parameters:
                         environment variable "MERAKI_DASHBOARD_API_KEY".
     -o <org_name>       The name of the organization you want to interact with. This can be omitted if your API key
                         only has access to a single organization
-    -t <net_tag>        If defined, networks must have a matching network tag to be processed
+    -t <net_tag>        If defined, networks must have a matching network tag to be processed. Default is all
                         
                  
-Example, set client tracking for all networks with tag "Brazil" to MAC address tracking
-in organization "Big Industries Inc":
-    python set_client_tracking.py -m "MAC address" -k 1234 -o "Big Industries Inc" -t Brazil                       
+Example, verify if any networks tagged "Brazil" in organization "Big Industries Inc" have client tracking mode 
+other than "MAC address":
+    python audit_client_tracking.py -m "MAC address" -k 1234 -o "Big Industries Inc" -t Brazil                       
 
-You need to have Python 3 and the Requests module installed. You can install the module via PIP
+You need to have Python 3 and the Requests module installed. You can install the module via PIP 
 with the following command:
     pip install requests
 
@@ -207,20 +207,16 @@ def getOrganizationNetworks(apiKey, organizationId, query=None):
     success, errors, headers, response = merakiRequest(apiKey, "get", url, p_queryItems=query, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, response
     
-# updateNetworkApplianceSettings
+# getNetworkApplianceSettings
 #
-# Description: Update the appliance settings for a network
-# Endpoint: PUT /networks/{networkId}/appliance/settings
+# Description: Return the appliance settings for a network
+# Endpoint: GET /networks/{networkId}/appliance/settings
 #
-# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-network-appliance-settings
-#
-# Request body schema:
-#     clientTrackingMethod: String. Client tracking method of a network
-#     deploymentMode: String. Deployment mode of a network
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-network-appliance-settings
 
-def updateNetworkApplianceSettings(apiKey, networkId, body=None):
+def getNetworkApplianceSettings(apiKey, networkId):
     url = "/networks/" + str(networkId) + "/appliance/settings"
-    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, response
     
       
@@ -286,15 +282,16 @@ def main(argv):
     if allNetworks is None:
         killScript("Unable to fetch networks")
     
-    requestBody = {'clientTrackingMethod': arg_mode}
-    
     filteredNetworks = []
     for net in allNetworks:
         if arg_tag is None or arg_tag in net['tags']:
             if 'appliance' in net['productTypes']:
-                success, errors, response = updateNetworkApplianceSettings(apiKey, net['id'], body=requestBody)
+                success, errors, response = getNetworkApplianceSettings(apiKey, net['id'])
                 if not success:
-                    log('WARNING: Unable to set tracking mode for net %s "%s"' % (net['id'], net['name']))
+                    log('WARNING: Unable to get tracking mode for net %s "%s"' % (net['id'], net['name']))
+                elif not response is None:
+                    if 'clientTrackingMethod' in response and response['clientTrackingMethod'] != arg_mode:
+                        log('POLICY VIOLATION: Network %s "%s" is set to mode "%s"' % (net['id'], net['name'], response['clientTrackingMethod']))
         
     log("End of script.")
             

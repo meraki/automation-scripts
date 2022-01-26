@@ -17,6 +17,8 @@ Files contained in this repository:
 
 **android_patch_audit:** Script to check the date of the last security patch of Android devices managed by Meraki Systems Manager. It can generate a report of violating devices and trigger enforcement actions by applying tags to them.
 
+**audit_client_tracking.py:** A script to check if the client tracking method in any of a set of networks is set to a value other than the one required.
+
 **auto-cycle-port:** Checks if devices of a particular model are offline. If offline devices are found, specific switchports in the same network are cycled.
 
 **auto_reboot:** Reboots devices with matching device tag once a week.
@@ -96,6 +98,8 @@ Files contained in this repository:
 **provision_sites:** A Python 3 script to provision template-based networks with manually defined VLAN subnets to Meraki dashboard. The script can also claim devices and update their location on the world map.
 
 **removetemplate.py:** This is script to create a copy of a template-based network that preserves as many of the network's settings as possible, while not relying on a configuration template. The initial focus of the script is converting MX appliance networks.
+
+**set_client_tracking.py:** A script to set the client tracking method of a group of networks to a desired value.
 
 **setlocation.py:** Sets the street address and optionally the map marker of all devices in a network or organization. To be more easily clickable, devices will be placed in a spiral around a seed location. There is an option to preserve marker location for MR access points, to avoid breaking wireless map layout.
 
