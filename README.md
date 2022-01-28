@@ -17,6 +17,8 @@ Files contained in this repository:
 
 **android_patch_audit:** Script to check the date of the last security patch of Android devices managed by Meraki Systems Manager. It can generate a report of violating devices and trigger enforcement actions by applying tags to them.
 
+**asa_cryptomap_converter/cryptomap_converter.py:** A Python 3 script to migrate crypto map based site-to-site VPN configuration to a Meraki MX security appliance. The VPN configuration will be ported as third-party VPN tunnels in the target Meraki Dashboard organization and associated with the chosen network tag.
+
 **audit_client_tracking.py:** A script to check if the client tracking method in any of a set of networks is set to a value other than the one required.
 
 **auto-cycle-port:** Checks if devices of a particular model are offline. If offline devices are found, specific switchports in the same network are cycled.
