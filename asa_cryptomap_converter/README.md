@@ -5,8 +5,9 @@ A tool to import cryptomap-based site-to-site VPN tunnel entries from an ASA con
 
 # Important notes
 
-* The script will only import VPN tunnel configuration as third-party VPN peers, not firewalling rules.
+* The script will only import VPN tunnel configuration as third-party VPN peers, not firewalling rules
 * The script has been built as a MVP to convert a very specific ASA 9.8(4)20 configuration. Using it with other configurations may require modification of the script
+* The script consists of two files, **cryptomap_converter.py** and **asa_config_parser_module.py**, which need to be in the same folder for the script to run. The one you run to initiate the script is **cryptomap_converter.py**
 
 # Prerequisites
 
@@ -22,12 +23,12 @@ A tool to import cryptomap-based site-to-site VPN tunnel entries from an ASA con
 
 Script syntax, Windows:
 ```
-python asa_cryptomap_converter.py [-k <api_key>] [-o <org_name>] [-f <file_name>] [-t <tag>]
+python cryptomap_converter.py [-k <api_key>] [-o <org_name>] [-f <file_name>] [-t <tag>]
 ```
  
 Script syntax, Linux and Mac:
 ```
-python3 asa_cryptomap_converter.py [-k <api_key>] [-o <org_name>] [-f <file_name>] [-t <tag>]
+python3 cryptomap_converter.py [-k <api_key>] [-o <org_name>] [-f <file_name>] [-t <tag>]
 ```   
    
 Optional arguments:
@@ -39,5 +40,5 @@ Optional arguments:
 Example, convert configuration stored in file "asa.cfg" into organization with name "Big Industries Inc" and
 make it available to MXs in networks tagged "asa-vpn":
 ```
-python asa_cryptomap_converter.py -k 1234 -o "Big Industries Inc" -t asa-vpn
+python cryptomap_converter.py -k 1234 -o "Big Industries Inc" -t asa-vpn
 ```

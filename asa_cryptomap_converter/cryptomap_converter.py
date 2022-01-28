@@ -10,10 +10,10 @@ To use this script:
   * Then run the script using the syntax below:
 
 Windows:
-    python asa_cryptomap_converter.py [-k <api_key>] [-o <org_name>] [-f <file_name>] [-t <tag>]
+    python cryptomap_converter.py [-k <api_key>] [-o <org_name>] [-f <file_name>] [-t <tag>]
     
 Linux and Mac:
-    python3 asa_cryptomap_converter.py [-k <api_key>] [-o <org_name>] [-f <file_name>] [-t <tag>]
+    python3 cryptomap_converter.py [-k <api_key>] [-o <org_name>] [-f <file_name>] [-t <tag>]
     
 Optional arguments:
     -k <api_key>        Your Meraki Dashboard API key. If omitted, the script will try to use one stored in
@@ -27,7 +27,7 @@ Optional arguments:
                         
 Example, convert configuration stored in file "asa.cfg" into organization with name "Big Industries Inc" and
 make it available to MXs in networks tagged "asa-vpn"
-    python asa_cryptomap_converter.py -k 1234 -o "Big Industries Inc" -t asa-vpn
+    python cryptomap_converter.py -k 1234 -o "Big Industries Inc" -t asa-vpn
     
 Required Python 3 modules:
     requests
