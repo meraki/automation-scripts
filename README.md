@@ -83,11 +83,9 @@ Files contained in this repository:
 
 **mx_fwrules_to_csv.py:** A simple example showing how to use the Meraki Dashboard API library to GET MX L3 firewall rules from a provided network and output to CSV.
 
-**mxfirewallcontrol.py:** Script to display, modify and create backups of MX Layer 3 firewall rulesets. Can be used as a command line utility or a backend process for a custom management portal. See also mxfirewallcontrol_manual.pdf and mxfirewallcontrol_example_input_file.txt in this directory.
+**mx_firewall_control/mxfirewallcontrol.py:** Script to display, modify and create backups of MX Layer 3 firewall rulesets. Can be used as a command line utility or a backend process for a custom management portal. See also mxfirewallcontrol_manual.pdf and mxfirewallcontrol_example_input_file.txt in this directory.
 
-**mxfirewallcontrol_example_input_file.txt:** Example input file for mxfirewallcontrol.py.
-
-**mxfirewallcontrol_manual.pdf:** Manual for mxfirewallcontrol.py.
+**mx_firewall_control/mxfirewallcontrol_example_input_file.txt:** Example input file for mxfirewallcontrol.py.
 
 **nodejs_sdk_builder:** Python 3 script that builds a NodeJS SDK for the Meraki Dashboard API by calling the current OpenAPI specification and combining two code template files. 
 

@@ -1,0 +1,4 @@
+{"protocol":"any", "srcPort":"Any", "srcCidr":"192.168.128.1", "destPort":"Any", "destCidr":"any", "policy":"deny", "syslogEnabled":false, "comment":"Line 1"}
+{"protocol":"any", "srcPort":"Any", "srcCidr":"192.168.128.2", "destPort":"Any", "destCidr":"any", "policy":"deny", "syslogEnabled":false, "comment":"Line 2"}
+{"protocol":"any", "srcPort":"Any", "srcCidr":"192.168.128.3", "destPort":"Any", "destCidr":"any", "policy":"deny", "syslogEnabled":false, "comment":"Line 3"}
+{"protocol":"any", "srcPort":"Any", "srcCidr":"192.168.128.4", "destPort":"Any", "destCidr":"any", "policy":"deny", "syslogEnabled":false, "comment":"Line 4"}
