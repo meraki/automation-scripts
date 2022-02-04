@@ -3,7 +3,7 @@
 A multi-organization, multi-network Meraki MX Layer 3 firewall control script in Python 3
 --------------------------------------
 
-mxfirewallcontrol.py is a script to view, create backups for and make changes to Meraki MX Layer 3 firewall rulesets across multiple organizations, networks and templates. It can be used both as a command-line utility and as a back-end process to create custom management portals.
+`mxfirewallcontrol.py` is a script to view, create backups for and make changes to Meraki MX Layer 3 firewall rulesets across multiple organizations, networks and templates. It can be used both as a command-line utility and as a back-end process to create custom management portals.
 
 # What's new
 
@@ -30,7 +30,7 @@ https://documentation.meraki.com/zGeneral_Administration/Other_Topics/The_Cisco_
 The script requires organization-level access privileges to run. Dashboard API keys have the same privilege level as the administrator account they are tied to. An explanation of different Dashboard administrator privilege levels can be found here:
 https://documentation.meraki.com/zGeneral_Administration/Managing_Dashboard_Access/Managing_Dashboard_Administrators_and_Permissions
 
-#Script usage
+# Script usage
 
 To run the script, run the command `python mxfirewallcontrol.py` in the directory where the script resides, followed by the correct command-line arguments:
 ```python mxfirewallcontrol.py -o <org> [-k <key>] [-f <filter>] [-c <command>] [-m <mode>]```
@@ -41,13 +41,13 @@ If you are using Linux or Mac, you will need to use command python3 instead:
 Elements marked `<value>` represent values that need to be entered. Arguments in square brackets `[]` are optional.
 
 An example of running the script:
-```python mxfirewallcontrol.py -k 1234 -o “Meraki Inc” -c create-backup```
+```python mxfirewallcontrol.py -k 1234 -o "Meraki Inc" -c create-backup```
 
 In this example, run the script would run using API key 1234, find an organization named Meraki Inc and create a local backup copy of the MX Layer 3 firewall rules for all of its configuration templates. You can find more information on the available command line arguments in the Command line arguments section of this manual.
 
 Running the script with no arguments will print the help text.
     
-#Using the script as a utility VS as a headless backend process
+# Using the script as a utility VS as a headless backend process
 
 You can use the script both as a command line utility and as a backend process for creating custom management portals. The script supports two ways of input for large blocks of data:
 * Input files
@@ -55,11 +55,11 @@ You can use the script both as a command line utility and as a backend process f
 
 Depending on your intended use of the script, one or the other method may suit your purpose better. If using the script as a command line utility, a firewall ruleset is probably easier to define in an input file using a text editor. More on these input methods in the Command line arguments section of this manual, under *Issuing commands*.
 
-#Command line arguments
+# Command line arguments
 
 The script includes both mandatory and optional arguments. If mandatory arguments are omitted, the script will only display the help text, without attempting any other operations. If optional arguments are omitted, the script will execute according to their default values.
 
-Arguments may require values that include spaces. Operating systems can typically pass those by using single or double quotes (' or "). For example by writing –o "Meraki Inc" you can define an organization name that includes a space.
+Arguments may require values that include spaces. Operating systems can typically pass those by using single or double quotes (`'` or `"`). For example by writing `–o "Meraki Inc"` you can define an organization name that includes a space.
 
 JSON values can include the double quote character. To pass that in a command line argument that includes both spaces and double quotes, you will need to either use the single quote character to enclose the string, or to escape the double quote character according to how your operating system requires. For example, in Windows you need to use double double quotes:
 ```-c "append:""port"":""any"",""srcCidr"":""any"", [Input omitted]"```
@@ -119,7 +119,7 @@ DEFAULT_FLAG_PROCESS_NETWORKS   = False     # If no filter for network/template 
 DEFAULT_FLAG_PROCESS_TEMPLATES  = True      # If no filter for network/template scope is set, process only templates
 ```
 
-#Issuing commands
+# Issuing commands
 The argument `–c <command>` defines which operation will be carried out by the script. One command can be entered at a time. If the argument is omitted, it defaults to `–c print`.
 
 In the Meraki Dashboard, MX Layer 3 firewall configuration is expressed as rulesets. The ruleset is composed of multiple firewall rules, which are applied to traffic in a sequence. You can find the sequence number of a rule by viewing the ruleset in Dashboard, or by using the `print` and `create-backup` functions of this script.
@@ -148,7 +148,7 @@ The following table lists the valid options for the argument `–c <command>`:
 | `default-allow` | Check if the last rules in the rulesets in scope are `deny any` and remove them if such rules are found |
 | `default-deny` | Add a `deny any` rule to the end of the rulesets in scope |
 
-#Using modes
+# Using modes
 
 The argument `–m <mode>` can be used to specify whether commands that can affect device configuration in cloud, such as append, insert, will commit changes and whether they create a backup first. If the argument is omitted, it defaults to `–m simulation`.
 
@@ -160,7 +160,7 @@ Valid options for argument `–m <mode>` are:
 | `commit` | Create backup and apply changes to cloud |
 | `commit-no-backup` | Apply changes to cloud without creating a backup |
 
-#Expressing rulesets
+# Expressing rulesets
 Firewall rulesets can be defined for processing either as input files or as JSON formatted strings. To read more about which commands use which form, see section Issuing commands above.
 
 Input files are text files, with one rule per line in JSON format. You must insert a new line character after the last rule definition in the file, for example by pressing Enter in your text editor. An input file that defines a ruleset with two firewall rules can look something like this:
@@ -192,7 +192,7 @@ Enter the whole command as a single line.
 
 Note that backups created by this script may include the `allow any` final rule that is automatically appended by Dashboard. The script removes these `allow any` rules before sending the ruleset to Dashboard, so you do not need to worry about these being duplicated.
 
-#Troubleshooting
+# Troubleshooting
 Common issues that can result in errors or warnings when executing the script:
 * The administrator account linked to your API key does not have access to the organization you want to modify
 * The administrator account linked to your API key has only network level access to the organization you want to modify
