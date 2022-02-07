@@ -4,7 +4,7 @@ readMe = '''This is a script to create a CSV file with all of the client devices
  typically an indication of a client that has been moving.
 
 Usage:
- python orgclientcsv.py [-k <api key>] [-o <org name>] [-i <oui_ignore_list>]
+ python orgclientcsv.py [-k <api key>] [-o <org name>]
 
 Parameters:
   -k <api key>          :   Optional. Your Meraki Dashboard API key. If omitted, the script will look for a key in
