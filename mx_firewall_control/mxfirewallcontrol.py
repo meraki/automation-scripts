@@ -693,8 +693,6 @@ def loadruleset(p_filepath):
     except:
         log('ERROR 28: Invalid input file format "%s"' % p_filepath)
         return None
-    
-    ruleset = stripDefaultRule(ruleset)
             
     return(ruleset)
     
@@ -718,13 +716,11 @@ def cmdaddrules2(p_apikey, p_orglist, p_source, p_data, p_mode, p_flagcommit=Fal
     elif p_mode == 'insert':
         flag_insert  = True
         if p_start == 0:
-            log('ERROR 51: Invalid start position "0" for insert command. First rule is #1')
-            sys.exit(2)
+            killScript('ERROR 51: Invalid start position "0" for insert command. First rule is #1')
     elif p_mode == 'replace':
         flag_replace = True
     else:
-        log('DEBUG: Invalid mode for cmdaddrules2(). Please check your script')
-        sys.exit(2)
+        killScript('DEBUG: Invalid mode for cmdaddrules2(). Please check your script')
         
     if   p_source == 'file':
         flag_srcfile = True
@@ -751,24 +747,22 @@ def cmdaddrules2(p_apikey, p_orglist, p_source, p_data, p_mode, p_flagcommit=Fal
         try:
             strload = json.loads(p_data)
         except:
-            log('ERROR 50: Ruleset to be added must be given in JSON format')
-            sys.exit(2)
+            killScript('ERROR 50: Ruleset to be added must be given in JSON format')
         #if loaded from CLI, ruleset might be either dict or table
         if isinstance(strload, dict):
             diffset.append(strload)
         else:
             diffset = strload
-        diffset = stripDefaultRule(diffset)
 
     for org in p_orglist:
         for net in org['networks']:
-            flag_readsuccessful = True
             oldset = []
             
             if flag_srcdir:
                 diffset = loadruleset(net['source'])                
                 if diffset is None:
                     continue
+                diffset = stripDefaultRule(diffset)
             
             #if insert or append mode, add the first part of the existing ruleset before the new one
             if flag_append or flag_insert:
@@ -777,7 +771,7 @@ def cmdaddrules2(p_apikey, p_orglist, p_source, p_data, p_mode, p_flagcommit=Fal
                     log('WARNING: Unable to read ruleset for "%s"' % net['name'])
                     continue
                 
-                buffer      = netRules['rules']
+                buffer      = stripDefaultRule(netRules['rules'])
                 
                 #adjust starting position to allow positive/negative counting (from start or end)
                 bufferlen   = len(buffer)
@@ -790,37 +784,34 @@ def cmdaddrules2(p_apikey, p_orglist, p_source, p_data, p_mode, p_flagcommit=Fal
                             log('WARNING: Index out of range for "%s"' % net['name'])
                     else:
                         if p_start*-1 < bufferlen:
-                            adjustedpos = bufferlen + p_start +1
+                            adjustedpos = bufferlen + p_start + 1
                         else:
                             adjustedpos = 0
                             log('WARNING: Index out of range for "%s"' % net['name'])
                         
-                if buffer[0]['srcPort'] != 'null':
-                    if flag_insert:
-                        oldset = stripDefaultRule(buffer[:adjustedpos])
-                    else:
-                        oldset = stripDefaultRule(buffer)
+                if flag_insert:
+                    oldset = buffer[:adjustedpos]
                 else:
-                    flag_readsuccessful = False
+                    oldset = buffer
                 
             #add the new ruleset to be applied
             newset = oldset + diffset
                         
             #if insert mode, add the rest of the existing ruleset
-            if flag_readsuccessful and flag_insert:
-                newset += stripDefaultRule(buffer[adjustedpos:])  
-                        
-            if flag_readsuccessful:    
-                if p_flagcommit:
-                    log('Writing ruleset for "%s"' % net['name'])
-                    success, errors, response = updateNetworkApplianceFirewallL3FirewallRules(p_apikey, net['id'], body={'rules': newset})
-                    if not success:
-                        log('WARNING: Unable to write ruleset for "%s"' % net['name'])
-                else: #print ruleset for review
-                    printBuffer = newset + [MX_RULE_DEFAULT_ALLOW_ALL]
-                    printRuleset(org['name'], net['name'], printBuffer)
-            else:
-                log('WARNING: Skipping "%s": Unable to read existing ruleset' % net['name'])      
+            if flag_insert:
+                newset += buffer[adjustedpos:]
+                
+            # if last rule of merged ruleset is "allow any", remove it
+            newset = stripDefaultRule(newset)
+                          
+            if p_flagcommit:
+                log('Writing ruleset for "%s"' % net['name'])
+                success, errors, response = updateNetworkApplianceFirewallL3FirewallRules(p_apikey, net['id'], body={'rules': newset})
+                if not success:
+                    log('WARNING: Unable to write ruleset for "%s"' % net['name'])
+            else: #print ruleset for review
+                printBuffer = newset + [MX_RULE_DEFAULT_ALLOW_ALL]
+                printRuleset(org['name'], net['name'], printBuffer)   
     
     
 def cmdremove(p_apikey, p_orglist, p_mode, p_data, p_flagcommit=False, p_flagbackup=True):

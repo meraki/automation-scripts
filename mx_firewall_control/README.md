@@ -33,10 +33,10 @@ https://documentation.meraki.com/zGeneral_Administration/Managing_Dashboard_Acce
 # Script usage
 
 To run the script, run the command `python mxfirewallcontrol.py` in the directory where the script resides, followed by the correct command-line arguments:
-```python mxfirewallcontrol.py -o <org> [-k <key>] [-f <filter>] [-c <command>] [-m <mode>]```
+```python mxfirewallcontrol.py -o <org> [-k <api_key>] [-f <filter>] [-c <command>] [-m <mode>]```
 
 If you are using Linux or Mac, you will need to use command python3 instead:
-```python3 mxfirewallcontrol.py -o <org> [-k <key>] [-f <filter>] [-c <command>] [-m <mode>]```
+```python3 mxfirewallcontrol.py -o <org> [-k <api_key>] [-f <filter>] [-c <command>] [-m <mode>]```
 
 Elements marked `<value>` represent values that need to be entered. Arguments in square brackets `[]` are optional.
 
@@ -72,7 +72,7 @@ The mandatory arguments are listed in the table below:
 
 Note that if you want to process multiple organizations, you can enter the value `/all` instead of an organization name. In this case, all of the organizations accessible by your administrator account will be processed. Both `/all` and organization names can be combined with filters to limit the scope of networks and templates to be processed. More on filters below.
 
-Also note that you will need to provide an API key to the script, either by the optional command line argument `-k <key>` or by creating an OS environment variable `MERAKI_DASHBOARD_API_KEY` and store the key there as a string.
+Also note that you will need to provide an API key to the script, either by the optional command line argument `-k <api_key>` or by creating an OS environment variable `MERAKI_DASHBOARD_API_KEY` and store the key there as a string.
 
 In addition to the mandatory arguments, you can provide optional arguments to define the operations carried out by the script. If no optional arguments are given, the script will read the MX Layer 3 firewall rules for all templates in the specified organizations and print them.
 
@@ -80,6 +80,7 @@ The optional arguments are listed in the table below:
 
 | Argument | Description | 
 |----------|-------------|
+| `-k <api_key>` | The API key you want to use for interacting with the Meraki cloud. Can be omitted if you have an environment variable `MERAKI_DASHBOARD_API_KEY` configured in your operating system, where the API key is stored. |
 | `-f <filter>` | Define a subset of networks or templates to be processed. To use multiple filters, separate them with commas. A network/template needs to satisfy all filters to be processed |
 | `-c <command>` | Specify the operation to be carried out |
 | `-m <mode>` | Define whether commands that modify firewall rulesets will upload changes to the cloud |
