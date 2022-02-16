@@ -286,14 +286,16 @@ def main(argv):
         
     for net in allNetworks:
         if len(net["productTypes"]) == 1:
-            splitName = net["name"].split(" - ")
+            position = net["name"].rfind(" - ")
             
-            if len(splitName) == 2 and splitName[1] in net["productTypes"]:
-                label   = splitName[0]
+            if not position == -1:
+                label   = net["name"][:position]
+                product = net["name"][position+3:]
                 
-                if not label in networkNames:
-                    networkNames[label] = []
-                networkNames[label].append(net["id"])
+                if len(label) > 0 and product in net["productTypes"]:
+                    if not label in networkNames:
+                        networkNames[label] = []
+                    networkNames[label].append(net["id"])    
                         
     for name in networkNames:
         if len(networkNames[name]) > 1:
