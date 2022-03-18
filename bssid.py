@@ -13,7 +13,7 @@ If you have only one Organization, it will search for the Network name.
 If you have multiple Organizations, it will ask you which org to run against
 
 API Key
-checks your env vars for 'MERAKI_DASHBOARD_API_KEY'
+requires you to have your API key in env vars as 'MERAKI_DASHBOARD_API_KEY'
 
 '''
 
@@ -27,9 +27,7 @@ ap_list = {}
 bssid_list = []
 loc = expanduser('~/Documents/BSSID/')
 
-API_KEY = os.getenv("MERAKI_DASHBOARD_API_KEY")
-
-dashboard = meraki.DashboardAPI(API_KEY,suppress_logging=True)
+dashboard = meraki.DashboardAPI(suppress_logging=True)
 
 
 def getLocation():
