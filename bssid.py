@@ -13,9 +13,7 @@ If you have only one Organization, it will search for the Network name.
 If you have multiple Organizations, it will ask you which org to run against
 
 API Key
-Currently, this is expected to be in a credentials.py file format as bellow:
-
-meraki=<your API key>
+checks your env vars for 'MERAKI_DASHBOARD_API_KEY'
 
 '''
 
@@ -23,14 +21,13 @@ import meraki
 import sys
 import os
 from os.path import expanduser
-import credentials as creds
 import json
 
 ap_list = {}
 bssid_list = []
 loc = expanduser('~/Documents/BSSID/')
 
-API_KEY = creds.meraki
+API_KEY = os.getenv("MERAKI_DASHBOARD_API_KEY")
 
 dashboard = meraki.DashboardAPI(API_KEY,suppress_logging=True)
 
