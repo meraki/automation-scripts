@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-read_me = ''' A Python 3 script to pull the BSSID from a specified network.
+read_me = ''' 
+A Python 3 script to pull of the enabled BSSID from a specified network.
 
 Required Python modules:
     meraki
