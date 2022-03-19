@@ -53,6 +53,9 @@ def getNetworks(orgID, net_name):
         if dic['name'] == net_name:
             network_id = dic['id']
             getAP(network_id)
+        else:
+            print(f'We did not find {net_name} in your organization(s)')
+            sys.exit()
 
 def getAP(network_id):
     devices = dashboard.networks.getNetworkDevices(network_id)
@@ -67,8 +70,8 @@ def getBss(net_name):
         for k ,v in ap_list.items():
             response = dashboard.wireless.getDeviceWirelessStatus(v)
             for data in response['basicServiceSets']:
-                bad = data['ssidName'][:6]
-                if bad != 'Unconf':
+                good = data['enabled']
+                if good == True:
                     f.write(f"{k} , {data['ssidName']} , {data['band']} , {data['bssid']}" + "\n")
 
 if __name__ == '__main__':
