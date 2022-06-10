@@ -383,7 +383,7 @@ def main(argv):
                 for peer in networkTunnelCounts:
                     if networkTunnelCounts[peer]['mode'] == "hub":
                         pairTunnels = 0
-                        if net['id'] in networkUplinkCounts and peer in networkUplinkCounts:
+                        if (net['id'] != peer) and (net['id'] in networkUplinkCounts) and (peer in networkUplinkCounts):
                             pairTunnels = networkUplinkCounts[net['id']] * networkUplinkCounts[peer]
                         if pairTunnels > 0:
                             if not net['id'] in networkTunnelCounts:
