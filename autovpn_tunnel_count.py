@@ -14,7 +14,7 @@ Optional parameters:
     -o <org_name>       The name of the organization to calculate tunnels for. This parameter can be 
                         omitted if your API key can only access one org. Use keyword "/all" instead of a name
                         to fetch information for all organizations accessible by your API key
-    -n <net_name>    Only display results for network with specified name. If omitted, all networks will
+    -n <net_name>       Only display results for network with specified name. If omitted, all networks will
                         be displayed                        
                         
 Example, calculate tunnel counts for organization with name Big Industries Inc:
@@ -289,7 +289,7 @@ def main(argv):
     arg_netName     = None
     
     try:
-        opts, args = getopt.getopt(argv, 'k:o:s:h:')
+        opts, args = getopt.getopt(argv, 'k:o:n:h:')
     except getopt.GetoptError:
         killScript()
         
@@ -397,7 +397,7 @@ def main(argv):
         print('\n--- Tunnel counts for organization "%s" ---\n' % org['name'])
         printLine({"name": "Network name", "mode": "Mode", "count": "Tunnel count"})
         for net in applianceNets:
-            if net['id'] in networkTunnelCounts:
+            if net['id'] in networkTunnelCounts and (arg_netName == None or arg_netName == net['name']):
                 printLine({
                         'name'  : net['name'], 
                         'mode'  : networkTunnelCounts[net['id']]['mode'],
