@@ -69,7 +69,7 @@ def main():
         field_names = ['name', 'serial', 'model', 'network', 'networkId', 'lastReportedAt',
                        'wan1_status', 'wan1_ip', 'wan1_gateway', 'wan1_publicIp', 'wan1_primaryDns', 'wan1_secondaryDns',
                        'wan1_ipAssignedBy', 'wan2_status', 'wan2_ip', 'wan2_gateway', 'wan2_publicIp', 'wan2_primaryDns', 
-                       'wan2_secondaryDns', 'wan2_ipAssignedBy', 'cellular_status', 'cellular_ip', 'cellular_provider', 
+                       'wan2_secondaryDns', 'wan2_ipAssignedBy', 'cellular_status', 'cellular_ip', 'cellular_provider', 'highAvailability',
                        'cellular_publicIp', 'cellular_model', 'cellular_signalStat', 'cellular_connectionType', 'cellular_apn']
         with open(output_file, mode='w', newline='\n') as fp:
             csv_writer = csv.DictWriter(fp, field_names, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
@@ -133,13 +133,16 @@ def main():
         if flag_multi_org:
             output_file += '_' + org_id
         output_file += '.csv'
-        field_names = ['name', 'serial', 'network', 'networkId', 'mac', 'publicIp', 'status', 'lastReportedAt', 'lanIp', 'gateway', 'ipType', 'primaryDns', 'secondaryDns',
-                       'usingCellularFailover', 'wan1Ip', 'wan1Gateway', 'wan1IpType', 'wan1PrimaryDns', 'wan1SecondaryDns', 'wan2Ip', 'wan2Gateway', 'wan2IpType', 'wan2PrimaryDns', 'wan2SecondaryDns']
+        field_names = ['name', 'serial', 'model', 'network', 'networkId', 'mac', 'publicIp', 'status', 'lastReportedAt', 'lanIp', 'gateway', 'ipType',
+                        'primaryDns', 'secondaryDns', 'productType', 'tags', 'usingCellularFailover', 'wan1Ip', 'wan1Gateway', 'wan1IpType',
+                        'wan1PrimaryDns', 'wan1SecondaryDns', 'wan2Ip', 'wan2Gateway', 'wan2IpType', 'wan2PrimaryDns', 'wan2SecondaryDns', 'components',
+                        'configurationUpdatedAt']
         with open(output_file, mode='w', newline='\n') as fp:
             csv_writer = csv.DictWriter(fp, field_names, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
             csv_writer.writeheader()
             for status in device_statuses:
                 status.update({'network': networks_by_id[status['networkId']]})
+                print(status)
                 csv_writer.writerow(status)
 
 
