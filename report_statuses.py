@@ -19,20 +19,27 @@ Use "-o /all" to iterate through all organizations
 import argparse
 import csv
 import meraki
+import os
 
 
 def parse_arguments(parser):
-    parser.add_argument('-k', '--key', help='Dashboard API key')
+    parser.add_argument('-k', '--key', help='Dashboard API key. If omitted, will use environment variable MERAKI_DASHBOARD_API_KEY')
     parser.add_argument('-o', '--org', help='Organization ID. Use "-o /all" to iterate through all organizations')
     parser.exit
     args = parser.parse_args()
     return args.key, args.org
 
+def getApiKey(argument):
+    if not argument is None:
+        return str(argument)
+    return os.environ.get("MERAKI_DASHBOARD_API_KEY", None)  
 
 def main():
     # Check if all required parameters have been specified
     parser = argparse.ArgumentParser()
-    api_key, arg_org_id = parse_arguments(parser)
+    tmp_api_key, arg_org_id = parse_arguments(parser)
+
+    api_key = getApiKey(tmp_api_key)
 
     if not(api_key and arg_org_id):
         parser.exit(2, parser.print_help())
