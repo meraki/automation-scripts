@@ -7,10 +7,9 @@ Script syntax, Windows:
 Script syntax, Linux and Mac:
     python3 node-sdk-builder.py -k <api_key> [-o <org_name>] [-f <output_file_name>]
     
-Mandatory parameters:
-    -k <api_key>            Your Meraki Dashboard API key
-    
 Optional parameters:
+    -k <api_key>            Your Meraki Dashboard API key. If omitted, will load key
+                            from OS environment variable "MERAKI_DASHBOARD_API_KEY"
     -o <org_name>           Specify the name of the organization to pull the OpenAPI
                             spec from. If omitted, the first available org will be 
                             selected
@@ -31,7 +30,7 @@ Depending on your operating system and Python environment, you may need to use c
 """
 
 
-import sys, getopt, time, datetime, json
+import sys, getopt, time, datetime, json, os
 
 from urllib.parse import urlencode
 from requests import Session, utils
@@ -208,6 +207,12 @@ def killScript(reason=None):
         log("ERROR: %s" % reason)
         sys.exit()
         
+
+def getApiKey(argument):
+    if not argument is None:
+        return str(argument)
+    return os.environ.get("MERAKI_DASHBOARD_API_KEY", None)  
+    
         
 def generateOutputFileName(argFile):
     if argFile is None:
@@ -217,7 +222,7 @@ def generateOutputFileName(argFile):
         return name
     else:
         return argFile
-               
+              
         
 def loadFile(filename):
     with open(filename, 'r') as file:
@@ -238,7 +243,7 @@ def dashifyOperationId(operationId):
     
         
 def main(argv):    
-    arg_apiKey      = None
+    tmp_apiKey      = None
     arg_orgName     = None
     arg_fileName    = None
     
@@ -249,11 +254,13 @@ def main(argv):
         
     for opt, arg in opts:
         if opt == '-k':
-            arg_apiKey      = str(arg)
+            tmp_apiKey      = str(arg)
         if opt == '-o':
             arg_orgName     = str(arg)
         if opt == '-f':
             arg_fileName    = str(arg)
+            
+    arg_apiKey = getApiKey(tmp_apiKey)        
             
     if arg_apiKey is None:
         killScript()        
