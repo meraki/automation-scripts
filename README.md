@@ -7,6 +7,8 @@ Here you can find Meraki Dashboard API scripts written for Python 3.
 
 **NOTE: These scripts will not run in Python 2. Make sure you are using Python 3 with the appropriate commands for your operating system. You can check your Python version with command "python --version" in Windows and "python3 --version" in Linux/Mac.**
 
+**IMPORTANT NOTE: Some of the older scripts in this repository use the Meraki Dashboard API v0, which is end of life and unsupported. If you are using a script written for v0 and want it converted to v1, please raise an issue about it.**
+
 Check back from time to time, as new scripts are added and existing ones are sometimes polished and improved after initial posting. Please note that since the Meraki APIs are expanded constantly, there may be more efficient ways to complete a task than what was available when these scripts were created. For the latest info on Meraki APIs, visit: https://developer.cisco.com/meraki/whats-new/
 
 Files contained in this repository:
