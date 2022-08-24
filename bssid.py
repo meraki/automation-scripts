@@ -20,20 +20,20 @@ requires you to have your API key in env vars as 'MERAKI_DASHBOARD_API_KEY'
 
 import meraki
 import sys
-import os
-from os.path import expanduser
+from pathlib import Path
 import json
 
 ap_list = {}
 bssid_list = []
-loc = expanduser('~/Documents/BSSID/')
+p = Path.home()
+loc = p / 'Documents' / 'BSSID'
 
 dashboard = meraki.DashboardAPI(suppress_logging=True)
 
 
 def getLocation():
-    if not os.path.isdir(loc):
-        os.makedirs(loc)
+   if not Path.is_dir(loc):
+        Path.mkdir(loc)
 
 
 def getOrgs(net_name):
@@ -72,7 +72,8 @@ def getAP(network_id):
 
 
 def getBss(net_name):
-    with open(loc + net_name + '.csv', 'w') as f:
+    bss = f'{loc}/{net_name}.csv'
+    with open(bss, mode='w') as f:
         f.write(f"AP Name , SSID Name , Frequency , BSSID" + "\n")
         for k, v in ap_list.items():
             response = dashboard.wireless.getDeviceWirelessStatus(v)
