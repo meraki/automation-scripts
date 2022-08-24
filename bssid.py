@@ -32,7 +32,7 @@ dashboard = meraki.DashboardAPI(suppress_logging=True)
 
 
 def getLocation():
-   if not Path.is_dir(loc):
+    if not Path.is_dir(loc):
         Path.mkdir(loc)
 
 
@@ -66,9 +66,13 @@ def getNetworks(orgID, net_name):
 def getAP(network_id):
     devices = dashboard.networks.getNetworkDevices(network_id)
     for dic in devices:
-        model = dic['model'][:-2]
-        if model == 'MR':
+        model1 = dic['model'][:-2]
+        model2 = dic['model'][:2]
+        if model1 == 'MR':
             ap_list[dic['name']] = dic['serial']
+        elif model2 == 'CW':
+            ap_list[dic['name']] = dic['serial']
+    getBss(net_name)
 
 
 def getBss(net_name):
@@ -80,9 +84,10 @@ def getBss(net_name):
             for data in response['basicServiceSets']:
                 good = data['enabled']
                 if good is True:
-                    f.write(
-                        f"{k} , {data['ssidName']} , {data['band']}\
+                    f.write(f"{k} , {data['ssidName']} , {data['band']}\
                          , {data['bssid']}" + "\n")
+    print(f'Your file {net_name}.csv has been creeated in {loc}')
+    sys.exit()
 
 
 if __name__ == '__main__':
