@@ -66,12 +66,10 @@ def getNetworks(orgID, net_name):
 def getAP(network_id):
     devices = dashboard.networks.getNetworkDevices(network_id)
     for dic in devices:
-        model1 = dic['model'][:-2]
-        model2 = dic['model'][:2]
-        if model1 == 'MR':
+        model = dic['model'][:2]
+        if model == 'MR' or model == 'CW':
             ap_list[dic['name']] = dic['serial']
-        elif model2 == 'CW':
-            ap_list[dic['name']] = dic['serial']
+    print(ap_list)
     getBss(net_name)
 
 
