@@ -85,6 +85,8 @@ Files contained in this repository:
 
 **migration_init_file.txt:** Example init config file for migratecomware.py.
 
+**migrate_networks:** Copies networks from one organization to another. See script opening comments for list of supported features.
+
 **movedevices.py:** This script that can be used to move all devices from one organization to another. The script will only process devices that are part of a network. The networks of the source org need to exist in the destination org too. Use copynetworks.py if needed to create them.
 
 **mx_fwrules_to_csv.py:** A simple example showing how to use the Meraki Dashboard API library to GET MX L3 firewall rules from a provided network and output to CSV.

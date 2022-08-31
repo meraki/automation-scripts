@@ -1,0 +1,18 @@
+organizationNames:
+    source: "MODIFY THIS TEXT TO MATCH YOUR SOURCE ORGANIZATION NAME"
+    destination: "MODIFY THIS TEXT TO MATCH YOUR DESTINATION ORGANIZATION NAME"
+    
+enabledTasks:
+    createNetworks: true
+    copyMxVlans: true
+    copyMrSsids: true
+    
+configModifications:
+    overwriteSsidRadiusSecret:
+        enabled: true
+        newRadiusSecret: "superSecret"
+        
+networkFilters:
+    filterNetworksByTag: false
+    tagsList:
+        - "tag_text_to_match"
