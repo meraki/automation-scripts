@@ -29,7 +29,7 @@ Files contained in this repository:
 
 **autovpn_tunnel_count.py:** Counts how many VPN tunnels are consumed per network for establishing Auto VPN connectivity to peers.
 
-**bssid.py:** Pulls the BSSID of the enabled SSID in a specified network, and puts them in a CSV.
+**bssid.py:** Pulls the BSSID of the enabled SSID for all networks in an organization and writes them to a CSV per network. If you have access to more than one organization, it will ask you to input the organizatin id you want to run against..
 
 **checksubnets.py:** This is a script to check if the LAN IPs (management addresses) of all access points in one or more organizations belong to specific IPv4 subnets. The purpose of the script is to find access points with misconfigured management addresses or VLANs, which may cause issues with 802.1x authentications. The output can be displayed on screen or sent as an email report.
 
