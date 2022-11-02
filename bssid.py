@@ -54,12 +54,11 @@ def getOrgs():
         for dic in orgs:
             org_list[dic['id']] = dic['name']
         orgID = input(f'Please type in the number of the Organization name '
-                      f'that you would like to query {json.dumps(org_list, indent=4)}' "\n")
+            f'that you would like to query {json.dumps(org_list, indent=4)}' "\n")
         orgName = org_list.get(orgID)
         loc2 = loc / orgName
         getlocation2(loc2)
         getNetworks(orgID, orgName)
-
 
 
 def getNetworks(orgID, orgName):
@@ -74,15 +73,13 @@ def getNetworks(orgID, orgName):
         getAP(net_id, net_name, orgName)
 
 
-
-
 def getAP(net_id, net_name, orgName):
     devices = dashboard.networks.getNetworkDevices(net_id)
     ap_list = {}
     for dic in devices:
         model = dic['model'][:2]
         if model == 'MR' or model == 'CW':
-            if dic.get('name') == None:
+            if dic.get('name') is None:
                 ap_list[dic['mac']] = dic['serial']
             else:
                 ap_list[dic['name']] = dic['serial']
