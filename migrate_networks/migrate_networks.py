@@ -7,6 +7,8 @@ Only the following configuration elements will be copied:
     Network device types
     MX VLANs
     MR SSIDs
+    MR L3 Firewall rules
+    Alert settings
 
 Syntax, Windows:
     python migrate_networks.py [-k <api_key>] [-c <config_file>] 
@@ -48,7 +50,7 @@ Linux and Mac:
 ### Code to interact with Meraki Dashboard API generated using this script:
 ### https://github.com/mpapazog/rogue_meraki_python_sdk
 
-import time
+import time, ipaddress
 
 from urllib.parse import urlencode
 from requests import Session, utils
@@ -466,6 +468,99 @@ def updateNetworkWirelessSsid(apiKey, networkId, number, body=None):
     success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, response
     
+# getNetworkWirelessSsidFirewallL3FirewallRules
+#
+# Description: Return the L3 firewall rules for an SSID on an MR network
+# Endpoint: GET /networks/{networkId}/wireless/ssids/{number}/firewall/l3FirewallRules
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-network-wireless-ssid-firewall-l3-firewall-rules
+
+def getNetworkWirelessSsidFirewallL3FirewallRules(apiKey, networkId, number):
+    url = "/networks/" + str(networkId) + "/wireless/ssids/" + str(number) + "/firewall/l3FirewallRules"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+
+
+# updateNetworkWirelessSsidFirewallL3FirewallRules
+#
+# Description: Update the L3 firewall rules of an SSID on an MR network
+# Endpoint: PUT /networks/{networkId}/wireless/ssids/{number}/firewall/l3FirewallRules
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-network-wireless-ssid-firewall-l3-firewall-rules
+#
+# Request body schema:
+#     rules: Array. An ordered array of the firewall rules for this SSID (not including the local LAN access rule or the default rule)
+#     allowLanAccess: Boolean. Allow wireless client access to local LAN (boolean value - true allows access and false denies access) (optional)
+
+def updateNetworkWirelessSsidFirewallL3FirewallRules(apiKey, networkId, number, body=None):
+    url = "/networks/" + str(networkId) + "/wireless/ssids/" + str(number) + "/firewall/l3FirewallRules"
+    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+    
+# updateNetwork
+#
+# Description: Update a network
+# Endpoint: PUT /networks/{networkId}
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-network
+#
+# Request body schema:
+#     name: String. The name of the network
+#     timeZone: String. The timezone of the network. For a list of allowed timezones, please see the 'TZ' column in the table in <a target='_blank' href='https://en.wikipedia.org/wiki/List_of_tz_database_time_zones'>this article.</a>
+#     tags: Array. A list of tags to be applied to the network
+#     enrollmentString: String. A unique identifier which can be used for device enrollment or easy access through the Meraki SM Registration page or the Self Service Portal. Please note that changing this field may cause existing bookmarks to break.
+#     notes: String. Add any notes or additional information about this network here.
+
+def updateNetwork(apiKey, networkId, body=None):
+    url = "/networks/" + str(networkId)
+    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+    
+# getNetworkAlertsSettings
+#
+# Description: Return the alert configuration for this network
+# Endpoint: GET /networks/{networkId}/alerts/settings
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-network-alerts-settings
+
+def getNetworkAlertsSettings(apiKey, networkId):
+    url = "/networks/" + str(networkId) + "/alerts/settings"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+
+
+# updateNetworkAlertsSettings
+#
+# Description: Update the alert configuration for this network
+# Endpoint: PUT /networks/{networkId}/alerts/settings
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-network-alerts-settings
+#
+# Request body schema:
+#     defaultDestinations: Object. The network-wide destinations for all alerts on the network.
+#     alerts: Array. Alert-specific configuration for each type. Only alerts that pertain to the network can be updated.
+
+def updateNetworkAlertsSettings(apiKey, networkId, body=None):
+    url = "/networks/" + str(networkId) + "/alerts/settings"
+    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+    
+# getNetworkFirmwareUpgrades
+#
+# Description: Get firmware upgrade information for a network
+# Endpoint: GET /networks/{networkId}/firmwareUpgrades
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-network-firmware-upgrades
+
+def getNetworkFirmwareUpgrades(apiKey, networkId):
+    url = "/networks/" + str(networkId) + "/firmwareUpgrades"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+    
 ### END Generated code
 
 import sys, getopt, os, datetime, yaml
@@ -524,6 +619,53 @@ def vlansListContainsId(vlansList, vlanId):
     for vlan in vlansList:
         if vlan['id'] == vlanId:
             return True
+    return False
+    
+def checkVlanFeaturesWithFirmwareRequirements(sourceConfig, targetNetId, apiKey):
+    featureRequiredVersions = {
+        'mandatoryDhcp' : [17, 0],
+        'ipv6'          : [17, 5]
+    }
+    result = []
+    
+    hasFeatureWithRequirements = False
+    for vlan in sourceConfig:
+        for key in vlan:
+            if key in featureRequiredVersions:
+                hasFeatureWithRequirements = True
+                break
+        if hasFeatureWithRequirements:
+            break
+        
+    if hasFeatureWithRequirements:
+        success, errors, targetNetFirmware = getNetworkFirmwareUpgrades(apiKey, targetNetId)
+        if targetNetFirmware is None:
+            return None
+        try:
+            mxFwVersion = targetNetFirmware['products']['appliance']['currentVersion']['firmware']
+            parts       = mxFwVersion.split('-')
+            major       = int(parts[1])
+            minor       = int(parts[2])
+        except:
+            return True
+            
+        for feature in featureRequiredVersions:
+            if major < featureRequiredVersions[feature][0]:
+                if not feature in result:
+                    result.append(feature)
+            elif minor < featureRequiredVersions[feature][1]:
+                if not feature in result:
+                    result.append(feature)   
+    return result
+    
+def networkContainsForbiddenTags(config, networkId, networksList):
+    if not config['networkFilters']['excludeTargetNetworksByTag']:
+        return False
+    for net in networksList:
+        if net['id'] == networkId:
+            for tag in net['tags']:
+                if tag in config['networkFilters']['targetNetworkTagsList']:
+                    return True
     return False
     
 def main(argv):  
@@ -590,7 +732,7 @@ def main(argv):
         
     filteredSourceNetworks = []
     for net in sourceOrgNetworks:
-         if (not config['networkFilters']['filterNetworksByTag']) or (targetListListHasAnySourceListTag(net['tags'], config['networkFilters']['tagsList'])):
+         if (not config['networkFilters']['filterSourceNetworksByTag']) or (targetListListHasAnySourceListTag(net['tags'], config['networkFilters']['sourceNetworkTagsList'])):
             filteredSourceNetworks.append(net)              
            
     if config['enabledTasks']['createNetworks']:
@@ -613,7 +755,21 @@ def main(argv):
                 success, errors, targetOrgNetworks = getOrganizationNetworks(apiKey, targetOrgId)
                 if targetOrgNetworks is None:
                     killScript("Unable to refresh destination org networks")
+    
+    if config['enabledTasks']['refreshTimeZones']:
+        log("Refreshing time zone settings...")        
+        for net in filteredSourceNetworks:
+            targetNetId = getNetworkIdByName(targetOrgNetworks, net['name'])
+            if targetNetId is None:
+                log('WARNING: Destination org contains no net "%s"' % net['name'])
+                continue
                 
+            if networkContainsForbiddenTags(config, targetNetId, targetOrgNetworks):
+                log('Skipping net "%s": Exclusion tag in destination' % net['name'])
+                continue
+                
+            payload = {'timeZone': net['timeZone']}
+            success, errors, tzResponse = updateNetwork(apiKey, targetNetId, body=payload)
                 
     if config['enabledTasks']['copyMxVlans']:
         log("Copying MX VLANs...")                
@@ -624,18 +780,25 @@ def main(argv):
                 
             targetNetId = getNetworkIdByName(targetOrgNetworks, net['name'])
             if targetNetId is None:
-                log('WARNING: Destination org contains no net "%s"' % net['name'])                
+                log('WARNING: Destination org contains no net "%s"' % net['name'])
+                continue
+                
+            if networkContainsForbiddenTags(config, targetNetId, targetOrgNetworks):
+                log('Skipping net "%s": Exclusion tag in destination' % net['name'])
+                continue
                 
             success, errors, vlanSettings = getNetworkApplianceVlansSettings(apiKey, net['id'])
             if vlanSettings is None:
                 log('WARNING: Unable to fetch VLAN settings for net "%s"' % net['name'])
                 continue
-                
+                            
             if vlanSettings['vlansEnabled']:
                 success, errors, sourceVlans = getNetworkApplianceVlans(apiKey, net['id'])
                 if sourceVlans is None:
                     log('WARNING: Unable to fetch VLANs for net "%s"' % net['name'])
                     continue
+                                
+                keysToDrop = checkVlanFeaturesWithFirmwareRequirements(sourceVlans, targetNetId, apiKey)  
                     
                 success, errors, targetNetVlanSettings = getNetworkApplianceVlansSettings(apiKey, targetNetId)
                 if targetNetVlanSettings is None:
@@ -654,15 +817,48 @@ def main(argv):
                     log('WARNING: Unable to get destination VLANs for net "%s"' % net['name'])
                     continue
                     
+                #Flag VLANs that can cause IP address conflicts and assign temp subnets
+                flaggedVlanIds = []
+                for sv in sourceVlans:
+                    for tv in targetNetVlans:
+                        if sv['id'] != tv['id']:
+                            sourceSubnet = ipaddress.IPv4Network(sv['subnet'])
+                            targetSubnet = ipaddress.IPv4Network(tv['subnet'])                            
+                            if sourceSubnet.overlaps(targetSubnet):
+                                flaggedVlanIds.append(tv['id'])                                
+                offset = 0
+                for vlanId in flaggedVlanIds:
+                    subnet = '%s%s/30' % (config['configModifications']['ipConflictVlanTempSubnetPrefix'], str(offset * 2))
+                    mxIp   = '%s%s' % (config['configModifications']['ipConflictVlanTempSubnetPrefix'], str(offset * 2 + 1))                  
+                    offset += 1                    
+                    dummyConfig = {
+                        "subnet"                : subnet,
+                        "applianceIp"           : mxIp,
+                        "fixedIpAssignments"    : {},
+                        "reservedIpRanges"      : [],
+                        "dnsNameservers"        : "upstream_dns",
+                        "dhcpHandling"          : "Run a DHCP server",
+                        "dhcpLeaseTime"         : "1 day",
+                        "dhcpBootOptionsEnabled": False,
+                        "dhcpOptions"           : []
+                    }
+                    updateNetworkApplianceVlan(apiKey, targetNetId, vlanId, body=dummyConfig)
+                    
+                    
                 for vlan in sourceVlans:
+                    cleanVlan = {}
+                    
+                    for item in vlan:
+                        if not item in keysToDrop:
+                            cleanVlan[item] = vlan[item]
                     if vlansListContainsId(targetNetVlans, vlan['id']):
-                        vlanData = {}
-                        for item in vlan:
+                        cleanVlanWithoutId = {}
+                        for item in cleanVlan:
                             if item != 'id':
-                                vlanData[item] = vlan[item]
-                        updateNetworkApplianceVlan(apiKey, targetNetId, vlan['id'], body=vlanData)
+                                cleanVlanWithoutId[item] = cleanVlan[item]
+                        updateNetworkApplianceVlan(apiKey, targetNetId, vlan['id'], body=cleanVlanWithoutId)
                     else:
-                        createNetworkApplianceVlan(apiKey, targetNetId, body=vlan)
+                        createNetworkApplianceVlan(apiKey, targetNetId, body=cleanVlan)
                         
                 for vlan in targetNetVlans:
                     if not vlansListContainsId(sourceVlans, vlan['id']):
@@ -673,7 +869,15 @@ def main(argv):
                 if sourceSingleLan is None:
                     log('WARNING: Unable to get single LAN config for net "%s"' % net['name'])
                     continue
-                updateNetworkApplianceSingleLan(apiKey, targetNetId, body=sourceSingleLan)
+                    
+                keysToDrop = checkVlanFeaturesWithFirmwareRequirements([sourceSingleLan], targetNetId, apiKey)
+                    
+                cleanLanConfig = {}
+                for item in sourceSingleLan:
+                    if not item in keysToDrop:
+                        cleanLanConfig[item] = sourceSingleLan[item]
+                    
+                updateNetworkApplianceSingleLan(apiKey, targetNetId, body=cleanLanConfig)
                 
              
     if config['enabledTasks']['copyMrSsids']:
@@ -691,6 +895,10 @@ def main(argv):
             targetNetId = getNetworkIdByName(targetOrgNetworks, net['name'])
             if targetNetId is None:
                 log('WARNING: Destination org contains no net "%s"' % net['name']) 
+                continue
+                
+            if networkContainsForbiddenTags(config, targetNetId, targetOrgNetworks):
+                log('Skipping net "%s": Exclusion tag in destination' % net['name'])
                 continue
                 
             for ssid in sourceSsids:
@@ -720,6 +928,64 @@ def main(argv):
                 if not success:
                     log('WARNING: Failed to configure SSID #%s for net "%s"' % (ssid['number'], net['name']))
         
-
+    if config['enabledTasks']['copyMrFirewallRules']:
+        log("Copying MR Firewall rules...")   
+        for net in filteredSourceNetworks:
+            if not 'wireless' in net['productTypes']:
+                log('Skipping net "%s": Contains no wireless config' % net['name'])
+                continue
+                
+            targetNetId = getNetworkIdByName(targetOrgNetworks, net['name'])
+            if targetNetId is None:
+                log('WARNING: Destination org contains no net "%s"' % net['name']) 
+                continue
+                
+            if networkContainsForbiddenTags(config, targetNetId, targetOrgNetworks):
+                log('Skipping net "%s": Exclusion tag in destination' % net['name'])
+                continue
+                
+            for i in range(0, 15):
+                success, errors, sourceRules = getNetworkWirelessSsidFirewallL3FirewallRules(apiKey, net['id'], i)                
+                if sourceRules is None:
+                    log('WARNING: Unable to fetch rules for net "%s", SSID #%s' % (net['name'], i))
+                    continue
+                    
+                allowLanAccess = True
+                
+                rulesWithoutDefaultAllow = sourceRules['rules'][:-1]
+                lastRule = rulesWithoutDefaultAllow[len(rulesWithoutDefaultAllow)-1]
+                if lastRule['destCidr'] == 'Local LAN':
+                    rulesWithoutDefaultAllow = rulesWithoutDefaultAllow[:-1]
+                    allowLanAccess = (lastRule['policy'] == 'allow')
+                    
+                rulesBody = {
+                    'rules'             : rulesWithoutDefaultAllow,
+                    'allowLanAccess'    : allowLanAccess
+                }
+                
+                success, errors, rtResponse = updateNetworkWirelessSsidFirewallL3FirewallRules(apiKey, targetNetId, i, body=rulesBody)              
+                if not success:
+                    log('WARNING: Unable to modify rules for net "%s", SSID #%s' % (net['name'], i))
+                        
+    if config['enabledTasks']['copyAlerts']:
+        log("Copying alerts...") 
+        for net in filteredSourceNetworks:
+            success, errors, sourceAlerts = getNetworkAlertsSettings(apiKey, net['id'])
+            if sourceAlerts is None:
+                log('WARNING: Unable to fetch alerts for net "%s"' % net['name']) 
+                continue
+        
+            targetNetId = getNetworkIdByName(targetOrgNetworks, net['name'])
+            if targetNetId is None:
+                log('WARNING: Destination org contains no net "%s"' % net['name']) 
+                continue
+                
+            if networkContainsForbiddenTags(config, targetNetId, targetOrgNetworks):
+                log('Skipping net "%s": Exclusion tag in destination' % net['name'])
+                continue
+                
+            updateNetworkAlertsSettings(apiKey, targetNetId, body=sourceAlerts)
+                
+                
 if __name__ == '__main__':
     main(sys.argv[1:])
