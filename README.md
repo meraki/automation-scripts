@@ -69,6 +69,8 @@ Files contained in this repository:
 
 **invlist.py:** Creates a list of all serial numbers and models of devices that are part of a Meraki network for an organization with a given name. Can print to Stdout or file. See inventorycsv.py for an improved solution for this use case.
 
+**license_counts_csv.py:** Creates a CSV file with aggregated license info for all co-term organizations accessible by an administrator.
+
 **listip.py:** Almost exactly the same as invlist.py, but also prints the "lanIp" of the device. If the device has no "lanIp", it prints "None" for that field instead.
 
 **manageadmins.py:** Add, delete, find and list administrators across organizations.
