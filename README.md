@@ -143,3 +143,43 @@ Possible statuses:
 
 
 More info about the scripts can be found inline as comments.
+
+# Deploy in Cisco Exchange Dev environment
+
+If you run this project using the Cisco Exchange Dev environment
+
+![automation-scripts-exchange-devenv](https://raw.githubusercontent.com/CiscoDevNet/code-exchange-repo-template/master/manual-sample-repo/img/automation-scripts-exchange-devenv.png)
+
+For some scripts, you can add `Meraki API key` as a parameter.
+
+```
+python3 tag_all_ports.py -k <api_key> -t <tag> [-o <org_name>]
+        [-n <network_name>] [-f <filter>] [-a <add/remove>]
+```
+
+For others set as an environment variable named `MERAKI_DASHBOARD_API_KEY`, `DASHBOARD_API_ORG_ID`, `DASHBOARD_API_SHARD_ID`
+
+For example
+```
+export DASHBOARD_API_KEY=35d59e9eb68a273997cdbc0c60c0150ce0eee1f2
+```
+
+You can test these scripts using [Cisco Meraki Always-on sandbox](https://devnetsandbox.cisco.com/RM/Diagram/Index/a9487767-deef-4855-b3e3-880e7f39eadc?diagramType=Topology) with `MERAKI_DASHBOARD_API_KEY`
+
+In the Cisco Exchange Dev environment, you can try with the following commands:
+
+Install Python packages
+
+```
+pip install requests pyyaml pymongo pysnmp meraki
+```
+
+Run `clientcount.py`
+
+```
+python clientcount.py -k 35d59e9eb68a273997cdbc0c60c0150ce0eee1f2 -o "/all"
+```
+
+In the header of each script, you can find Usage information.
+
+See also: [Meraki Enterprise Sandbox](https://devnetsandbox.cisco.com/RM/Diagram/Index/e7b3932b-0d47-408e-946e-c23a0c031bda?diagramType=Topology), [Meraki Small Business Sandbox](https://devnetsandbox.cisco.com/RM/Diagram/Index/aa48e6e2-3e59-4b87-bfe5-7833c45f8db8?diagramType=Topology)
