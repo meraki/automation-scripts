@@ -5,7 +5,10 @@ by the same API key. Requires Python 3 and a YAML configtaion file.
 Only the following configuration elements will be copied:
     Network name
     Network device types
+    MX deployment mode
     MX VLANs
+    MX static routes
+    MX site-to-site VPN configuration
     MR SSIDs
     MR L3 Firewall rules
     Alert settings
@@ -362,7 +365,6 @@ def getNetworkApplianceSingleLan(apiKey, networkId):
     success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, response
 
-
 # updateNetworkApplianceSingleLan
 #
 # Description: Update single LAN configuration
@@ -480,7 +482,6 @@ def getNetworkWirelessSsidFirewallL3FirewallRules(apiKey, networkId, number):
     success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, response
 
-
 # updateNetworkWirelessSsidFirewallL3FirewallRules
 #
 # Description: Update the L3 firewall rules of an SSID on an MR network
@@ -496,7 +497,6 @@ def updateNetworkWirelessSsidFirewallL3FirewallRules(apiKey, networkId, number, 
     url = "/networks/" + str(networkId) + "/wireless/ssids/" + str(number) + "/firewall/l3FirewallRules"
     success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, response
-    
     
 # updateNetwork
 #
@@ -516,8 +516,7 @@ def updateNetwork(apiKey, networkId, body=None):
     url = "/networks/" + str(networkId)
     success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, response
-    
-    
+       
 # getNetworkAlertsSettings
 #
 # Description: Return the alert configuration for this network
@@ -529,7 +528,6 @@ def getNetworkAlertsSettings(apiKey, networkId):
     url = "/networks/" + str(networkId) + "/alerts/settings"
     success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, response
-
 
 # updateNetworkAlertsSettings
 #
@@ -547,7 +545,6 @@ def updateNetworkAlertsSettings(apiKey, networkId, body=None):
     success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, response
     
-    
 # getNetworkFirmwareUpgrades
 #
 # Description: Get firmware upgrade information for a network
@@ -560,7 +557,107 @@ def getNetworkFirmwareUpgrades(apiKey, networkId):
     success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, response
     
+# getNetworkApplianceVpnSiteToSiteVpn
+#
+# Description: Return the site-to-site VPN settings of a network. Only valid for MX networks.
+# Endpoint: GET /networks/{networkId}/appliance/vpn/siteToSiteVpn
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-network-appliance-vpn-site-to-site-vpn
+
+def getNetworkApplianceVpnSiteToSiteVpn(apiKey, networkId):
+    url = "/networks/" + str(networkId) + "/appliance/vpn/siteToSiteVpn"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+
+# updateNetworkApplianceVpnSiteToSiteVpn
+#
+# Description: Update the site-to-site VPN settings of a network. Only valid for MX networks in NAT mode.
+# Endpoint: PUT /networks/{networkId}/appliance/vpn/siteToSiteVpn
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-network-appliance-vpn-site-to-site-vpn
+#
+# Request body schema:
+#     mode: String. The site-to-site VPN mode. Can be one of 'none', 'spoke' or 'hub'
+#     hubs: Array. The list of VPN hubs, in order of preference. In spoke mode, at least 1 hub is required.
+#     subnets: Array. The list of subnets and their VPN presence.
+#     peerSgtCapable: Boolean. Whether or not Peer SGT is enabled for traffic to this VPN peer.
+
+def updateNetworkApplianceVpnSiteToSiteVpn(apiKey, networkId, body=None):
+    url = "/networks/" + str(networkId) + "/appliance/vpn/siteToSiteVpn"
+    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response 
     
+# getNetworkApplianceSettings
+#
+# Description: Return the appliance settings for a network
+# Endpoint: GET /networks/{networkId}/appliance/settings
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-network-appliance-settings
+
+def getNetworkApplianceSettings(apiKey, networkId):
+    url = "/networks/" + str(networkId) + "/appliance/settings"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+
+# updateNetworkApplianceSettings
+#
+# Description: Update the appliance settings for a network
+# Endpoint: PUT /networks/{networkId}/appliance/settings
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-network-appliance-settings
+#
+# Request body schema:
+#     clientTrackingMethod: String. Client tracking method of a network
+#     deploymentMode: String. Deployment mode of a network
+#     dynamicDns: Object. Dynamic DNS settings for a network
+
+def updateNetworkApplianceSettings(apiKey, networkId, body=None):
+    url = "/networks/" + str(networkId) + "/appliance/settings"
+    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+# getNetworkApplianceStaticRoutes
+#
+# Description: List the static routes for an MX or teleworker network
+# Endpoint: GET /networks/{networkId}/appliance/staticRoutes
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-network-appliance-static-routes
+
+def getNetworkApplianceStaticRoutes(apiKey, networkId):
+    url = "/networks/" + str(networkId) + "/appliance/staticRoutes"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+# createNetworkApplianceStaticRoute
+#
+# Description: Add a static route for an MX or teleworker network
+# Endpoint: POST /networks/{networkId}/appliance/staticRoutes
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!create-network-appliance-static-route
+#
+# Request body schema:
+#     name: String. The name of the new static route
+#     subnet: String. The subnet of the static route
+#     gatewayIp: String. The gateway IP (next hop) of the static route
+#     gatewayVlanId: String. The gateway IP (next hop) VLAN ID of the static route
+
+def createNetworkApplianceStaticRoute(apiKey, networkId, body=None):
+    url = "/networks/" + str(networkId) + "/appliance/staticRoutes"
+    success, errors, headers, response = merakiRequest(apiKey, "post", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+# deleteNetworkApplianceStaticRoute
+#
+# Description: Delete a static route from an MX or teleworker network
+# Endpoint: DELETE /networks/{networkId}/appliance/staticRoutes/{staticRouteId}
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!delete-network-appliance-static-route
+
+def deleteNetworkApplianceStaticRoute(apiKey, networkId, staticRouteId):
+    url = "/networks/" + str(networkId) + "/appliance/staticRoutes/" + str(staticRouteId)
+    success, errors, headers, response = merakiRequest(apiKey, "delete", url, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+ 
 ### END Generated code
 
 import sys, getopt, os, datetime, yaml
@@ -659,12 +756,12 @@ def checkVlanFeaturesWithFirmwareRequirements(sourceConfig, targetNetId, apiKey)
     return result
     
 def networkContainsForbiddenTags(config, networkId, networksList):
-    if not config['networkFilters']['excludeTargetNetworksByTag']:
+    if not config['networkFilters']['excludeDestinationNetworksByTag']:
         return False
     for net in networksList:
         if net['id'] == networkId:
             for tag in net['tags']:
-                if tag in config['networkFilters']['targetNetworkTagsList']:
+                if tag in config['networkFilters']['destinationNetworkTagsList']:
                     return True
     return False
     
@@ -770,6 +867,35 @@ def main(argv):
                 
             payload = {'timeZone': net['timeZone']}
             success, errors, tzResponse = updateNetwork(apiKey, targetNetId, body=payload)
+                
+    if config['enabledTasks']['copyMxRoutingMode']:
+        log("Copying MX routing mode settings...")
+        for net in filteredSourceNetworks:
+            if not 'appliance' in net['productTypes']:
+                log('Skipping net "%s": Contains no appliance config' % net['name'])
+                continue
+                
+            targetNetId = getNetworkIdByName(targetOrgNetworks, net['name'])
+            if targetNetId is None:
+                log('WARNING: Destination org contains no net "%s"' % net['name'])
+                continue
+                
+            if networkContainsForbiddenTags(config, targetNetId, targetOrgNetworks):
+                log('Skipping net "%s": Exclusion tag in destination' % net['name'])
+                continue
+                
+            success, errors, applianceSettings = getNetworkApplianceSettings(apiKey, net['id'])
+            if applianceSettings is None:
+                log('WARNING: Unable to get appliance settings for net "%s"' % net['name'])
+                continue
+                
+            destinationSettings = {}
+            
+            if 'deploymentMode' in applianceSettings:
+                destinationSettings['deploymentMode'] = applianceSettings['deploymentMode']
+                
+            updateNetworkApplianceSettings(apiKey, targetNetId, body=destinationSettings)
+            
                 
     if config['enabledTasks']['copyMxVlans']:
         log("Copying MX VLANs...")                
@@ -879,7 +1005,43 @@ def main(argv):
                     
                 updateNetworkApplianceSingleLan(apiKey, targetNetId, body=cleanLanConfig)
                 
-             
+    if config['enabledTasks']['copyMxStaticRoutes']:
+        log("Copying MX static routes...")                
+        for net in filteredSourceNetworks:
+            if not 'appliance' in net['productTypes']:
+                log('Skipping net "%s": Contains no appliance config' % net['name'])
+                continue
+                
+            targetNetId = getNetworkIdByName(targetOrgNetworks, net['name'])
+            if targetNetId is None:
+                log('WARNING: Destination org contains no net "%s"' % net['name'])
+                continue
+                
+            if networkContainsForbiddenTags(config, targetNetId, targetOrgNetworks):
+                log('Skipping net "%s": Exclusion tag in destination' % net['name'])
+                continue
+                
+            success, errors, sourceRoutes = getNetworkApplianceStaticRoutes(apiKey, net['id'])
+            if sourceRoutes is None:
+                log('WARNING: Unable to get static routes for source net "%s"' % net['name'])
+                continue
+                
+            success, errors, targetRoutes = getNetworkApplianceStaticRoutes(apiKey, targetNetId)
+            if targetRoutes is None:
+                log('WARNING: Unable to get static routes for destination net "%s"' % net['name'])
+                continue
+                
+            for route in targetRoutes:
+                deleteNetworkApplianceStaticRoute(apiKey, targetNetId, route['id'])
+                
+            for route in sourceRoutes:
+                cleanRoute = {}
+                for attr in route:
+                    if attr != 'gatewayVlanId' or route[attr] != None:
+                        cleanRoute[attr] = route[attr]
+               
+                createNetworkApplianceStaticRoute(apiKey, targetNetId, body=cleanRoute)
+                       
     if config['enabledTasks']['copyMrSsids']:
         log("Copying MR SSIDs...")          
         for net in filteredSourceNetworks:
@@ -986,6 +1148,46 @@ def main(argv):
                 
             updateNetworkAlertsSettings(apiKey, targetNetId, body=sourceAlerts)
                 
+    if config['enabledTasks']['copySiteToSiteVpnConfig']:
+        log("Copying Site-to-site VPN configration...") 
+        for net in filteredSourceNetworks:
+            if not 'appliance' in net['productTypes']:
+                log('Skipping net "%s": Contains no appliance config' % net['name'])
+                continue
+        
+            targetNetId = getNetworkIdByName(targetOrgNetworks, net['name'])
+            if targetNetId is None:
+                log('WARNING: Destination org contains no net "%s"' % net['name']) 
+                continue
+                
+            if networkContainsForbiddenTags(config, targetNetId, targetOrgNetworks):
+                log('Skipping net "%s": Exclusion tag in destination' % net['name'])
+                continue
+        
+            success, errors, vpnConfig = getNetworkApplianceVpnSiteToSiteVpn(apiKey, net['id'])
+            if vpnConfig is None:
+                log('WARNING: Unable to fetch alerts for net "%s"' % net['name']) 
+                continue
+                            
+            if vpnConfig['mode'] == 'spoke':
+                for hub in vpnConfig['hubs']:
+                    hubName = getNetworkNameById(sourceOrgNetworks, hub['hubId'])
+                    if hubName is None:
+                        log('WARNING: Unknown source hub id')
+                        continue
+                    if config['configModifications']['overwriteSiteToSiteVpnHub']['enabled'] and hubName == config['configModifications']['overwriteSiteToSiteVpnHub']['oldHubNetworkName']:
+                        hubName = config['configModifications']['overwriteSiteToSiteVpnHub']['newHubNetworkName']
+                    targetHubId = getNetworkIdByName(targetOrgNetworks, hubName)
+                    if targetHubId is None:
+                        log('WARNING: Destination org does not contain a VPN hub named "%s"' % hubName)
+                        continue
+                    hub['hubId'] = targetHubId
+                    
+            success, errors, response = updateNetworkApplianceVpnSiteToSiteVpn(apiKey, targetNetId, body=vpnConfig)
+            if not success:
+                print(vpnConfig)
+                    
+
                 
 if __name__ == '__main__':
     main(sys.argv[1:])
