@@ -161,7 +161,7 @@ For others set as an environment variable named `MERAKI_DASHBOARD_API_KEY`, `DAS
 
 For example
 ```
-export DASHBOARD_API_KEY=35d59e9eb68a273997cdbc0c60c0150ce0eee1f2
+export DASHBOARD_API_KEY=d03190ff333a3c7feaed89fec5b3b2529f59e8ec
 ```
 
 You can test these scripts using [Cisco Meraki Always-on sandbox](https://devnetsandbox.cisco.com/RM/Diagram/Index/a9487767-deef-4855-b3e3-880e7f39eadc?diagramType=Topology) with `MERAKI_DASHBOARD_API_KEY`
@@ -177,8 +177,46 @@ pip install requests pyyaml pymongo pysnmp meraki
 Run `clientcount.py`
 
 ```
-python clientcount.py -k 35d59e9eb68a273997cdbc0c60c0150ce0eee1f2 -o "/all"
+python clientcount.py -k d03190ff333a3c7feaed89fec5b3b2529f59e8ec -o "DeLab"
 ```
+
+Terminal output (sample)
+
+```
+Total unique client MAC addresses across all WLAN APs: 38
+```
+
+Get the license info for Meraki organization(s)
+```
+python get_license.py -k d03190ff333a3c7feaed89fec5b3b2529f59e8ec -o "DeLab"
+```
+
+Terminal output (sample)
+```
+License info for organization "DeLab" (ID: 681155)
+
+Status:             OK
+Expiration date:    Oct 13, 2024 UTC
+
+Licensed device counts:
+wireless            40
+MS220-8P            9
+MX65                6
+MC                  4
+MV                  9
+MS220-8             1
+SM                  5
+MX250               1
+MS250-48FP          1
+```
+
+Get an inventory list for a specific organization or all organizations accessible by an administrator to a CSV file.
+
+```
+python inventorycsv.py -k d03190ff333a3c7feaed89fec5b3b2529f59e8ec -o "DeLab" -f DeLab_inventory_list.csv
+```
+
+Find file in `Explorer > SRC`
 
 In the header of each script, you can find Usage information.
 
