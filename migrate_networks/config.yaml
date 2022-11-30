@@ -8,6 +8,7 @@ enabledTasks:
     copyMxRoutingMode: true
     copyMxVlans: true
     copyMxStaticRoutes: true
+    copyMxFirewallRules: true
     copyMrSsids: true
     copyMrFirewallRules: true
     copyAlerts: true

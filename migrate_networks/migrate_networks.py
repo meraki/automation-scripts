@@ -8,6 +8,7 @@ Only the following configuration elements will be copied:
     MX deployment mode
     MX VLANs
     MX static routes
+    MX L3 firewall rules
     MX site-to-site VPN configuration
     MR SSIDs
     MR L3 Firewall rules
@@ -380,6 +381,34 @@ def getNetworkApplianceSingleLan(apiKey, networkId):
 
 def updateNetworkApplianceSingleLan(apiKey, networkId, body=None):
     url = "/networks/" + str(networkId) + "/appliance/singleLan"
+    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+# getNetworkApplianceFirewallL3FirewallRules
+#
+# Description: Return the L3 firewall rules for an MX network
+# Endpoint: GET /networks/{networkId}/appliance/firewall/l3FirewallRules
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-network-appliance-firewall-l3-firewall-rules
+
+def getNetworkApplianceFirewallL3FirewallRules(apiKey, networkId):
+    url = "/networks/" + str(networkId) + "/appliance/firewall/l3FirewallRules"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+
+# updateNetworkApplianceFirewallL3FirewallRules
+#
+# Description: Update the L3 firewall rules of an MX network
+# Endpoint: PUT /networks/{networkId}/appliance/firewall/l3FirewallRules
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-network-appliance-firewall-l3-firewall-rules
+#
+# Request body schema:
+#     rules: Array. An ordered array of the firewall rules (not including the default rule)
+#     syslogDefaultRule: Boolean. Log the special default rule (boolean value - enable only if you've configured a syslog server) (optional)
+
+def updateNetworkApplianceFirewallL3FirewallRules(apiKey, networkId, body=None):
+    url = "/networks/" + str(networkId) + "/appliance/firewall/l3FirewallRules"
     success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, response
     
@@ -1041,6 +1070,31 @@ def main(argv):
                         cleanRoute[attr] = route[attr]
                
                 createNetworkApplianceStaticRoute(apiKey, targetNetId, body=cleanRoute)
+                
+    if config['enabledTasks']['copyMxFirewallRules']:
+        log("Copying MX L3 firewall rules...")                
+        for net in filteredSourceNetworks:
+            if not 'appliance' in net['productTypes']:
+                log('Skipping net "%s": Contains no appliance config' % net['name'])
+                continue
+                
+            targetNetId = getNetworkIdByName(targetOrgNetworks, net['name'])
+            if targetNetId is None:
+                log('WARNING: Destination org contains no net "%s"' % net['name'])
+                continue
+                
+            if networkContainsForbiddenTags(config, targetNetId, targetOrgNetworks):
+                log('Skipping net "%s": Exclusion tag in destination' % net['name'])
+                continue
+                
+            success, errors, sourceRules = getNetworkApplianceFirewallL3FirewallRules(apiKey, net['id'])
+            if sourceRules is None:
+                log('WARNING: Unable to fetch rules for net "%s"' % net['name'])
+                continue
+                
+            cleanRules = sourceRules['rules'][:-1]            
+            updateNetworkApplianceFirewallL3FirewallRules(apiKey, targetNetId, body={'rules': cleanRules})
+            
                        
     if config['enabledTasks']['copyMrSsids']:
         log("Copying MR SSIDs...")          
