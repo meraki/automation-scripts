@@ -1,7 +1,15 @@
 # automation-scripts
 
-Meraki Dashboard API automation/migration scripts in Python
---------------------------------------
+Meraki Dashboard API automation/migration scripts in Python 3
+
+# Table of contents
+
+* Notes
+* Running scripts locally
+* Running scripts in the Cisco DevNet Code Exchange development environment
+* Descriptions of scripts in this repository
+
+# Notes
 
 Here you can find Meraki Dashboard API scripts written for Python 3.
 
@@ -11,9 +19,96 @@ Here you can find Meraki Dashboard API scripts written for Python 3.
 
 Check back from time to time, as new scripts are added and existing ones are sometimes polished and improved after initial posting. Please note that since the Meraki APIs are expanded constantly, there may be more efficient ways to complete a task than what was available when these scripts were created. For the latest info on Meraki APIs, visit: https://developer.cisco.com/meraki/whats-new/
 
-Files contained in this repository:
+# Running scripts locally
 
-**Installing Python on Windows.txt:** General info for installing Python 3 on Windows
+To run scripts on your computer locally, you will need to have Python 3 installed, as well as possibly some optional modules, such as the Meraki module, Requests or PyYAML. 
+* For the latest version of Python 3, please visit: https://www.python.org/downloads/
+* The easiest way to install optional packages is via pip: https://pypi.org/project/pip/
+* Although not a requirement, many developers use Python virtual environements to run their scripts: https://docs.python.org/3/library/venv.html
+
+The opening comments of the scripts contained in this repository will typically include an explanation of the correct syntax to run the script, as well as any required third party modules.
+
+Many scripts support passing your Meraki Dashboard API key via an OS environment variable. The variable name used is `MERAKI_DASHBOARD_API_KEY`. Please refer to documentation of your operating system to configure this. Most scripts provide an alternate way to provide the key as well, such as a config file or a command line argument, in case you prefer not to modify your environment variables.
+
+# Running scripts in the Cisco DevNet Code Exchange development environment
+
+If you run this project using the Cisco Exchange Dev environment
+
+![automation-scripts-exchange-devenv](https://raw.githubusercontent.com/CiscoDevNet/code-exchange-repo-template/master/manual-sample-repo/img/automation-scripts-exchange-devenv.png)
+
+For some scripts, you can add `Meraki API key` as a parameter.
+
+```
+python3 tag_all_ports.py -k <api_key> -t <tag> [-o <org_name>]
+        [-n <network_name>] [-f <filter>] [-a <add/remove>]
+```
+
+For others set as an environment variable named `MERAKI_DASHBOARD_API_KEY`, `DASHBOARD_API_ORG_ID`, `DASHBOARD_API_SHARD_ID`
+
+For example
+```
+export DASHBOARD_API_KEY=d03190ff333a3c7feaed89fec5b3b2529f59e8ec
+```
+
+You can test these scripts using [Cisco Meraki Always-on sandbox](https://devnetsandbox.cisco.com/RM/Diagram/Index/a9487767-deef-4855-b3e3-880e7f39eadc?diagramType=Topology) with `MERAKI_DASHBOARD_API_KEY`
+
+In the Cisco Exchange Dev environment, you can try with the following commands:
+
+Install Python packages
+
+```
+pip install requests pyyaml pymongo pysnmp meraki
+```
+
+Run `clientcount.py`
+
+```
+python clientcount.py -k d03190ff333a3c7feaed89fec5b3b2529f59e8ec -o "DeLab"
+```
+
+Terminal output (sample)
+
+```
+Total unique client MAC addresses across all WLAN APs: 38
+```
+
+Get the license info for Meraki organization(s)
+```
+python get_license.py -k d03190ff333a3c7feaed89fec5b3b2529f59e8ec -o "DeLab"
+```
+
+Terminal output (sample)
+```
+License info for organization "DeLab" (ID: 681155)
+
+Status:             OK
+Expiration date:    Oct 13, 2024 UTC
+
+Licensed device counts:
+wireless            40
+MS220-8P            9
+MX65                6
+MC                  4
+MV                  9
+MS220-8             1
+SM                  5
+MX250               1
+MS250-48FP          1
+```
+
+Get an inventory list for a specific organization or all organizations accessible by an administrator to a CSV file.
+
+```
+python inventorycsv.py -k d03190ff333a3c7feaed89fec5b3b2529f59e8ec -o "DeLab" -f DeLab_inventory_list.csv
+```
+
+Find file in `Explorer > SRC`
+
+In the header of each script, you can find Usage information.
+
+See also: [Meraki Enterprise Sandbox](https://devnetsandbox.cisco.com/RM/Diagram/Index/e7b3932b-0d47-408e-946e-c23a0c031bda?diagramType=Topology), [Meraki Small Business Sandbox](https://devnetsandbox.cisco.com/RM/Diagram/Index/aa48e6e2-3e59-4b87-bfe5-7833c45f8db8?diagramType=Topology)
+
+# Descriptions of scripts in this repository
 
 **addroutes/addroutes.py:** Script to add static routes to a non-template network from a CSV file.
 
@@ -69,6 +164,8 @@ Files contained in this repository:
 
 **invlist.py:** Creates a list of all serial numbers and models of devices that are part of a Meraki network for an organization with a given name. Can print to Stdout or file. See inventorycsv.py for an improved solution for this use case.
 
+**license_counts_csv.py:** Creates a CSV file with aggregated license info for all co-term organizations accessible by an administrator.
+
 **listip.py:** Almost exactly the same as invlist.py, but also prints the "lanIp" of the device. If the device has no "lanIp", it prints "None" for that field instead.
 
 **manageadmins.py:** Add, delete, find and list administrators across organizations.
@@ -84,6 +181,8 @@ Files contained in this repository:
 **migratecomware.py:** Proof of concept script that migrates legacy switch infrastructure based on Comware (HPE A-series) to Meraki MS switches. Comware switch configurations can be provided as files, or by entering the IP address and SSH credentials of the source device. A valid initialization configuration file must be provided, where source devices are mapped to target Meraki serial numbers. Please see migration_init_file.txt in this repository for an example of such a file. This version of the script only supports Comware-based switches and a limited set of Layer 2 switchport commands. The script could be expanded to cover more commands and other CLI-based switch families.
 
 **migration_init_file.txt:** Example init config file for migratecomware.py.
+
+**migrate_devices:** Moves devices from one organization to another.
 
 **migrate_networks:** Copies networks from one organization to another. See script opening comments for list of supported features.
 

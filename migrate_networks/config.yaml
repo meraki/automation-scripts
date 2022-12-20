@@ -1,18 +1,34 @@
 organizationNames:
-    source: "MODIFY THIS TEXT TO MATCH YOUR SOURCE ORGANIZATION NAME"
-    destination: "MODIFY THIS TEXT TO MATCH YOUR DESTINATION ORGANIZATION NAME"
+    source: "MODIFY THIS TEXT TO MATCH THE NAME OF YOUR SOURCE ORGANIZATION"
+    destination: "MODIFY THIS TEXT TO MATCH THE NAME OF YOUR DESTINATION ORGANIZATION"
     
 enabledTasks:
     createNetworks: true
+    refreshTimeZones: true
+    copyMxRoutingMode: true
     copyMxVlans: true
+    copyMxStaticRoutes: true
+    copyMxFirewallRules: true
     copyMrSsids: true
+    copyMrFirewallRules: true
+    copyAlerts: true
+    copySiteToSiteVpnConfig: true
     
 configModifications:
     overwriteSsidRadiusSecret:
         enabled: true
         newRadiusSecret: "superSecret"
+    overwriteSiteToSiteVpnHub:
+        enabled: false
+        oldHubNetworkName: "MODIFY THIS TEXT TO MATCH HUB NETWORK NAME IN SOURCE ORGANIZATION"
+        newHubNetworkName: "MODIFY THIS TEXT TO MATCH HUB NETWORK NAME IN DESTINATION ORGANIZATION"
+    ipConflictVlanTempSubnetPrefix: "1.1.1."
         
 networkFilters:
-    filterNetworksByTag: false
-    tagsList:
-        - "tag_text_to_match"
+    filterSourceNetworksByTag: false
+    sourceNetworkTagsList:
+        - "process-this"
+        
+    excludeDestinationNetworksByTag: false
+    destinationNetworkTagsList:
+        - "do-not-process"
