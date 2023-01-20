@@ -12,13 +12,13 @@ optional arguments:
 
 -v                : turn on verbose mode
 
- Pre requisites:
- Meraki library : pip install meraki : https://developer.cisco.com/meraki/api/#/python/getting-started
+Pre requisites:
+Meraki library : pip install meraki : https://developer.cisco.com/meraki/api/#/python/getting-started
  
 Included files:
 
 RadiusCertSurvey.csv    The output file
 
-RadiusCertSurvey.py     The Python scrips
+RadiusCertSurveyResults.py     The Python scrips
 
 readme.md               This file
