@@ -2,7 +2,7 @@
 # radius.meraki.com cert and flags devices that have an out of date cert (the date of which)
 # is requested from the user
 
-# please ensure that you also have created the RadiusCertSurvey.csv file
+# please ensure that you also have created the RadiusCertSurveyResults.csv file
 #
 # Mandatory arguments:
 # -k <API KEY>      : Your Meraki Dashboard API Key
