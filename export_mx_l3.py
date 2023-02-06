@@ -69,15 +69,18 @@ def main(argv):
     m = meraki.DashboardAPI(api_key=api_key, log_file_prefix=__file__[:-3])
 
     # Read configuration of MX L3 firewall rules
-    fw_rules = m.mx_l3_firewall.getNetworkL3FirewallRules(net_id)
+    fw_rules = m.appliance.getNetworkApplianceFirewallL3FirewallRules(net_id)
 
-    # Loop through each firewall rule and write to CSV
-    for rule in fw_rules:
-        csv_row = [rule['policy'], rule['protocol'], rule['srcCidr'], rule['srcPort'],  rule['destCidr'], rule['destPort'], rule['comment'], rule['syslogEnabled']]
-        csv_writer.writerow(csv_row)
+    if 'rules' in fw_rules and len(fw_rules['rules']) > 0:
+        # Loop through each firewall rule and write to CSV
+        for rule in fw_rules['rules']:
+            csv_row = [rule['policy'], rule['protocol'], rule['srcCidr'], rule['srcPort'],  rule['destCidr'], rule['destPort'], rule['comment'], rule['syslogEnabled']]
+            csv_writer.writerow(csv_row)
 
-    output_file.close()
-    print(f'Export completed to file {file_name}')
+        output_file.close()
+        print(f'Export completed to file {file_name}')
+    else:
+        print(f'No firewall rules to export')
 
 
 if __name__ == '__main__':
