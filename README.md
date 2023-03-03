@@ -164,6 +164,8 @@ See also: [Meraki Enterprise Sandbox](https://devnetsandbox.cisco.com/RM/Diagram
 
 **invlist.py:** Creates a list of all serial numbers and models of devices that are part of a Meraki network for an organization with a given name. Can print to Stdout or file. See inventorycsv.py for an improved solution for this use case.
 
+**latest_devices.py:** Exports CSV of all in-use devices claimed after a specific date. Can include info for one or more organizations.
+
 **license_counts_csv.py:** Creates a CSV file with aggregated license info for all co-term organizations accessible by an administrator.
 
 **listip.py:** Almost exactly the same as invlist.py, but also prints the "lanIp" of the device. If the device has no "lanIp", it prints "None" for that field instead.
