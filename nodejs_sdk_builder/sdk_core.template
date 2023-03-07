@@ -327,10 +327,15 @@ class MerakiClass {
                             
                         } else {
                             // Did not hit rate limiter, this is some other error. Do not retry, just fail
-                            if ("response" in error) {                                
-                                if ("data" in error.response && "errors" in error.response.data) {    
-                                    returnValues.errors = error.response.data.errors;                                
-                                }        
+                            if ("response" in error) {
+                                try {
+                                    if ('errors' in error.response.data) {
+                                        returnValues.errors = error.response.data.errors;
+                                    }
+                                }
+                                catch (err) {
+                                    console.log('ERROR: API Returned non-JSON error format')
+                                }      
                                 if ("status" in error.response) {
                                     returnValues.status = error.response.status;                                
                                 }                        

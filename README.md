@@ -4,10 +4,10 @@ Meraki Dashboard API automation/migration scripts in Python 3
 
 # Table of contents
 
-* Notes
-* Running scripts locally
-* Running scripts in the Cisco DevNet Code Exchange development environment
-* Descriptions of scripts in this repository
+* [Notes](#notes)
+* [Running scripts locally](#running-scripts-locally)
+* [Running scripts in the Cisco DevNet Code Exchange development environment](#running-scripts-in-the-cisco-devnet-code-exchange-development-environment)
+* [Descriptions of scripts in this repository](#descriptions-of-scripts-in-this-repository)
 
 # Notes
 
@@ -32,7 +32,7 @@ Many scripts support passing your Meraki Dashboard API key via an OS environment
 
 # Running scripts in the Cisco DevNet Code Exchange development environment
 
-If you run this project using the Cisco Exchange Dev environment
+If you run this project using the [Cisco Exchange Dev environment](https://developer.cisco.com/codeexchange/github/repo/meraki/automation-scripts/)
 
 ![automation-scripts-exchange-devenv](https://raw.githubusercontent.com/CiscoDevNet/code-exchange-repo-template/master/manual-sample-repo/img/automation-scripts-exchange-devenv.png)
 
@@ -164,6 +164,8 @@ See also: [Meraki Enterprise Sandbox](https://devnetsandbox.cisco.com/RM/Diagram
 
 **invlist.py:** Creates a list of all serial numbers and models of devices that are part of a Meraki network for an organization with a given name. Can print to Stdout or file. See inventorycsv.py for an improved solution for this use case.
 
+**latest_devices.py:** Exports CSV of all in-use devices claimed after a specific date. Can include info for one or more organizations.
+
 **license_counts_csv.py:** Creates a CSV file with aggregated license info for all co-term organizations accessible by an administrator.
 
 **listip.py:** Almost exactly the same as invlist.py, but also prints the "lanIp" of the device. If the device has no "lanIp", it prints "None" for that field instead.
@@ -188,8 +190,6 @@ See also: [Meraki Enterprise Sandbox](https://devnetsandbox.cisco.com/RM/Diagram
 
 **movedevices.py:** This script that can be used to move all devices from one organization to another. The script will only process devices that are part of a network. The networks of the source org need to exist in the destination org too. Use copynetworks.py if needed to create them.
 
-**mx_fwrules_to_csv.py:** A simple example showing how to use the Meraki Dashboard API library to GET MX L3 firewall rules from a provided network and output to CSV.
-
 **mx_firewall_control/mxfirewallcontrol.py:** Script to display, modify and create backups of MX Layer 3 firewall rulesets. Can be used as a command line utility or a backend process for a custom management portal. See also mxfirewallcontrol_manual.pdf and mxfirewallcontrol_example_input_file.txt in this directory.
 
 **mx_firewall_control/mxfirewallcontrol_example_input_file.txt:** Example input file for mxfirewallcontrol.py.
@@ -206,7 +206,14 @@ See also: [Meraki Enterprise Sandbox](https://devnetsandbox.cisco.com/RM/Diagram
 
 **provision_sites:** A Python 3 script to provision template-based networks with manually defined VLAN subnets to Meraki dashboard. The script can also claim devices and update their location on the world map.
 
+<<<<<<< HEAD
 **reboot.py** A Python 3 script to reboot devices using a list of serial numbers
+=======
+**RadiusCertSurvey:** MFor Systems Manager Managed devices, it does a survey or every managed devices, and looks at the radius.meraki.com certificates on the device. For a given radius.meraki.com certificate expiration date, it checks to see if devices has the updated cert or does not.
+
+This is important because when the radius.meraki.com cert is renewed, if devices don't have the newest version, there's no full chain of trust on the device, so the device does NOT trust the inividual cert on the device, and, therefore, does not joing the Sentry enabled SSID. Once it falls off the network, there's a lot of work to get it back on.
+
+>>>>>>> 8ddf9ba3a85346c5e8644a7afb44ffe3c3fd6eed
 
 **removetemplate.py:** This is script to create a copy of a template-based network that preserves as many of the network's settings as possible, while not relying on a configuration template. The initial focus of the script is converting MX appliance networks.
 
