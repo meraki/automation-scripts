@@ -206,6 +206,8 @@ See also: [Meraki Enterprise Sandbox](https://devnetsandbox.cisco.com/RM/Diagram
 
 **provision_sites:** A Python 3 script to provision template-based networks with manually defined VLAN subnets to Meraki dashboard. The script can also claim devices and update their location on the world map.
 
+**reboot.py** A Python 3 script to reboot devices using a list of serial numbers
+
 **removetemplate.py:** This is script to create a copy of a template-based network that preserves as many of the network's settings as possible, while not relying on a configuration template. The initial focus of the script is converting MX appliance networks.
 
 **set_client_tracking.py:** A script to set the client tracking method of a group of networks to a desired value.
