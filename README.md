@@ -206,14 +206,11 @@ See also: [Meraki Enterprise Sandbox](https://devnetsandbox.cisco.com/RM/Diagram
 
 **provision_sites:** A Python 3 script to provision template-based networks with manually defined VLAN subnets to Meraki dashboard. The script can also claim devices and update their location on the world map.
 
-<<<<<<< HEAD
 **reboot.py** A Python 3 script to reboot devices using a list of serial numbers
-=======
+
 **RadiusCertSurvey:** MFor Systems Manager Managed devices, it does a survey or every managed devices, and looks at the radius.meraki.com certificates on the device. For a given radius.meraki.com certificate expiration date, it checks to see if devices has the updated cert or does not.
 
 This is important because when the radius.meraki.com cert is renewed, if devices don't have the newest version, there's no full chain of trust on the device, so the device does NOT trust the inividual cert on the device, and, therefore, does not joing the Sentry enabled SSID. Once it falls off the network, there's a lot of work to get it back on.
-
->>>>>>> 8ddf9ba3a85346c5e8644a7afb44ffe3c3fd6eed
 
 **removetemplate.py:** This is script to create a copy of a template-based network that preserves as many of the network's settings as possible, while not relying on a configuration template. The initial focus of the script is converting MX appliance networks.
 
