@@ -1,19 +1,27 @@
 readMe = '''
 Copies network configuration from one organization to another. Both organizations must be accessible
-by the same API key. Requires Python 3 and a YAML configtaion file.
+by the same API key. Requires Python 3 and a YAML configuration file. Note that this script is
+built as a MVP to cover configuration items needed in specific environments. It may need additions and 
+modifications to match requirements of other organizations.
 
 Only the following configuration elements will be copied:
-    Network name
-    Network device types
-    MX deployment mode
-    MX VLANs
-    MX static routes
-    MX L3 firewall rules
-    MX site-to-site VPN configuration
-    MR SSIDs
-    MR L3 Firewall rules
-    Alert settings
-
+    Organization:
+        Policy objects and groups
+        VPN firewall rules
+    Network:
+        Name
+        Device types
+        Alert settings
+        MX deployment mode
+        MX VLANs
+        MX static routes
+        MX L3 firewall rules
+        MX site-to-site VPN configuration
+        MX Traffic shaping settings and rules
+        MR SSIDs
+        MR L3 Firewall rules
+        MR traffic shaping rules
+        
 Syntax, Windows:
     python migrate_networks.py [-k <api_key>] [-c <config_file>] 
     
@@ -686,10 +694,231 @@ def deleteNetworkApplianceStaticRoute(apiKey, networkId, staticRouteId):
     url = "/networks/" + str(networkId) + "/appliance/staticRoutes/" + str(staticRouteId)
     success, errors, headers, response = merakiRequest(apiKey, "delete", url, p_verbose=FLAG_REQUEST_VERBOSE)    
     return success, errors, response
+    
+# getOrganizationPolicyObjects
+#
+# Description: Lists Policy Objects belonging to the organization.
+# Endpoint: GET /organizations/{organizationId}/policyObjects
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-organization-policy-objects
+#
+# Query parameters:
+#     perPage: Integer. The number of entries per page returned. Acceptable range is 10 - 5000. Default is 5000.
+#     startingAfter: String. A token used by the server to indicate the start of the page. Often this is a timestamp or an ID but it is not limited to those. This parameter should not be defined by client applications. The link for the first, last, prev, or next page in the HTTP Link header should define it.
+#     endingBefore: String. A token used by the server to indicate the end of the page. Often this is a timestamp or an ID but it is not limited to those. This parameter should not be defined by client applications. The link for the first, last, prev, or next page in the HTTP Link header should define it.
+
+def getOrganizationPolicyObjects(apiKey, organizationId, query=None):
+    url = "/organizations/" + str(organizationId) + "/policyObjects"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_queryItems=query, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+
+# createOrganizationPolicyObject
+#
+# Description: Creates a new Policy Object.
+# Endpoint: POST /organizations/{organizationId}/policyObjects
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!create-organization-policy-object
+#
+# Request body schema:
+#     name: String. Name of a policy object, unique within the organization (alphanumeric, space, dash, or underscore characters only)
+#     category: String. Category of a policy object (one of: adaptivePolicy, network)
+#     type: String. Type of a policy object (one of: adaptivePolicyIpv4Cidr, cidr, fqdn, ipAndMask)
+#     cidr: String. CIDR Value of a policy object (e.g. 10.11.12.1/24")
+#     fqdn: String. Fully qualified domain name of policy object (e.g. "example.com")
+#     mask: String. Mask of a policy object (e.g. "255.255.0.0")
+#     ip: String. IP Address of a policy object (e.g. "1.2.3.4")
+#     groupIds: Array. The IDs of policy object groups the policy object belongs to
+
+def createOrganizationPolicyObject(apiKey, organizationId, body=None):
+    url = "/organizations/" + str(organizationId) + "/policyObjects"
+    success, errors, headers, response = merakiRequest(apiKey, "post", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+# updateOrganizationPolicyObject
+#
+# Description: Updates a Policy Object.
+# Endpoint: PUT /organizations/{organizationId}/policyObjects/{policyObjectId}
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-organization-policy-object
+#
+# Request body schema:
+#     name: String. Name of a policy object, unique within the organization (alphanumeric, space, dash, or underscore characters only)
+#     cidr: String. CIDR Value of a policy object (e.g. 10.11.12.1/24")
+#     fqdn: String. Fully qualified domain name of policy object (e.g. "example.com")
+#     mask: String. Mask of a policy object (e.g. "255.255.0.0")
+#     ip: String. IP Address of a policy object (e.g. "1.2.3.4")
+#     groupIds: Array. The IDs of policy object groups the policy object belongs to
+
+def updateOrganizationPolicyObject(apiKey, organizationId, policyObjectId, body=None):
+    url = "/organizations/" + str(organizationId) + "/policyObjects/" + str(policyObjectId)
+    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+
+# getOrganizationPolicyObjectsGroups
+#
+# Description: Lists Policy Object Groups belonging to the organization.
+# Endpoint: GET /organizations/{organizationId}/policyObjects/groups
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-organization-policy-objects-groups
+#
+# Query parameters:
+#     perPage: Integer. The number of entries per page returned. Acceptable range is 10 - 1000. Default is 1000.
+#     startingAfter: String. A token used by the server to indicate the start of the page. Often this is a timestamp or an ID but it is not limited to those. This parameter should not be defined by client applications. The link for the first, last, prev, or next page in the HTTP Link header should define it.
+#     endingBefore: String. A token used by the server to indicate the end of the page. Often this is a timestamp or an ID but it is not limited to those. This parameter should not be defined by client applications. The link for the first, last, prev, or next page in the HTTP Link header should define it.
+
+def getOrganizationPolicyObjectsGroups(apiKey, organizationId, query=None):
+    url = "/organizations/" + str(organizationId) + "/policyObjects/groups"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_queryItems=query, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+
+# createOrganizationPolicyObjectsGroup
+#
+# Description: Creates a new Policy Object Group.
+# Endpoint: POST /organizations/{organizationId}/policyObjects/groups
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!create-organization-policy-objects-group
+#
+# Request body schema:
+#     name: String. A name for the group of network addresses, unique within the organization (alphanumeric, space, dash, or underscore characters only)
+#     category: String. Category of a policy object group (one of: NetworkObjectGroup, GeoLocationGroup, PortObjectGroup, ApplicationGroup)
+#     objectIds: Array. A list of Policy Object ID's that this NetworkObjectGroup should be associated to (note: these ID's will replace the existing associated Policy Objects)
+
+def createOrganizationPolicyObjectsGroup(apiKey, organizationId, body=None):
+    url = "/organizations/" + str(organizationId) + "/policyObjects/groups"
+    success, errors, headers, response = merakiRequest(apiKey, "post", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+# updateOrganizationPolicyObjectsGroup
+#
+# Description: Updates a Policy Object Group.
+# Endpoint: PUT /organizations/{organizationId}/policyObjects/groups/{policyObjectGroupId}
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-organization-policy-objects-group
+#
+# Request body schema:
+#     name: String. A name for the group of network addresses, unique within the organization (alphanumeric, space, dash, or underscore characters only)
+#     objectIds: Array. A list of Policy Object ID's that this NetworkObjectGroup should be associated to (note: these ID's will replace the existing associated Policy Objects)
+
+def updateOrganizationPolicyObjectsGroup(apiKey, organizationId, policyObjectGroupId, body=None):
+    url = "/organizations/" + str(organizationId) + "/policyObjects/groups/" + str(policyObjectGroupId)
+    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+# updateNetworkWirelessSsidTrafficShapingRules
+#
+# Description: Update the traffic shaping settings for an SSID on an MR network
+# Endpoint: PUT /networks/{networkId}/wireless/ssids/{number}/trafficShaping/rules
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-network-wireless-ssid-traffic-shaping-rules
+#
+# Request body schema:
+#     trafficShapingEnabled: Boolean. Whether traffic shaping rules are applied to clients on your SSID.
+#     defaultRulesEnabled: Boolean. Whether default traffic shaping rules are enabled (true) or disabled (false). There are 4 default rules, which can be seen on your network's traffic shaping page. Note that default rules count against the rule limit of 8.
+#     rules: Array.     An array of traffic shaping rules. Rules are applied in the order that     they are specified in. An empty list (or null) means no rules. Note that     you are allowed a maximum of 8 rules. 
+
+def updateNetworkWirelessSsidTrafficShapingRules(apiKey, networkId, number, body=None):
+    url = "/networks/" + str(networkId) + "/wireless/ssids/" + str(number) + "/trafficShaping/rules"
+    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+
+# getNetworkWirelessSsidTrafficShapingRules
+#
+# Description: Display the traffic shaping settings for a SSID on an MR network
+# Endpoint: GET /networks/{networkId}/wireless/ssids/{number}/trafficShaping/rules
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-network-wireless-ssid-traffic-shaping-rules
+
+def getNetworkWirelessSsidTrafficShapingRules(apiKey, networkId, number):
+    url = "/networks/" + str(networkId) + "/wireless/ssids/" + str(number) + "/trafficShaping/rules"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+# getOrganizationApplianceVpnVpnFirewallRules
+#
+# Description: Return the firewall rules for an organization's site-to-site VPN
+# Endpoint: GET /organizations/{organizationId}/appliance/vpn/vpnFirewallRules
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-organization-appliance-vpn-vpn-firewall-rules
+
+def getOrganizationApplianceVpnVpnFirewallRules(apiKey, organizationId):
+    url = "/organizations/" + str(organizationId) + "/appliance/vpn/vpnFirewallRules"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+
+# updateOrganizationApplianceVpnVpnFirewallRules
+#
+# Description: Update the firewall rules of an organization's site-to-site VPN
+# Endpoint: PUT /organizations/{organizationId}/appliance/vpn/vpnFirewallRules
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-organization-appliance-vpn-vpn-firewall-rules
+#
+# Request body schema:
+#     rules: Array. An ordered array of the firewall rules (not including the default rule)
+#     syslogDefaultRule: Boolean. Log the special default rule (boolean value - enable only if you've configured a syslog server) (optional)
+
+def updateOrganizationApplianceVpnVpnFirewallRules(apiKey, organizationId, body=None):
+    url = "/organizations/" + str(organizationId) + "/appliance/vpn/vpnFirewallRules"
+    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+# getNetworkApplianceTrafficShaping
+#
+# Description: Display the traffic shaping settings for an MX network
+# Endpoint: GET /networks/{networkId}/appliance/trafficShaping
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-network-appliance-traffic-shaping
+
+def getNetworkApplianceTrafficShaping(apiKey, networkId):
+    url = "/networks/" + str(networkId) + "/appliance/trafficShaping"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+
+# updateNetworkApplianceTrafficShaping
+#
+# Description: Update the traffic shaping settings for an MX network
+# Endpoint: PUT /networks/{networkId}/appliance/trafficShaping
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-network-appliance-traffic-shaping
+#
+# Request body schema:
+#     globalBandwidthLimits: Object. Global per-client bandwidth limit
+
+def updateNetworkApplianceTrafficShaping(apiKey, networkId, body=None):
+    url = "/networks/" + str(networkId) + "/appliance/trafficShaping"
+    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+    
+# updateNetworkApplianceTrafficShapingRules
+#
+# Description: Update the traffic shaping settings rules for an MX network
+# Endpoint: PUT /networks/{networkId}/appliance/trafficShaping/rules
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!update-network-appliance-traffic-shaping-rules
+#
+# Request body schema:
+#     defaultRulesEnabled: Boolean. Whether default traffic shaping rules are enabled (true) or disabled (false). There are 4 default rules, which can be seen on your network's traffic shaping page. Note that default rules count against the rule limit of 8.
+#     rules: Array.     An array of traffic shaping rules. Rules are applied in the order that     they are specified in. An empty list (or null) means no rules. Note that     you are allowed a maximum of 8 rules. 
+
+def updateNetworkApplianceTrafficShapingRules(apiKey, networkId, body=None):
+    url = "/networks/" + str(networkId) + "/appliance/trafficShaping/rules"
+    success, errors, headers, response = merakiRequest(apiKey, "put", url, p_requestBody=body, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
+
+# getNetworkApplianceTrafficShapingRules
+#
+# Description: Display the traffic shaping settings rules for an MX network
+# Endpoint: GET /networks/{networkId}/appliance/trafficShaping/rules
+#
+# Endpoint documentation: https://developer.cisco.com/meraki/api-v1/#!get-network-appliance-traffic-shaping-rules
+
+def getNetworkApplianceTrafficShapingRules(apiKey, networkId):
+    url = "/networks/" + str(networkId) + "/appliance/trafficShaping/rules"
+    success, errors, headers, response = merakiRequest(apiKey, "get", url, p_verbose=FLAG_REQUEST_VERBOSE)    
+    return success, errors, response
  
 ### END Generated code
 
-import sys, getopt, os, datetime, yaml
+import sys, getopt, os, datetime, yaml, re
 
 def log(text, filePath=None):
     logString = "%s -- %s" % (str(datetime.datetime.now())[:19], text)
@@ -740,6 +969,18 @@ def getNetworkNameById(networkList, netId):
         if net['id'] == netId:
             return net['name']
     return None
+    
+def getObjectById(objList, objId):
+    for obj in objList:
+        if obj['id'] == objId:
+            return obj
+    return None 
+    
+def getObjectIdByName(objList, name):
+    for obj in objList:
+        if obj['name'] == name:
+            return obj['id']
+    return None        
     
 def vlansListContainsId(vlansList, vlanId):
     for vlan in vlansList:
@@ -793,6 +1034,26 @@ def networkContainsForbiddenTags(config, networkId, networksList):
                 if tag in config['networkFilters']['destinationNetworkTagsList']:
                     return True
     return False
+    
+def replaceObjectsAndGroups(rawString, sourceObjects, sourceGroups, targetObjects, targetGroups):
+    result = rawString
+    if "OBJ(" in rawString:
+        matchedObjects = re.findall( r'OBJ\((.*?)\)', rawString)
+        for objId in matchedObjects:
+            obj = getObjectById(sourceObjects, objId)
+            tgtObjId = getObjectIdByName(targetObjects, obj['name'])
+            oldStr = 'OBJ(%s)' % objId
+            newStr = 'OBJ(%s)' % tgtObjId
+            result = rawString.replace(oldStr, newStr)
+    if "GRP(" in result:
+        matchedGroups = re.findall( r'GRP\((.*?)\)', result)
+        for objId in matchedGroups:
+            obj = getObjectById(sourceGroups, objId)
+            tgtObjId = getObjectIdByName(targetGroups, obj['name'])
+            oldStr = 'GRP(%s)' % objId
+            newStr = 'GRP(%s)' % tgtObjId
+            result = result.replace(oldStr, newStr)
+    return result
     
 def main(argv):  
     arg_apiKey      = None
@@ -859,7 +1120,109 @@ def main(argv):
     filteredSourceNetworks = []
     for net in sourceOrgNetworks:
          if (not config['networkFilters']['filterSourceNetworksByTag']) or (targetListListHasAnySourceListTag(net['tags'], config['networkFilters']['sourceNetworkTagsList'])):
-            filteredSourceNetworks.append(net)              
+            filteredSourceNetworks.append(net)      
+            
+    success, errors, sourceObjects = getOrganizationPolicyObjects(apiKey, sourceOrgId)
+    if sourceObjects is None:
+        killScript("Unable to fetch source org policy objects")
+            
+    success, errors, sourceObjectGroups = getOrganizationPolicyObjectsGroups(apiKey, sourceOrgId)
+    if sourceObjectGroups is None:
+        killScript("Unable to fetch source org policy object groups")
+        
+    success, errors, targetObjects = getOrganizationPolicyObjects(apiKey, targetOrgId)
+    if targetObjects is None:
+        killScript("Unable to fetch destination org policy objects")
+        
+    success, errors, targetObjectGroups = getOrganizationPolicyObjectsGroups(apiKey, targetOrgId)
+    if targetObjectGroups is None:
+        killScript("Unable to fetch destination org policy object groups")
+
+    if config['enabledTasks']['copyPolicyObjects']:
+        log("Copying policy objects and groups...")
+        flag_objectsCreatedOrUpdated = False
+        for obj in sourceObjects:
+            cleanSourceObject = {
+                'name'      : obj['name'],
+                'category'  : obj['category'],
+                'type'      : obj['type']
+            }
+            if 'cidr' in obj:
+                cleanSourceObject['cidr'] = obj['cidr']
+            if 'mask' in obj:
+                cleanSourceObject['mask'] = obj['mask']
+            if 'ip' in obj:
+                cleanSourceObject['ip'] = obj['ip']
+            if 'fqdn' in obj:
+                cleanSourceObject['fqdn'] = obj['fqdn']
+              
+            existingTargetObjectId = getObjectIdByName(targetObjects, obj['name'])
+            if existingTargetObjectId is None:
+                success, errors, response = createOrganizationPolicyObject(apiKey, targetOrgId, body=cleanSourceObject)
+                flag_objectsCreatedOrUpdated = True
+            else:
+                targetObject = getObjectById(targetObjects, existingTargetObjectId)
+                for prop in cleanSourceObject:
+                    if not prop in targetObject or cleanSourceObject[prop] != targetObject[prop]:
+                        if prop == 'type':
+                            log('WARNING: Incompatible destination object type "%s" for object "%s"' % (targetObject['type'], targetObject['name']))
+                            break
+                        success, errors, response = updateOrganizationPolicyObject(apiKey, targetOrgId, existingTargetObjectId, body=cleanSourceObject)
+                        flag_objectsCreatedOrUpdated = True
+                        break                       
+        if flag_objectsCreatedOrUpdated:
+            success, errors, targetObjects = getOrganizationPolicyObjects(apiKey, targetOrgId)
+            if targetObjects is None:
+                killScript("Unable to fetch destination org policy objects")
+                
+        flag_objectGroupsCreatedOrUpdated = False
+        for grp in sourceObjectGroups:
+            cleanObjectGroup = {
+                'name'      : grp['name'],
+                'category'  : grp['category'],
+                'objectIds' : []                
+            }
+            for objId in grp['objectIds']:
+                srcObj      = getObjectById(sourceObjects, objId)
+                if srcObj is None:
+                    log('WARNING: Failure fetching source object %s' % objId)
+                    break                
+                tgtObjId    = getObjectIdByName(targetObjects, srcObj['name'])
+                if tgtObjId is None:
+                    log('WARNING: Failure fetching destination object "%s"' % srcObj['name'])
+                    break
+                cleanObjectGroup['objectIds'].append(tgtObjId)
+            
+            existingTargetObjectGroupId = getObjectIdByName(targetObjectGroups, grp['name'])
+            if existingTargetObjectGroupId is None:
+                success, errors, response = createOrganizationPolicyObjectsGroup(apiKey, targetOrgId, body=cleanObjectGroup)
+                flag_objectGroupsCreatedOrUpdated = True
+            else:
+                targetObjectGroup = getObjectById(targetObjectGroups, existingTargetObjectGroupId)
+                for prop in cleanObjectGroup:
+                    if not prop in targetObjectGroup or cleanObjectGroup[prop] != targetObjectGroup[prop]:
+                        success, errors, response = updateOrganizationPolicyObjectsGroup(apiKey, targetOrgId, existingTargetObjectGroupId, body=cleanObjectGroup)
+                        flag_objectsCreatedOrUpdated = True
+                        break        
+        if flag_objectGroupsCreatedOrUpdated:
+            success, errors, targetObjectGroups = getOrganizationPolicyObjectsGroups(apiKey, targetOrgId)
+            if targetObjectGroups is None:
+                killScript("Unable to fetch destination org policy object groups")
+            
+    if config['enabledTasks']['copyVpnFirewallRules']:
+        log("Copying VPN firewall rules...")
+        success, errors, sourceRules = getOrganizationApplianceVpnVpnFirewallRules(apiKey, sourceOrgId)
+        if sourceRules is None:
+            killScript("Unable to fetch source VPN firewall rules")
+        cleanRules = []
+        for rule in sourceRules['rules'][:-1]:
+            cleanRule = rule
+            cleanRule['srcCidr'] = replaceObjectsAndGroups(cleanRule['srcCidr'], sourceObjects, sourceObjectGroups, targetObjects, targetObjectGroups)
+            cleanRule['destCidr'] = replaceObjectsAndGroups(cleanRule['destCidr'], sourceObjects, sourceObjectGroups, targetObjects, targetObjectGroups)
+            cleanRules.append(cleanRule)
+        if len(cleanRules) > 0:
+            success, errors, response = updateOrganizationApplianceVpnVpnFirewallRules(apiKey, targetOrgId, body={'rules': cleanRules})
+        
            
     if config['enabledTasks']['createNetworks']:
         log("Creating networks...")    
@@ -1092,10 +1455,43 @@ def main(argv):
                 log('WARNING: Unable to fetch rules for net "%s"' % net['name'])
                 continue
                 
-            cleanRules = sourceRules['rules'][:-1]            
-            updateNetworkApplianceFirewallL3FirewallRules(apiKey, targetNetId, body={'rules': cleanRules})
+            cleanRules = []
+            for rule in sourceRules['rules'][:-1]:
+                cleanRule = rule
+                cleanRule['srcCidr'] = replaceObjectsAndGroups(cleanRule['srcCidr'], sourceObjects, sourceObjectGroups, targetObjects, targetObjectGroups)
+                cleanRule['destCidr'] = replaceObjectsAndGroups(cleanRule['destCidr'], sourceObjects, sourceObjectGroups, targetObjects, targetObjectGroups)
+                cleanRules.append(cleanRule)
+            updateNetworkApplianceFirewallL3FirewallRules(apiKey, targetNetId, body={'rules': cleanRules})   
             
-                       
+    if config['enabledTasks']['copyMxTrafficShaping']:
+        log("Copying MX traffic shaping settings...")                
+        for net in filteredSourceNetworks:
+            if not 'appliance' in net['productTypes']:
+                log('Skipping net "%s": Contains no appliance config' % net['name'])
+                continue
+                
+            targetNetId = getNetworkIdByName(targetOrgNetworks, net['name'])
+            if targetNetId is None:
+                log('WARNING: Destination org contains no net "%s"' % net['name'])
+                continue
+                
+            if networkContainsForbiddenTags(config, targetNetId, targetOrgNetworks):
+                log('Skipping net "%s": Exclusion tag in destination' % net['name'])
+                continue                 
+
+            success, errors, sourceSettings = getNetworkApplianceTrafficShaping(apiKey, net['id'])
+            if sourceSettings is None:
+                log('WARNING: Unable to fetch settings for net "%s"' % net['name'])
+            else:
+                success, errors, response = updateNetworkApplianceTrafficShaping(apiKey, targetNetId, body=sourceSettings)
+                
+            success, errors, sourceRules = getNetworkApplianceTrafficShapingRules(apiKey, net['id'])
+            if sourceRules is None:
+                log('WARNING: Unable to fetch rules for net "%s"' % net['name'])
+            else:
+                success, errors, response = updateNetworkApplianceTrafficShapingRules(apiKey, targetNetId, body=sourceRules)
+            
+                
     if config['enabledTasks']['copyMrSsids']:
         log("Copying MR SSIDs...")          
         for net in filteredSourceNetworks:
@@ -1183,6 +1579,33 @@ def main(argv):
                 if not success:
                     log('WARNING: Unable to modify rules for net "%s", SSID #%s' % (net['name'], i))
                         
+    if config['enabledTasks']['copyMrTrafficShapingRules']:
+        log("Copying MR traffic shaping rules...")   
+        for net in filteredSourceNetworks:
+            if not 'wireless' in net['productTypes']:
+                log('Skipping net "%s": Contains no wireless config' % net['name'])
+                continue
+                
+            targetNetId = getNetworkIdByName(targetOrgNetworks, net['name'])
+            if targetNetId is None:
+                log('WARNING: Destination org contains no net "%s"' % net['name']) 
+                continue
+                
+            if networkContainsForbiddenTags(config, targetNetId, targetOrgNetworks):
+                log('Skipping net "%s": Exclusion tag in destination' % net['name'])
+                continue         
+            
+            for i in range(0, 15):
+                success, errors, sourceRules = getNetworkWirelessSsidTrafficShapingRules(apiKey, net['id'], i)                
+                if sourceRules is None:
+                    log('WARNING: Unable to fetch rules for net "%s", SSID #%s' % (net['name'], i))
+                    continue
+                    
+                success, errors, rtResponse = updateNetworkWirelessSsidTrafficShapingRules(apiKey, targetNetId, i, body=sourceRules)              
+                if not success:
+                    log('WARNING: Unable to modify rules for net "%s", SSID #%s' % (net['name'], i))
+                        
+                        
     if config['enabledTasks']['copyAlerts']:
         log("Copying alerts...") 
         for net in filteredSourceNetworks:
@@ -1238,8 +1661,6 @@ def main(argv):
                     hub['hubId'] = targetHubId
                     
             success, errors, response = updateNetworkApplianceVpnSiteToSiteVpn(apiKey, targetNetId, body=vpnConfig)
-            if not success:
-                print(vpnConfig)
                     
 
                 
