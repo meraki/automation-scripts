@@ -1,0 +1,7 @@
+name,description,destinationAddr1,destinationAddr2,protocol,ports,accessType,appProtocol,sni,externalFQDN,sslVerificationEnabled,applicationGroupIds
+Jira TEST-1,Jira App For My Org.1,142.6.0.0/32,192.168.1.10/32,TCP,80-82,browser,https,xyz123.jira1.com,https://jira1-5001.ztna.ciscoplus.com,TRUE,"83, 114"
+Jira TEST-2,Jira App For My Org.2,152.6.0.0/32,192.168.1.20/32,TCP,80-82,browser,https,xyz123.jira2.com,https://jira2-5001.ztna.ciscoplus.com,TRUE,"83, 114"
+Jira TEST-3,Jira App For My Org.3,162.6.0.0/32,192.168.1.30/32,TCP,80-82,browser,https,xyz123.jira3.com,https://jira3-5001.ztna.ciscoplus.com,TRUE,"83, 114"
+Jira TEST-4,Jira App For My Org.4,172.6.0.0/32,192.168.1.40/32,UDP,80-82,network,https,xyz123.jira4.com,https://jira4-5001.ztna.ciscoplus.com,FALSE,"83, 114"
+Jira TEST-5,Jira App For My Org.5,182.6.0.0/32,192.168.1.50/32,UDP,80-82,network,https,xyz123.jira5.com,https://jira5-5001.ztna.ciscoplus.com,FALSE,"83, 114"
+Jira TEST-6,,192.6.0.0/32,,TCP,80,network,,,,,
