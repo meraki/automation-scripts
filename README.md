@@ -218,6 +218,8 @@ This is important because when the radius.meraki.com cert is renewed, if devices
 
 **removetemplate.py:** This is script to create a copy of a template-based network that preserves as many of the network's settings as possible, while not relying on a configuration template. The initial focus of the script is converting MX appliance networks.
 
+**remoteAccessLogsAnalyzer.py:** This script fetches and analyzes Meraki Secure Connect remote access logs from the Meraki API and generates statistics for selected columns. The results are displayed in a color-coded table, and the data can be saved to a CSV file.
+
 **set_client_tracking.py:** A script to set the client tracking method of a group of networks to a desired value.
 
 **setlocation.py:** Sets the street address and optionally the map marker of all devices in a network or organization. To be more easily clickable, devices will be placed in a spiral around a seed location. There is an option to preserve marker location for MR access points, to avoid breaking wireless map layout.
