@@ -27,6 +27,7 @@ from datetime import datetime
 import getopt
 import os
 import sys
+import ipaddress
 
 import meraki
 
@@ -82,11 +83,18 @@ def main(argv):
         rule = dict({'policy': row[0], 'protocol': row[1], 'srcCidr': row[2], 'srcPort': row[3], 'destCidr': row[4], 'destPort': row[5], 'comment': row[6], 'syslogEnabled': (row[7] == True or row[7] == 'True' or row[7] == 'true')})
         
         # Append implied "/32" for IP addresses for just one host
-        if '/' not in rule['srcCidr'] and rule['srcCidr'].lower() != 'any':
-            rule['srcCidr'] += '/32'
-        if '/' not in rule['destCidr'] and rule['destCidr'].lower() != 'any':
-            rule['destCidr'] += '/32'
-
+        try:
+            ip = ipaddress.ip_address(rule['srcCidr'])
+            if not '/' in rule['srcCidr']:
+                rule['srcCidr'] += '/32'
+        except:
+            pass
+        try:
+            ip = ipaddress.ip_address(rule['destCidr'])
+            if not '/' in rule['destCidr']:
+                rule['destCidr'] += '/32'
+        except:
+            pass
         print(rule)
         
         fw_rules.append(rule)
@@ -106,11 +114,11 @@ def main(argv):
 
     # Update MX L3 firewall rules
     print(f'Attempting update/simulation of firewall rules to network {net_id}')
-    m.mx_l3_firewall.updateNetworkL3FirewallRules(net_id, rules=fw_rules, syslogDefaultRule=default_logging)
+    m.appliance.updateNetworkApplianceFirewallL3FirewallRules(net_id, rules=fw_rules, syslogDefaultRule=default_logging)
     
     # Confirm whether changes were successfully made
     if arg_mode == 'commit':
-        new_rules = m.mx_l3_firewall.getNetworkL3FirewallRules(net_id)
+        new_rules = m.appliance.getNetworkApplianceFirewallL3FirewallRules(net_id)['rules']
         if default_rule_exists and new_rules[:-1] == old_rules[:-1]:
             print('Update successful!')
         elif not(default_rule_exists) and new_rules[:-1] == old_rules:
