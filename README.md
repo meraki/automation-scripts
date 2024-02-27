@@ -206,6 +206,8 @@ See also: [Meraki Enterprise Sandbox](https://devnetsandbox.cisco.com/RM/Diagram
 
 **postman_collection_generator.py:** A script to create a Postman collection for the Meraki Dashboard API v1. The collection is created by fetching the OpenAPI 2.0 specification of a Meraki dashboard organization. Items will created for all endpoints available to that organization, including possible alpha/beta ones.
 
+**privateApplicationsImport.py:** A Python 3 script helps you to import Meraki Secure Connect private applications from a CSV file into your Meraki Dashboard. It automates the process of creating private applications with various configurations.
+
 **provision_sites:** A Python 3 script to provision template-based networks with manually defined VLAN subnets to Meraki dashboard. The script can also claim devices and update their location on the world map.
 
 **reboot.py** A Python 3 script to reboot devices using a list of serial numbers
@@ -215,6 +217,8 @@ See also: [Meraki Enterprise Sandbox](https://devnetsandbox.cisco.com/RM/Diagram
 This is important because when the radius.meraki.com cert is renewed, if devices don't have the newest version, there's no full chain of trust on the device, so the device does NOT trust the inividual cert on the device, and, therefore, does not joing the Sentry enabled SSID. Once it falls off the network, there's a lot of work to get it back on.
 
 **removetemplate.py:** This is script to create a copy of a template-based network that preserves as many of the network's settings as possible, while not relying on a configuration template. The initial focus of the script is converting MX appliance networks.
+
+**remoteAccessLogsAnalyzer.py:** This script fetches and analyzes Meraki Secure Connect remote access logs from the Meraki API and generates statistics for selected columns. The results are displayed in a color-coded table, and the data can be saved to a CSV file.
 
 **set_client_tracking.py:** A script to set the client tracking method of a group of networks to a desired value.
 
