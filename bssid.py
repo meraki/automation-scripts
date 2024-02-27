@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 
+import meraki
+from pathlib import Path
+import json
+
 read_me = '''
-A Python 3 script to pull of the enabled BSSID from a specified network.
+A Python 3 script to pull of the enabled BSSID from an Organization
 
 Required Python modules:
     meraki
 
 Usage:
-bssid.py Network Name
+bssid.py
 
-If you have only one Organization, it will search for the Network name.
+If you have only one Organization, it will search for all AP in the
+organization and create a csv named for the network
 
 If you have multiple Organizations, it will ask you which org to run against
 
@@ -18,11 +23,6 @@ requires you to have your API key in env vars as 'MERAKI_DASHBOARD_API_KEY'
 
 '''
 
-import meraki
-import sys
-from pathlib import Path
-import json
-
 net_list = {}
 p = Path.home()
 loc = p / 'Documents' / 'BSSID'
@@ -30,12 +30,12 @@ loc = p / 'Documents' / 'BSSID'
 dashboard = meraki.DashboardAPI(suppress_logging=True)
 
 
-def getLocation1():
+def Folder1():
     if not Path.is_dir(loc):
         Path.mkdir(loc)
 
 
-def getlocation2(loc2):
+def Folder2(loc2):
     if not Path.is_dir(loc2):
         Path.mkdir(loc2)
 
@@ -47,7 +47,7 @@ def getOrgs():
             orgID = dic['id']
             orgName = dic['name']
             loc2 = loc / orgName
-            getlocation2(loc2)
+            Folder2(loc2)
             getNetworks(orgID, orgName)
     else:
         org_list = {}
@@ -57,7 +57,7 @@ def getOrgs():
             f'that you would like to query {json.dumps(org_list, indent=4)}' "\n")
         orgName = org_list.get(orgID)
         loc2 = loc / orgName
-        getlocation2(loc2)
+        Folder2(loc2)
         getNetworks(orgID, orgName)
 
 
@@ -101,5 +101,5 @@ def getBss(net_name, orgName, ap_list):
 
 
 if __name__ == '__main__':
-    getLocation1()
+    Folder1()
     getOrgs()
