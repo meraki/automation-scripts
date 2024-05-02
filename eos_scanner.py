@@ -1,7 +1,22 @@
 READ_ME = '''Scans an organization for devices that have a published EoS/EoL date and prints a list of those devices.
 
 Syntax:
-    python[3] eos_scanner.py [-k <api_key>] [-o <org_name>]
+    python[3] eos_scanner.py [-k <api key>] [-o <org name or id>] [-m <device model>] [-p screen/csv]
+    
+Parameters:
+    -k <api key>            Your dashboard API key. If omitted, the script will attempt to load one from
+                            OS environment variable MERAKI_DASHBOARD_API_KEY
+    -o <org name or id>     The NAME or the ID for your organization. If omitted, will scan all orgs
+    -m <device model>       Filter devices by model name. All devices with model name that starts with
+                            the defined string will match, case insensitive
+    -p screen/csv           Select where output will be printed. If omitted, default is "screen". Valid forms:
+                                -p screen
+                                -p csv
+                                
+All paramters are optional.
+    
+Example, print all EoS devices in org with name "My Org" to CSV:
+    python eos_scanner.py -k 1234 -o "My Org" -p csv
     
 Required python modules:
     requests
@@ -303,9 +318,11 @@ def getApiKey(argument):
 def main(argv):    
     arg_apiKey      = None
     arg_orgName     = None
+    arg_model       = None
+    arg_output      = "screen"
     
     try:
-        opts, args = getopt.getopt(argv, 'k:o:h:')
+        opts, args = getopt.getopt(argv, 'k:o:h:m:p:')
     except getopt.GetoptError:
         killScript()
         
@@ -314,12 +331,19 @@ def main(argv):
             arg_apiKey      = str(arg)
         elif opt == '-o':
             arg_orgName     = str(arg)
+        elif opt == '-m':
+            arg_model       = str(arg)
+        elif opt == '-p':
+            arg_output      = str(arg)
         elif opt == '-h':
             killScript()
             
     api_key = getApiKey(arg_apiKey)
     if api_key is None:
         killScript("No API key provided")
+        
+    if not arg_output in ['screen', 'csv']:
+        killScript('Paramater -p must be either "screen" or "csv"')
         
     eos_data = fetch_eos_data()
     if eos_data is None:
@@ -331,7 +355,7 @@ def main(argv):
         
     organizations = []
     for org in all_orgs:
-        if arg_orgName is None or org['name'] == arg_orgName:
+        if arg_orgName is None or org['name'] == arg_orgName or org['id'] == arg_orgName:
             organizations.append(org)
             
     results = []
@@ -345,7 +369,7 @@ def main(argv):
             log('Warning: Unable to fetch inventory')
             continue
         for device in inventory:
-            if device['model'] in eos_data:
+            if device['model'] in eos_data and (arg_model is None or device['model'].lower().startswith(arg_model)):
                 record = {'org': org, 'device': device, 'eos': eos_data[device['model']]}
                 
                 if 'networkId' in device and not device['networkId'] is None:
@@ -364,22 +388,39 @@ def main(argv):
             
                 results.append(record)
     
-    format_str = "%-24s %-24s %-12s%-16s%-20s %-14s%s"
+    header = ["Organization", "Network", "Model", "Serial", "Device name", "End of Sales", "End of Life"]  
     
-    print('\n\n\n---\n\n\n')
-    
-    header = ["Organization", "Network", "Model", "Serial", "Device name", "End of Sales", "End of Life"]    
-    print(format_str % tuple(header))
-    
+    if arg_output == "screen":    
+        print('\n\n\n---\n\n\n')    
+        format_str = "%-24s %-24s %-12s%-16s%-20s %-14s%s"  
+        print(format_str % tuple(header))
+    else:
+        # Print to CSV
+        timestamp       = str(datetime.datetime.now())[:19].replace(" ", "_").replace(":", ".")
+        csv_format_str  = "%s\n"
+        csv_file_name   = "eos_report_%s.csv" % timestamp
+        
+        with open(csv_file_name, "a") as csv_file:
+            csv_file.write(csv_format_str % ','.join(header))
+            
     for line in results:
-        line_items  = [ line['org']['name'][:24],
-                        line['net']['name'][:24],
+        line_items  = [ str(line['org']['name'])[:24],
+                        str(line['net']['name'])[:24],
                         line['device']['model'],
                         line['device']['serial'],
-                        line['device']['name'][:20],
+                        str(line['device']['name'])[:20],
                         line['eos'][1],
                         line['eos'][2]]
-        print(format_str % tuple(line_items))
+        if arg_output == "screen":
+            print(format_str % tuple(line_items))
+        else:
+            with open(csv_file_name, "a") as csv_file:
+                csv_file.write(csv_format_str % ','.join(line_items))                
+            
+    if arg_output == "csv":
+        print()
+        log('File "%s" written' % csv_file_name)
+        print()
         
 if __name__ == '__main__':
     main(sys.argv[1:])
