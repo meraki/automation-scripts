@@ -247,6 +247,27 @@ def getOrganizationNetworks(apiKey, organizationId, query=None):
 # --- GENERATED CODE END ---
 
 
+def produce_model_names(docs_label):
+    if docs_label.endswith(" FAMILY") or docs_label.endswith(" series"):
+        results = []
+        stripped = docs_label.replace(" FAMILY", "").replace(" series", "")
+        variant_suffixes = [
+            "8", "8P", "8LP", "8FP", "16", "24", "24P", "32", "48", "48P", "48LP", "48FP"
+        ]
+        for suffix in variant_suffixes:
+            results.append("%s-%s" % (stripped, suffix))
+        return results
+    if docs_label.endswith("-8"):
+        results = []
+        variant_suffixes = [
+            "", "P", "LP", "FP"
+        ]
+        for suffix in variant_suffixes:
+            results.append("%s%s" % (docs_label, suffix))
+        return results
+    return [docs_label.replace("-HW","")]
+
+
 def fetch_eos_data():
     # This function scans the EoS data documentation page for the product info table and extracts data.
     # If the info page changes substantially, this part may need to be recoded
@@ -262,7 +283,7 @@ def fetch_eos_data():
         eos_data = {}
         
         # Clean up invalid characters that cause issues with ET
-        table_block     = table_block.replace("&nbsp;", "")
+        table_block     = table_block.replace("&nbsp;", " ")
         table_block     = table_block.replace("&rsquo;", "'")
 
         root = ET.fromstring(table_block)
@@ -274,8 +295,11 @@ def fetch_eos_data():
                     td_has_link = False
                     for a in td:
                         td_has_link = True
-                        eos_data[a.text] = []
-                        model_names.append(a.text)
+                        temp_names = produce_model_names(a.text)
+                        for name in temp_names:
+                            if not name in eos_data:
+                                eos_data[name] = []
+                                model_names.append(name)
                     if not td_has_link:
                         for model in model_names:
                             eos_data[model].append(td.text)
