@@ -269,15 +269,16 @@ def fetch_eos_data():
 
         for tbody in root.iter("tbody"):
             for tr in tbody:
-                label = None
+                model_names = []
                 for td in tr:
                     td_has_link = False
                     for a in td:
                         td_has_link = True
-                        label = a.text
-                        eos_data[label] = []
-                    if not td_has_link and label != None:
-                        eos_data[label].append(td.text)
+                        eos_data[a.text] = []
+                        model_names.append(a.text)
+                    if not td_has_link:
+                        for model in model_names:
+                            eos_data[model].append(td.text)
                         
     except:
         return None
@@ -348,7 +349,7 @@ def main(argv):
     eos_data = fetch_eos_data()
     if eos_data is None:
         killScript("Cannot fetch EoS data")
-        
+                
     success, errors, all_orgs = getOrganizations(api_key)
     if all_orgs is None:
         killScript("Cannot fetch organizations")
