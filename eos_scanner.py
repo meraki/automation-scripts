@@ -405,13 +405,13 @@ def main(argv):
             csv_file.write(csv_format_str % ','.join(header))
             
     for line in results:
-        line_items  = [ str(line['org']['name'])[:24],
-                        str(line['net']['name'])[:24],
+        line_items  = [ str(line['org']['name']).replace(',', '')[:24],
+                        str(line['net']['name']).replace(',', '')[:24],
                         line['device']['model'],
                         line['device']['serial'],
-                        str(line['device']['name'])[:20],
-                        line['eos'][1],
-                        line['eos'][2]]
+                        str(line['device']['name']).replace(',', '')[:20],
+                        str(line['eos'][1]).replace(',', ''),
+                        str(line['eos'][2]).replace(',', '')    ]
         if arg_output == "screen":
             print(format_str % tuple(line_items))
         else:
