@@ -265,6 +265,8 @@ def produce_model_names(docs_label):
         for suffix in variant_suffixes:
             results.append("%s%s" % (docs_label, suffix))
         return results
+    if docs_label == "MV21 & MV71":
+        return ["MV21", "MV71"]
     return [docs_label.replace("-HW","")]
 
 
@@ -373,6 +375,9 @@ def main(argv):
     eos_data = fetch_eos_data()
     if eos_data is None:
         killScript("Cannot fetch EoS data")
+        
+    for label in eos_data:
+        print ("%s: %s" % (label, len(eos_data[label])))
                 
     success, errors, all_orgs = getOrganizations(api_key)
     if all_orgs is None:
