@@ -13,6 +13,10 @@ general:
     
     # If not using applyToAllOrganizations: true, edit the line below to match the name of the organization you want to lock
     organizationName: Big Industries Inc
+
+    # Set runOnce to true to run the script once and exit (suitable for use in a cron job). If set to true, scanIntervalHours
+    # will be ignored
+    runOnce: false
     scanIntervalHours: 6
     
 lockTrain:

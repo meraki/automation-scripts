@@ -57,6 +57,7 @@ API_BASE_URL                = "https://api.meraki.com/api/v1"
 
 DEFAULT_CONFIG_FILE_NAME    = "config.yaml"
 DEFAULT_INTERVAL_HOURS      = 24
+DEFAULT_RUN_ONCE            = False
 
 DEVICE_TYPE_MAPPINGS        = {
                                 "MX": "appliance",
@@ -368,6 +369,7 @@ def main(argv):
     
     flagApplyToAll      = False
     organizationName    = None
+    runOnce             = DEFAULT_RUN_ONCE
     scanIntervalHours   = DEFAULT_INTERVAL_HOURS
     enforcementRules    = {}
     
@@ -378,6 +380,8 @@ def main(argv):
             flagApplyToAll = rawConfig['general']['applyToAllOrganizations']
         if 'organizationName' in rawConfig['general']:
             organizationName = rawConfig['general']['organizationName']
+        if 'runOnce' in rawConfig['general']:
+            runOnce = rawConfig['general']['runOnce']
         if 'scanIntervalHours' in rawConfig['general']:
             scanIntervalHours = rawConfig['general']['scanIntervalHours']
         if 'lockTrain' in rawConfig:
@@ -416,8 +420,12 @@ def main(argv):
     while(True):
         log("Starting next scan...")
         performScan(apiKey, organizations, enforcementRules)
-        log("Next scan in %s hours" % scanIntervalHours)
-        time.sleep(scanIntervalHours * 3600)
+        if not runOnce:
+            log("Next scan in %s hours" % scanIntervalHours)
+            time.sleep(scanIntervalHours * 3600)
+        else:
+            print("Exiting.")
+            sys.exit()
     
 if __name__ == '__main__':
     main(sys.argv[1:])
