@@ -6,11 +6,11 @@ general:
     # Your Meraki Dashboard API key. You can find more information about API keys here:
     # https://documentation.meraki.com/General_Administration/Other_Topics/Cisco_Meraki_Dashboard_API
     apiKey: 1234
-    
+
     # Set applyToAllOrganizations to true to apply firmware lock settings to all organizations your API key can access
     # If set to true, organizationName will be ignored
     applyToAllOrganizations: false
-    
+
     # If not using applyToAllOrganizations: true, edit the line below to match the name of the organization you want to lock
     organizationName: Big Industries Inc
 
@@ -18,7 +18,7 @@ general:
     # will be ignored
     runOnce: false
     scanIntervalHours: 6
-    
+
 lockTrain:
     # Use the options below to lock a product type to a specific release train, or leave a value blank to have it unlocked.
     # Valid values:
@@ -32,7 +32,7 @@ lockTrain:
     MT:
     MV:
     MX: stable
-    
+
 lockVersion:
     # Use the options below to lock a product type to a specific release version, or leave a value blank to have it unlocked.
     # If both a lockTrain and a lockVersion configuration is applied for a product type, lockVersion takes precedence
@@ -42,4 +42,3 @@ lockVersion:
     MT:
     MV:
     MX: 15.44
-    
