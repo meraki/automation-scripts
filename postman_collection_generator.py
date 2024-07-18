@@ -58,8 +58,9 @@ DEFAULT_CONFIG_FILE_NAME    = "config.yaml"
 
 API_KEY_ENV_VAR_NAME    = "MERAKI_DASHBOARD_API_KEY"
 
-KEYWORDS = ["DHCP", "SNMP", "SM", "IdPs", "SSIDs", "SAML", "VPN", "VPP", "APNS", "MQTT", "LAN", "CDP", "LLDP",
-    "OpenAPI", "HTTP", "API", "RF", "VLAN", "STP", "QoS", "MTU", "DSCP", "CoS", "PII"]
+KEYWORDS = ["ESIMs", "ARP", "ACL", "DHCP", "SNMP", "SM", "IdPs", "SSIDs", "SAML", "VPN", "VPP", "APNS",
+    "MQTT", "LAN", "CDP", "LLDP", "OpenAPI", "HTTP", "API", "RF", "VLAN", "STP", "QoS", "MTU", "DSCP", "CoS",
+    "PII", "vMX", "SDWAN", "VLANs", "LEDs", "MAC", "MTR", "OAuth", "ASM", "ISE", "RA", "AP", "NAC"]
 
 
 def merakiRequest(p_apiKey, p_httpVerb, p_endpoint, p_additionalHeaders=None, p_queryItems=None, 
@@ -308,8 +309,9 @@ def convertPathToPostmanFormat(path, variables):
     
     
 def extractObjectFromBodyParameter(bodyParam):
-    result = {}
-    
+    result = {}    
+    if not "properties" in bodyParam:
+        return result
     properties = bodyParam["properties"]
     for item in properties:
         if properties[item]["type"] == "object":
@@ -323,6 +325,8 @@ def extractObjectFromBodyParameter(bodyParam):
     
 def extractArrayFromBodyParameter(bodyParam):
     result = []    
+    if not "items" in bodyParam:
+        return result
     item = bodyParam["items"]
     if item["type"] == "object":
         result.append(extractObjectFromBodyParameter(item))
