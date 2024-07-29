@@ -1,246 +1,97 @@
-readMe = """This is a simple script to get the license info for Meraki organizations.
+#!/usr/bin/env python3
 
-Syntax:
-  python get_license_info.py -k <api_key> [-o <org_name>]
-    
-Mandatory parameters:
-  -k <api_key>        The API key for the administrator running the script
+import meraki
+from pathlib import Path
+import json
 
-Optional parameters:
-  -o <org_name>       The name of the organization to display license info for.
-                      If omitted, all organizations accessible will be listed.
+read_me = '''
+A Python 3 script to find the license status of an Organization.
 
-Example:
-  python get_license_info.py -k 1234 -o "Example Company Inc"
-                        
-Required Python 3 modules:
-  requests
-    
-Install these modules by running:
-  pip install requests
-    
-Notes:
-  * In Windows, enclose organization names in double quotes, eg. "My Organization".
-  * Depending on your operating system, the commands may be "python3" and "pip3"
-    instead of "python" and "pip"
-"""
+Required Python modules:
+    meraki 1.48.0 or higher
 
-import sys, getopt, time, datetime
+Usage:
+get_license_info.py
 
-from urllib.parse import urlencode
-from requests import Session, utils
+If you have only one Organization, it will get the license status.
 
-class NoRebuildAuthSession(Session):
-    def rebuild_auth(self, prepared_request, response):
-        """
-        This method is intentionally empty. Needed to prevent auth header stripping on redirect. More info:
-        https://stackoverflow.com/questions/60358216/python-requests-post-request-dropping-authorization-header
-        """
+If you have multiple Organizations, it will ask you which org to run against
 
-API_MAX_RETRIES         = 3
-API_CONNECT_TIMEOUT     = 60
-API_TRANSMIT_TIMEOUT    = 60
-API_STATUS_RATE_LIMIT   = 429
+API Key
+requires you to have your API key in env vars as 'MERAKI_DASHBOARD_API_KEY'
 
-#Set to True or False to enable/disable console logging of sent API requests
-FLAG_REQUEST_VERBOSE    = True
+'''
 
-API_BASE_URL            = "https://api.meraki.com/api/v1"
+p = Path.home()
+loc = p / 'Documents' / 'Meraki License'
+
+dashboard = meraki.DashboardAPI(suppress_logging=True)
 
 
-def merakiRequest(p_apiKey, p_httpVerb, p_endpoint, p_additionalHeaders=None, p_queryItems=None, 
-        p_requestBody=None, p_verbose=False, p_retry=0):
-    #returns success, errors, responseHeaders, responseBody
-    
-    if p_retry > API_MAX_RETRIES:
-        if(p_verbose):
-            print("ERROR: Reached max retries")
-        return False, None, None, None
-
-    bearerString = "Bearer " + p_apiKey
-    headers = {"Authorization": bearerString}
-    if not p_additionalHeaders is None:
-        headers.update(p_additionalHeaders)
-        
-    query = ""
-    if not p_queryItems is None:
-        query = "?" + urlencode(p_queryItems)
-    url = API_BASE_URL + p_endpoint + query
-    
-    verb = p_httpVerb.upper()
-    
-    session = NoRebuildAuthSession()
-
-    try:
-        if(p_verbose):
-            print(verb, url)
-        if verb == "GET":
-            r = session.get(
-                url,
-                headers =   headers,
-                timeout =   (API_CONNECT_TIMEOUT, API_TRANSMIT_TIMEOUT)
-            )
-        elif verb == "PUT":
-            if not p_requestBody is None:
-                if (p_verbose):
-                    print("body", p_requestBody)
-                r = session.put(
-                    url,
-                    headers =   headers,
-                    json    =   p_requestBody,
-                    timeout =   (API_CONNECT_TIMEOUT, API_TRANSMIT_TIMEOUT)
-                )
-        elif verb == "POST":
-            if not p_requestBody is None:
-                if (p_verbose):
-                    print("body", p_requestBody)
-                r = session.post(
-                    url,
-                    headers =   headers,
-                    json    =   p_requestBody,
-                    timeout =   (API_CONNECT_TIMEOUT, API_TRANSMIT_TIMEOUT)
-                )
-        elif verb == "DELETE":
-            r = session.delete(
-                url,
-                headers =   headers,
-                timeout =   (API_CONNECT_TIMEOUT, API_TRANSMIT_TIMEOUT)
-            )
-        else:
-            return False, None, None, None
-    except:
-        return False, None, None, None
-    
-    if(p_verbose):
-        print(r.status_code)
-    
-    success         = r.status_code in range (200, 299)
-    errors          = None
-    responseHeaders = None
-    responseBody    = None
-    
-    if r.status_code == API_STATUS_RATE_LIMIT:
-        if(p_verbose):
-            print("INFO: Hit max request rate. Retrying %s after %s seconds" % (p_retry+1, r.headers["Retry-After"]))
-        time.sleep(int(r.headers["Retry-After"]))
-        success, errors, responseHeaders, responseBody = merakiRequest(p_apiKey, p_httpVerb, p_endpoint, p_additionalHeaders, 
-            p_queryItems, p_requestBody, p_verbose, p_retry+1)
-        return success, errors, responseHeaders, responseBody        
-            
-    try:
-        rjson = r.json()
-    except:
-        rjson = None
-        
-    if not rjson is None:
-        if "errors" in rjson:
-            errors = rjson["errors"]
-            if(p_verbose):
-                print(errors)
-        else:
-            responseBody = rjson  
-
-    if "Link" in r.headers:
-        parsedLinks = utils.parse_header_links(r.headers["Link"])
-        for link in parsedLinks:
-            if link["rel"] == "next":
-                if(p_verbose):
-                    print("Next page:", link["url"])
-                splitLink = link["url"].split("/api/v1")
-                success, errors, responseHeaders, nextBody = merakiRequest(p_apiKey, p_httpVerb, splitLink[1], 
-                    p_additionalHeaders=p_additionalHeaders, 
-                    p_requestBody=p_requestBody, 
-                    p_verbose=p_verbose)
-                if success:
-                    if not responseBody is None:
-                        responseBody = responseBody + nextBody
-                else:
-                    responseBody = None
-    
-    return success, errors, responseHeaders, responseBody
-    
-
-def getOrganizations(p_apiKey):
-    endpoint = "/organizations"
-    success, errors, headers, response = merakiRequest(p_apiKey, "GET", endpoint, p_verbose=FLAG_REQUEST_VERBOSE)    
-    return success, errors, headers, response
+def base_folder():
+    '''
+    Check if the root folder exists and create it if not
+    '''
+    if not Path.is_dir(loc):
+        Path.mkdir(loc)
 
 
-def getLicenses(p_apiKey, p_organizationId):
-    endpoint = "/organizations/%s/licenses/overview" % p_organizationId
-    success, errors, headers, response = merakiRequest(p_apiKey, "GET", endpoint, p_verbose=FLAG_REQUEST_VERBOSE)    
-    return success, errors, headers, response
-    
-    
-def findOrganizationIdForName(p_organizationList, p_organizationName):
-    if not p_organizationList is None:
-        for org in p_organizationList:
-            if org["name"] == p_organizationName:
-                return org["id"]
-    return None
-        
+def get_orgs():
+    '''
+    get a list of organizations the user has access to and return that dict
+    '''
+    orgs = dashboard.organizations.getOrganizations()
+    org_dict = {}
+    for i in orgs:
+        org_dict[i['id']] = i['name']
+    return org_dict
 
-def killScript(p_printHelp=True):
-    if(p_printHelp):
-        print(readMe)
-    sys.exit(2)
-    
 
-def main(argv):
-    arg_apiKey  = None
-    arg_orgName = None
-    
-    try:
-        opts, args = getopt.getopt(argv, 'k:o:')
-    except getopt.GetoptError:
-        sys.exit(2)
-        
-    for opt, arg in opts:
-        if opt == '-k':
-            arg_apiKey = arg
-        if opt == '-o':
-            arg_orgName = arg
-            
-    if arg_apiKey is None:
-        killScript()
-    
-    organizationList = []
-    
-    success, errors, headers, orgs = getOrganizations(arg_apiKey)
-    
-    if not arg_orgName is None:
-        orgId = findOrganizationIdForName(orgs, arg_orgName)
-        if not orgId is None:
-            orgItem = {
-                "id"    : orgId,
-                "name"  :arg_orgName
-            }
-            organizationList.append(orgItem)
-        else:
-            print("ERROR: Organization name cannot be found")
-            killScript(False)
+def find_org(org_dict):
+    '''
+    If only one organizaiton exists, use that org_id
+    '''
+    if len(org_dict) == 1:
+        org_id = org_dict[0]['id']
+        org_name = org_dict[0]['name']
     else:
-        organizationList = orgs
-        
-    for org in organizationList:
-        print('\n---\n')
-        success, errors, headers, licenses = getLicenses(arg_apiKey, org["id"])
-        if not licenses is None:        
-            print('\n---\n\nLicense info for organization "%s" (ID: %s)\n' % (org["name"], org["id"]))
-        
-            if "status" in licenses:
-                print("%-20s%s" % ("Status:", licenses["status"]))
-                
-            if "expirationDate" in licenses:
-                print("%-20s%s" % ("Expiration date:", licenses["expirationDate"]))
-                
-            if "licensedDeviceCounts" in licenses:
-                print("\nLicensed device counts:")
-                for deviceType in licenses["licensedDeviceCounts"]:
-                    print("%-20s%s" % (deviceType, licenses["licensedDeviceCounts"][deviceType]))
-        else:
-            print('ERROR: Unable to fetch license info for organization "%s"' % org["name"])
-        
+        '''
+        If there are multiple organizations, ask the use which one to use
+        then store that information to be used
+        '''
+        org_id = input(
+            f"Please type the number of the Organization you want to find "
+            f"the bssid in{json.dumps(org_dict, indent=4)}" "\n")
+        org_name = org_dict.get(org_id)
+    return org_id, org_name
+
+
+def get_license(org_id):
+    lic_info = dashboard.organizations.getOrganizationLicensesOverview(org_id)
+    return lic_info
+
+
+def file_writer(lic_info, org_name):
+    print(f'writing License Information to file')
+    file = f'{loc}/{org_name}.csv'
+    status = lic_info['status']
+    expiration = lic_info['expirationDate'].replace(',', '')
+    with open(file, mode='w') as f:
+        f.write(f"Status, Expiration Date" + "\n")
+        f.write(f"{status}, {expiration}" + "\n" + "\n")
+        f.write(f"Licensed Devices" + "\n")
+        for k, v in lic_info['licensedDeviceCounts'].items():
+            f.write(f"{k}, {v}" + "\n")
+        print(f'Your file {org_name}.csv has been created in {loc}')
+
+
+def main():
+    base_folder()
+    org_dict = get_orgs()
+    org_id, org_name = find_org(org_dict)
+    lic_info = get_license(org_id)
+    file_writer(lic_info, org_name)
+
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main()
