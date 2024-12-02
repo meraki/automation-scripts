@@ -20,10 +20,8 @@ Required python modules:
 
 import requests
 import sys, getopt, os, datetime
-import xml.etree.ElementTree as ET
 
 API_KEY_ENV_VAR_NAME    = "MERAKI_DASHBOARD_API_KEY"
-EOS_DOCS_URL            = "https://documentation.meraki.com/General_Administration/Other_Topics/Meraki_End-of-Life_(EOL)_Products_and_Dates"
 
 
 # --- GENERATED CODE START ---
