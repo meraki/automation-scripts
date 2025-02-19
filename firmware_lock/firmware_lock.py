@@ -4,8 +4,8 @@ delaying any that do not meet the desired criteria by a week if there is less th
 the update is scheduled to happen. This pushes unwanted firmware upgrades forward in time indefinitely.
 
 This script requires a configuration file to run. By default, it will try to open file "config.yaml",
-located in the same folder as the script itself. Edit this configuration file to match your environment
-before running this script.
+located in the same folder as the script itself. Copy "config.yaml.example" to "config.yaml", and edit this 
+configuration file to match your environment before running this script.
 
 Script syntax, Windows:
     python firmware_lock.py [-c <config_file_name>]
