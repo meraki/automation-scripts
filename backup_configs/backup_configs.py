@@ -589,9 +589,9 @@ async def backup_ble_settings(dashboard, networks, devices):
 
 async def main_async(api_key, operations, endpoints, tag, template_only=False, template_name=None):
     global DEVICES, NETWORKS, TEMPLATES
-    async with meraki.aio.AsyncDashboardAPI(api_key, maximum_concurrent_requests=1, maximum_retries=5,
-                                           single_request_timeout=120, wait_on_rate_limit=True,
-                                           print_console=True, suppress_logging=False) as dashboard:
+    async with meraki.aio.AsyncDashboardAPI(api_key, maximum_retries=5,
+                                           single_request_timeout=60, wait_on_rate_limit=True,
+                                           print_console=False, suppress_logging=True) as dashboard:
         if template_only:
             # Process templates only
             await backup_basic_org(dashboard, endpoints)
