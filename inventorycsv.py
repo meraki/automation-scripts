@@ -440,7 +440,7 @@ def main(argv):
                         if device[key] is None:
                             strDevice[key] = ""
                         elif isinstance(device[key], list):
-                            strDevice[key] = " ".join(device[key])
+                            strDevice[key] = " ".join(str(i) for i in device[key])
                         else:
                             strDevice[key] = str(device[key])
                   
